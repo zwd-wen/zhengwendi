@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12-1 CSS 变量 | 525 郑雯迪</title>
+    <style>
+        /* ============================================
+           第一步：在 :root 中定义 CSS 变量（自定义属性）
+           变量名以 -- 开头，通过 var() 引用
+           ============================================ */
+        :root {
+            /* 颜色变量 */
+            --zheng-ink: #17212b;
+            --zheng-muted: #65727d;
+            --zheng-paper: #f5f1e8;
+            --zheng-card: #fffdf8;
+            --zheng-line: #dcd5c8;
+            --zheng-coral: #d95d46;
+            --zheng-blue: #245b72;
+            --zheng-yellow: #f2c05c;
+            /* 尺寸与效果变量 */
+            --zheng-radius: 12px;
+            --zheng-gap: 18px;
+            --zheng-title-size: clamp(30px, 5vw, 54px);
+            --zheng-accent: var(--zheng-coral);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            /* 第二步：用 var() 引用变量，统一控制页面配色 */
+            color: var(--zheng-ink);
+            background: var(--zheng-paper);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+
+        h1, h2, h3, p { margin-top: 0; }
+
+        a { color: inherit; }
+
+        .zheng-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 24px 28px;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .zheng-mark {
+            color: var(--zheng-accent);
+            font-weight: 800;
+        }
+
+        .zheng-topbar span:last-child { color: var(--zheng-muted); }
+
+        /* Hero 区：标题字号由变量 --zheng-title-size 控制 */
+        .zheng-hero {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 64px clamp(28px, 7vw, 90px) 58px;
+            background: var(--zheng-blue);
+            color: #fffdf8;
+        }
+
+        .zheng-hero-copy { max-width: 680px; }
+
+        .zheng-eyebrow {
+            margin: 0 0 16px;
+            color: var(--zheng-yellow);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        .zheng-hero h1 {
+            margin-bottom: 18px;
+            font-family: Georgia, "Songti SC", serif;
+            /* 引用流式排版变量 */
+            font-size: var(--zheng-title-size);
+            line-height: 1.12;
+        }
+
+        .zheng-hero-intro {
+            max-width: 540px;
+            margin-bottom: 26px;
+            color: #dce9ea;
+            font-size: 16px;
+        }
+
+        .zheng-hero-label {
+            display: inline-block;
+            padding: 7px 14px;
+            border: 1px solid rgba(255, 255, 255, .45);
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        main {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 60px 28px 80px;
+        }
+
+        .zheng-section-title {
+            margin-bottom: 8px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 30px;
+        }
+
+        .zheng-section-desc {
+            margin-bottom: 26px;
+            color: var(--zheng-muted);
+            font-size: 15px;
+        }
+
+        /* 变量定义展示区 */
+        .zheng-var-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            /* 间距也由变量控制 */
+            gap: var(--zheng-gap);
+            margin-bottom: 26px;
+        }
+
+        .zheng-var-card {
+            padding: 20px;
+            border: 1px solid var(--zheng-line);
+            border-radius: var(--zheng-radius);
+            background: var(--zheng-card);
+        }
+
+        .zheng-swatch {
+            height: 64px;
+            margin-bottom: 14px;
+            border-radius: 8px;
+            /* 色块颜色直接取自 CSS 变量 */
+            background: var(--zheng-color);
+        }
+
+        .zheng-var-name {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            font-weight: 700;
+            word-break: break-all;
+        }
+
+        .zheng-var-value {
+            margin-top: 4px;
+            color: var(--zheng-muted);
+            font-family: Consolas, monospace;
+            font-size: 12px;
+        }
+
+        /* 代码示例区 */
+        .zheng-code {
+            margin-bottom: 40px;
+            padding: 22px 26px;
+            border-radius: var(--zheng-radius);
+            background: var(--zheng-ink);
+            color: #e8ddc8;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13.5px;
+            line-height: 1.9;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .zheng-code .zheng-code-key { color: var(--zheng-yellow); }
+        .zheng-code .zheng-code-var { color: #8fd0c6; }
+
+        /* 交互演示区：通过 JS 改变量值，实时预览 */
+        .zheng-demo-title {
+            margin-bottom: 8px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 30px;
+        }
+
+        .zheng-demo-desc {
+            margin-bottom: 22px;
+            color: var(--zheng-muted);
+            font-size: 15px;
+        }
+
+        .zheng-demo-panel {
+            padding: 30px;
+            border: 1px solid var(--zheng-line);
+            border-radius: var(--zheng-radius);
+            background: var(--zheng-card);
+        }
+
+        .zheng-btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+
+        .zheng-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--zheng-line);
+            border-radius: var(--zheng-radius);
+            background: var(--zheng-paper);
+            color: var(--zheng-ink);
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        .zheng-btn:hover {
+            border-color: var(--zheng-accent);
+            box-shadow: 4px 4px 0 var(--zheng-yellow);
+            transform: translate(-2px, -2px);
+        }
+
+        .zheng-btn:focus-visible {
+            outline: 2px solid var(--zheng-accent);
+            outline-offset: 2px;
+        }
+
+        .zheng-btn.zheng-btn-active {
+            background: var(--zheng-accent);
+            border-color: var(--zheng-accent);
+            color: #fff;
+        }
+
+        .zheng-demo-stage {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--zheng-gap);
+        }
+
+        .zheng-demo-card {
+            padding: 24px;
+            border-radius: var(--zheng-radius);
+            background: var(--zheng-paper);
+            text-align: center;
+            /* 强调色全部跟随 --zheng-accent 变量变化 */
+            border-top: 5px solid var(--zheng-accent);
+        }
+
+        .zheng-demo-card .zheng-demo-icon {
+            display: inline-flex;
+            width: 54px;
+            height: 54px;
+            margin-bottom: 14px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--zheng-accent);
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .zheng-demo-card h3 { margin-bottom: 6px; font-size: 17px; }
+
+        .zheng-demo-card p {
+            margin: 0;
+            color: var(--zheng-muted);
+            font-size: 13.5px;
+        }
+
+        footer {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 28px 28px;
+            color: var(--zheng-muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 900px) {
+            .zheng-var-grid { grid-template-columns: repeat(2, 1fr); }
+            .zheng-demo-stage { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 560px) {
+            .zheng-topbar { padding: 18px 20px; }
+            .zheng-hero { padding: 48px 24px 44px; }
+            main { padding: 44px 20px 60px; }
+            .zheng-var-grid { grid-template-columns: 1fr; }
+            .zheng-demo-panel { padding: 22px 18px; }
+            footer { padding: 0 20px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="zheng-topbar">
+        <span class="zheng-mark">525 / ZHENG WENDI</span>
+        <span>CSS VARIABLES · 自定义属性</span>
+    </header>
+
+    <section class="zheng-hero" aria-labelledby="zheng-page-title">
+        <div class="zheng-hero-copy">
+            <p class="zheng-eyebrow">CUSTOM PROPERTIES</p>
+            <h1 id="zheng-page-title">CSS 变量</h1>
+            <p class="zheng-hero-intro">在 :root 中集中定义颜色、尺寸与效果，再通过 var() 全局引用，一处修改、处处生效。</p>
+            <span class="zheng-hero-label">郑雯迪 · 计算机24005 · 525</span>
+        </div>
+    </section>
+
+    <main>
+        <section aria-labelledby="zheng-def-title">
+            <h2 class="zheng-section-title" id="zheng-def-title">第一步 · 定义变量</h2>
+            <p class="zheng-section-desc">以下色块全部由 :root 中的 CSS 变量渲染。</p>
+
+            <div class="zheng-var-grid" aria-label="CSS 变量色板">
+                <div class="zheng-var-card">
+                    <div class="zheng-swatch" style="--zheng-color: var(--zheng-coral);"></div>
+                    <div class="zheng-var-name">--zheng-coral</div>
+                    <div class="zheng-var-value">#d95d46 · 珊瑚红</div>
+                </div>
+                <div class="zheng-var-card">
+                    <div class="zheng-swatch" style="--zheng-color: var(--zheng-blue);"></div>
+                    <div class="zheng-var-name">--zheng-blue</div>
+                    <div class="zheng-var-value">#245b72 · 深蓝</div>
+                </div>
+                <div class="zheng-var-card">
+                    <div class="zheng-swatch" style="--zheng-color: var(--zheng-yellow);"></div>
+                    <div class="zheng-var-name">--zheng-yellow</div>
+                    <div class="zheng-var-value">#f2c05c · 暖黄</div>
+                </div>
+                <div class="zheng-var-card">
+                    <div class="zheng-swatch" style="--zheng-color: var(--zheng-ink);"></div>
+                    <div class="zheng-var-name">--zheng-ink</div>
+                    <div class="zheng-var-value">#17212b · 墨色</div>
+                </div>
+            </div>
+
+            <div class="zheng-code" aria-label="变量定义代码示例"><span class="zheng-code-key">:root</span> {
+  <span class="zheng-code-key">--zheng-coral:</span> #d95d46;
+  <span class="zheng-code-key">--zheng-blue:</span> #245b72;
+  <span class="zheng-code-key">--zheng-radius:</span> 12px;
+}
+
+.zheng-card {
+  <span class="zheng-code-key">color:</span> <span class="zheng-code-var">var(--zheng-ink)</span>;
+  <span class="zheng-code-key">border-radius:</span> <span class="zheng-code-var">var(--zheng-radius)</span>;
+}</div>
+        </section>
+
+        <section aria-labelledby="zheng-demo-title" style="margin-top: 56px;">
+            <h2 class="zheng-demo-title" id="zheng-demo-title">第二步 · 引用变量</h2>
+            <p class="zheng-demo-desc">点击按钮，用 JS 修改 :root 中的 --zheng-accent 变量，观察下方组件实时更新。</p>
+
+            <div class="zheng-demo-panel">
+                <div class="zheng-btn-row" role="group" aria-label="切换主题色">
+                    <button class="zheng-btn zheng-btn-active" type="button" data-zheng-color="#d95d46">珊瑚红</button>
+                    <button class="zheng-btn" type="button" data-zheng-color="#245b72">深蓝</button>
+                    <button class="zheng-btn" type="button" data-zheng-color="#b8791f">琥珀</button>
+                    <button class="zheng-btn" type="button" data-zheng-color="#4a7a52">松绿</button>
+                </div>
+
+                <div class="zheng-demo-stage">
+                    <div class="zheng-demo-card">
+                        <span class="zheng-demo-icon">变</span>
+                        <h3>一处定义</h3>
+                        <p>变量集中在 :root 中声明，语义清晰。</p>
+                    </div>
+                    <div class="zheng-demo-card">
+                        <span class="zheng-demo-icon">引</span>
+                        <h3>全局引用</h3>
+                        <p>任意元素通过 var(--zheng-*) 使用变量。</p>
+                    </div>
+                    <div class="zheng-demo-card">
+                        <span class="zheng-demo-icon">改</span>
+                        <h3>动态生效</h3>
+                        <p>JS 改变量值后，所有引用处同步更新。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>© 525 郑雯迪 · 《高级网页设计》课堂实践</footer>
+
+    <script>
+        // JS 变量名以 zheng_ 开头，遵循项目命名规范
+        var zhengRootEl = document.documentElement;
+        var zhengColorBtns = document.querySelectorAll('.zheng-btn');
+
+        // 为每个按钮绑定点击事件：修改 CSS 变量并更新按钮状态
+        zhengColorBtns.forEach(function (zhengBtn) {
+            zhengBtn.addEventListener('click', function () {
+                zhengRootEl.style.setProperty('--zheng-accent', zhengBtn.dataset.zhengColor);
+                zhengColorBtns.forEach(function (zhengItem) {
+                    zhengItem.classList.toggle('zheng-btn-active', zhengItem === zhengBtn);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
