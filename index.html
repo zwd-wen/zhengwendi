@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>525 郑雯迪 | 高级网页设计课堂实践</title>
+    <style>
+        :root {
+            --ink: #17212b;
+            --muted: #65727d;
+            --paper: #f5f1e8;
+            --card: #fffdf8;
+            --line: #dcd5c8;
+            --coral: #d95d46;
+            --blue: #245b72;
+            --yellow: #f2c05c;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+
+        a { color: inherit; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 24px 28px;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .mark {
+            color: var(--coral);
+            font-weight: 800;
+        }
+
+        .topbar span:last-child { color: var(--muted); }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            max-width: 1180px;
+            min-height: 410px;
+            margin: 0 auto;
+            padding: 76px clamp(28px, 7vw, 90px) 70px;
+            background: var(--blue);
+            color: #fffdf8;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 310px;
+            height: 310px;
+            right: -70px;
+            bottom: -130px;
+            border: 54px solid var(--yellow);
+            border-radius: 50%;
+            opacity: .92;
+        }
+
+        .hero-copy { position: relative; z-index: 1; max-width: 650px; }
+
+        .eyebrow {
+            margin: 0 0 18px;
+            color: var(--yellow);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        h1, h2, h3, p { margin-top: 0; }
+
+        h1 {
+            max-width: 620px;
+            margin-bottom: 20px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(40px, 6vw, 76px);
+            line-height: 1.08;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .hero-intro {
+            max-width: 520px;
+            margin-bottom: 30px;
+            color: #dce9ea;
+            font-size: 17px;
+        }
+
+        .hero-label {
+            display: inline-block;
+            padding: 7px 14px;
+            border: 1px solid rgba(255,255,255,.45);
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        main {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 72px 28px 90px;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        h2 {
+            margin-bottom: 6px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 34px;
+            line-height: 1.2;
+        }
+
+        .section-heading p { margin-bottom: 0; color: var(--muted); }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .course-card {
+            display: flex;
+            min-height: 248px;
+            flex-direction: column;
+            padding: 25px;
+            border: 1px solid var(--line);
+            background: var(--card);
+            text-decoration: none;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        .course-card:hover, .course-card:focus-visible {
+            border-color: var(--coral);
+            box-shadow: 7px 7px 0 var(--yellow);
+            transform: translate(-3px, -3px);
+            outline: none;
+        }
+
+        .number {
+            color: var(--coral);
+            font-family: Georgia, serif;
+            font-size: 27px;
+            font-weight: bold;
+        }
+
+        .course-card h3 { margin: 18px 0 8px; font-size: 20px; }
+        .course-card p { margin-bottom: 20px; color: var(--muted); font-size: 14px; }
+
+        .visit {
+            margin-top: auto;
+            color: var(--blue);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .brief {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 36px;
+            margin-top: 78px;
+            padding: 34px 0;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .brief h2 { font-size: 28px; }
+        .brief p { margin-bottom: 0; color: var(--muted); }
+        .prompt { color: var(--ink) !important; font-weight: 600; }
+
+        footer {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 28px 28px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 760px) {
+            .topbar { padding: 18px 20px; }
+            .hero { min-height: 430px; padding: 64px 24px 60px; }
+            main { padding: 52px 20px 70px; }
+            .section-heading, .brief { display: block; }
+            .section-heading p { margin-top: 12px; }
+            .course-grid { grid-template-columns: 1fr; }
+            .brief { margin-top: 58px; }
+            .brief h2 { margin-bottom: 16px; }
+            footer { padding: 0 20px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <span class="mark">525 / ZHENG WENDI</span>
+        <span>HTML · CSS · PRACTICE</span>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+            <p class="eyebrow">ADVANCED WEB DESIGN</p>
+            <h1 id="page-title">课堂实践<br>作品集</h1>
+            <p class="hero-intro">把每一次标签、链接、表单与样式练习，整理成一份可以浏览的学习记录。</p>
+            <span class="hero-label">525 郑雯迪 · 计算机24005</span>
+        </div>
+    </section>
+
+    <main>
+        <section aria-labelledby="works-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="works-title">练习目录</h2>
+                    <p>按课堂练习顺序浏览本目录中的网页。</p>
+                </div>
+                <p>16 PAGES</p>
+            </div>
+
+            <div class="course-grid">
+                <a class="course-card" href="index.html">
+                    <span class="number">00</span>
+                    <h3>作品集首页</h3>
+                    <p>当前页面：525 郑雯迪的《高级网页设计》课堂实践目录。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="1.html">
+                    <span class="number">01</span>
+                    <h3>HTML 元素入门</h3>
+                    <p>认识开始标签、内容与结束标签，练习基础结构和语义。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="2.1.html">
+                    <span class="number">02</span>
+                    <h3>内容与元素</h3>
+                    <p>通过诗歌、列表和盒子，观察块级元素与行内元素。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="2.2.html">
+                    <span class="number">03</span>
+                    <h3>超链接与图片</h3>
+                    <p>练习本地相对路径、外部链接、图片链接与数据表格。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="3-1%20form.html">
+                    <span class="number">04</span>
+                    <h3>表单 form</h3>
+                    <p>体验输入框、单选、多选、下拉菜单、文本域与按钮。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="3-2%20css.html">
+                    <span class="number">05</span>
+                    <h3>CSS 选择器</h3>
+                    <p>使用标签、ID 和 class 选择器，让内容拥有清晰样式。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="4-1%20css2.html">
+                    <span class="number">06</span>
+                    <h3>CSS 选择器进阶</h3>
+                    <p>实践群组选择器、后代选择器、字体、间距和文字效果。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="5-1%20%E5%B1%82%E5%8F%A0%E4%B8%8E%E7%BB%A7%E6%89%BF.html">
+                    <span class="number">07</span>
+                    <h3>层叠与继承</h3>
+                    <p>观察标签、类和 ID 选择器的优先级，以及 CSS 样式的层叠效果。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="5-2%20%E7%9B%92%E6%A8%A1%E5%9E%8B.html">
+                    <span class="number">08</span>
+                    <h3>CSS 盒模型</h3>
+                    <p>通过边框、内边距和外边距，理解盒子的尺寸与空间关系。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="6-1%20flex.html">
+                    <span class="number">09</span>
+                    <h3>Flex 布局</h3>
+                    <p>练习弹性容器中的对齐、排列、换行与空间分配。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="6-2%E4%B8%80%E5%B7%A6%E4%B8%80%E5%8F%B3.html">
+                    <span class="number">10</span>
+                    <h3>一左一右布局</h3>
+                    <p>使用 Flex 和定位，让标题与“更多”链接左右分布。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="8-1css3%E9%80%89%E6%8B%A9%E5%99%A8.html">
+                    <span class="number">11</span>
+                    <h3>CSS3 选择器与效果</h3>
+                    <p>通过结构选择器和 hover 状态，体验圆角、阴影与变形效果。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="9-1transtion.html">
+                    <span class="number">12</span>
+                    <h3>CSS 过渡动画</h3>
+                    <p>为图片和文字添加过渡效果，呈现平滑的悬停交互。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="11-1.html">
+                    <span class="number">13</span>
+                    <h3>Web 前端长度单位</h3>
+                    <p>认识 px、em、rem、%、vw、vh 等长度单位，理解绝对与相对单位。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+                <a class="course-card" href="11-3.html">
+                    <span class="number">14</span>
+                    <h3>CSS3 3D 动画</h3>
+                    <p>使用 perspective、transform-style 和 @keyframes 创建三维旋转与翻转效果。</p>
+                    <span class="visit">打开网页 →</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="brief" aria-labelledby="prompt-title">
+            <div>
+                <h2 id="prompt-title">本次任务</h2>
+                <p>页面记录 / CLASSROOM BRIEF</p>
+            </div>
+            <p class="prompt">“创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为525郑雯迪的《高级网页设计》课堂实践，美化页面，页面中包括本提示词。”</p>
+        </section>
+    </main>
+
+    <footer>© 525 郑雯迪 · 《高级网页设计》课堂实践</footer>
+</body>
+</html>

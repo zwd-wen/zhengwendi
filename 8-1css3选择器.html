@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>css3</title>
+    <style>
+        .main{
+            display: flex;
+            flex-wrap: wrap;
+            margin: 10px;
+        }
+        .box{
+            width: 150px;
+            height: 150px;
+            border: 1px solid #ccc;
+            margin: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            transition: all 0.6s;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .box:first-child{
+            background-color: red;
+            color: white;
+            font-size:140px;
+        }
+        .box:nth-child(2):hover{
+            border-radius: 50%;
+            border-width:10px;
+        }
+        .box:nth-child(3):hover{
+            box-shadow: 10px 10px 10px #ccc;
+        }
+        .box:nth-child(4):hover{
+            text-shadow: 10px 10px 10px #ccc;
+        }
+        .box:nth-child(5):hover{
+            background: linear-gradient(#000,#ccc,#fff);
+        }
+        .box:nth-of-type(6):hover{
+            background: radial-gradient(#fff,#ccc,#000);
+        }
+        .box:nth-of-type(7):hover{
+            transform:scale(0.5);
+        }
+        .box:nth-child(8):hover{
+            transform:translatex(-150px);
+        }
+        .box:nth-child(9):hover{
+            transform:rotate(-180deg);
+        }
+        .box:nth-child(10):hover{
+            transform:skewX(20deg) translateY(50px);
+        }
+        .box:nth-last-child(2):hover::before{
+            content: "*";
+            color: red;
+        }
+
+        /* 扩展1：第12个盒子，数字12和名字同一行，名字在数字右侧 */
+        .box:nth-child(12):hover::after{
+            content: "郑雯迪";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            /* 往右偏移，垂直居中 */
+            transform: translate(35px,-50%);
+            background-color: #222;
+            color: #fff;
+            padding: 3px 8px;
+            font-size: 16px;
+            border-radius:4px;
+        }
+
+        .box:nth-child(3n):hover{
+            border: 3px solid red;
+        }
+
+        /* 扩展2 偶数盒子效果 */
+        .box:nth-child(even):hover{
+            background-color: #4285f4;
+            color: #fff;
+            transform: scale(1.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="box">1</div>
+        <div class="box">2</div>
+        <div class="box">3</div>
+        <div class="box">4</div>
+        <div class="box">5</div>
+        <div class="box">6</div>
+        <div class="box">7</div>
+        <div class="box">8</div>
+        <div class="box">9</div>
+        <div class="box">10</div>
+        <div class="box">11</div>
+        <div class="box">12</div>
+    </div>
+</body>
+</html>

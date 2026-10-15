@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex布局演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            text-align: center;
+            margin:30px 0;
+        }
+        .flex-box-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .flex-box-wrap li {
+            width:20%;
+            height:300px;
+            border:1px solid #333;
+            list-style: none;
+            display:flex;
+            gap:8px;
+            padding:10px;
+            box-sizing: border-box;
+        }
+        .box {
+            width:70px;
+            height:70px;
+            background-color:#f2f3f4;
+            border:1px solid #aaa;
+        }
+
+        /* 第1个li：单个盒子，完全居中 */
+        .flex-box-wrap li:nth-child(1) {
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 第2个li：两个盒子上下竖排 */
+        .flex-box-wrap li:nth-child(2) {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 第3个li：四个盒子2*2，换行 */
+        .flex-box-wrap li:nth-child(3) {
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: center;
+        }
+        .flex-box-wrap li:nth-child(3) .box {
+            width:45%;
+        }
+
+        /* 第4个li：上面通栏，下面两个并排 */
+        .flex-box-wrap li:nth-child(4) {
+            flex-direction: column;
+        }
+        .top-item {
+            width:100%;
+            height:70px;
+            background:#f2f3f4;
+            border:1px solid #aaa;
+        }
+        .bottom-row {
+            display:flex;
+            gap:8px;
+        }
+        .bottom-item {
+            flex:1;
+            height:70px;
+            background:#f2f3f4;
+            border:1px solid #aaa;
+        }
+    </style>
+</head>
+<body>
+    <h2>Flex布局演示</h2>
+    <ul class="flex-box-wrap">
+        <!-- 1号：居中单个方块 -->
+        <li>
+            <div class="box"></div>
+        </li>
+        <!-- 2号：上下两个方块 -->
+        <li>
+            <div class="box"></div>
+            <div class="box"></div>
+        </li>
+        <!-- 3号：2行2列四个方块 -->
+        <li>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+        </li>
+        <!--4号：上面通栏，底下两个并排 -->
+        <li>
+            <div class="top-item"></div>
+            <div class="bottom-row">
+                <div class="bottom-item"></div>
+                <div class="bottom-item"></div>
+            </div>
+        </li>
+    </ul>
+</body>
+</html>

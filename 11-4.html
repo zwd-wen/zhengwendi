@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11-4 CSS 渐变效果 | 高级网页设计</title>
+    <style>
+        :root {
+            --ink: #17212b;
+            --muted: #65727d;
+            --paper: #f5f1e8;
+            --card: #fffdf8;
+            --line: #dcd5c8;
+            --coral: #d95d46;
+            --blue: #245b72;
+            --yellow: #f2c05c;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+
+        a { color: inherit; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 24px 28px;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .zheng_mark {
+            color: var(--coral);
+            font-weight: 800;
+        }
+
+        header span:last-child { color: var(--muted); }
+
+        .zheng_hero {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 60px clamp(28px, 7vw, 90px) 56px;
+            background: linear-gradient(135deg, var(--blue), #3a7a9c);
+            color: #fffdf8;
+        }
+
+        .zheng_eyebrow {
+            margin: 0 0 14px;
+            color: var(--yellow);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        h1, h2, h3, p { margin-top: 0; }
+
+        .zheng_hero h1 {
+            max-width: 620px;
+            margin-bottom: 16px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(36px, 5vw, 60px);
+            line-height: 1.12;
+        }
+
+        .zheng_hero-intro {
+            max-width: 540px;
+            margin-bottom: 24px;
+            color: #dce9ea;
+            font-size: 17px;
+        }
+
+        .zheng_back {
+            display: inline-block;
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,.45);
+            color: #fff;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: background .2s ease;
+        }
+
+        .zheng_back:hover { background: rgba(255,255,255,.12); }
+
+        main {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 64px 28px 80px;
+        }
+
+        .zheng_section-heading {
+            margin-bottom: 28px;
+        }
+
+        h2 {
+            margin-bottom: 6px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 30px;
+        }
+
+        .zheng_section-heading p { margin-bottom: 0; color: var(--muted); }
+
+        .zheng_gradient-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 64px;
+        }
+
+        .zheng_gradient-card {
+            border: 1px solid var(--line);
+            background: var(--card);
+            overflow: hidden;
+        }
+
+        .zheng_gradient-preview {
+            height: 160px;
+            margin-bottom: 18px;
+        }
+
+        .zheng_gradient-card h3 {
+            margin: 0 22px 8px;
+            font-size: 18px;
+        }
+
+        .zheng_gradient-card p {
+            margin: 0 22px 18px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .zheng_linear-1 { background: linear-gradient(135deg, #d95d46, #f2c05c); }
+        .zheng_linear-2 { background: linear-gradient(90deg, #245b72, #3a7a9c, #5ba3c0); }
+        .zheng_linear-3 { background: linear-gradient(45deg, #d95d46 0%, #f2c05c 50%, #245b72 100%); }
+
+        .zheng_radial-1 { background: radial-gradient(circle, #f2c05c, #d95d46); }
+        .zheng_radial-2 { background: radial-gradient(ellipse at top, #245b72, #17212b); }
+        .zheng_radial-3 { background: radial-gradient(circle at 30% 30%, #fffdf8, #d95d46); }
+
+        .zheng_conic-1 { background: conic-gradient(from 0deg, #d95d46, #f2c05c, #245b72, #d95d46); }
+        .zheng_conic-2 { background: conic-gradient(#d95d46 0% 25%, #f2c05c 25% 50%, #245b72 50% 75%, #3a7a5c 75% 100%); }
+        .zheng_conic-3 { background: conic-gradient(from 45deg, #245b72, #3a7a9c, #245b72); }
+
+        .zheng_code-block {
+            margin: 0 22px 22px;
+            padding: 12px;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre;
+            color: var(--ink);
+        }
+
+        .zheng_table-wrap {
+            overflow-x: auto;
+            margin-bottom: 64px;
+            border: 1px solid var(--line);
+            background: var(--card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+        }
+
+        th {
+            background: var(--paper);
+            font-weight: 700;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        code {
+            padding: 3px 8px;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+        }
+
+        footer {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 28px 28px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 760px) {
+            header { padding: 18px 20px; }
+            .zheng_hero { padding: 48px 24px 44px; }
+            main { padding: 48px 20px 60px; }
+            .zheng_gradient-grid { grid-template-columns: 1fr; }
+            footer { padding: 0 20px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <span class="zheng_mark">525 / ZHENG WENDI</span>
+        <span>CSS3 · GRADIENT</span>
+    </header>
+
+    <section class="zheng_hero">
+        <p class="zheng_eyebrow">CSS GRADIENT</p>
+        <h1>CSS 渐变效果</h1>
+        <p class="zheng_hero-intro">探索线性渐变、径向渐变与锥形渐变的视觉效果与实现方式。</p>
+        <a class="zheng_back" href="index.html">返回目录</a>
+    </section>
+
+    <main>
+        <section class="zheng_section-heading">
+            <h2>渐变示例</h2>
+            <p>九种不同风格的 CSS 渐变效果。</p>
+        </section>
+
+        <div class="zheng_gradient-grid">
+            <div class="zheng_gradient-card">
+                <div class="zheng_gradient-preview zheng_linear-1"></div>
+                <h3>线性渐变 135°</h3>
+                <p>珊瑚红到暖黄的对角线渐变</p>
+                <div class="zheng_code-block">linear-gradient(135deg, #d95d46, #f2c05c)</div>
+            </div>
+
+            <div class="zheng_gradient-card">
+                <div class="zheng_gradient-preview zheng_linear-2"></div>
+                <h3>三色线性渐变</h3>
+                <p>水平方向的三色过渡</p>
+                <div class="zheng_code-block">linear-gradient(90deg, #245b72, #3a7a9c, #5ba3c0)</div>
+            </div>
+
+            <div class="zheng_gradient-card">
+                <div class="zheng_gradient-preview zheng_linear-3"></div>
+                <h3>三色对角渐变</h3>
+                <p>45° 方向的三色线性渐变</p>
+                <div class="zheng_code-block">linear-gradient(45deg, #d95d46 0%, #f2c05c 50%, #245b72 100%)</div>
+            </div>
+
+            <div class="zheng_gradient-card">
+                <div class="zheng_gradient-preview zheng_radial-1"></div>
+                <h3>径向渐变（圆）</h3>
+                <p>从中心向外扩散的圆形渐变</p>
+                <div class="zheng_code-block">radial-gradient(circle, #f2c05c, #d95d46)</div>
+            </div>
+
+            <div class="zheng_gradient-card">
+                <div class="zheng_gradient-preview zheng_radial-2"></div>
+                <h3>椭圆径向渐变</h3>
+                <p>从顶部开始的椭圆渐变</p>
+                <div class="zheng_code-block">radial-gradient(ellipse at top, #245b72, #17212b)</div>
+            </div>
+
+            <div class="zheng_gradient-card">
+                <div class="zheng_gradient-preview zheng_radial-3"></div>
+                <h3>偏移径向渐变</h3>
+                <p>中心偏移的径向渐变</p>
+                <div class="zheng_code-block">radial-gradient(circle at 30% 30%, #fffdf8, #d95d46)</div>
+            </div>
+
+            <div class="zheng_gradient-card">
+                <div class="zheng_gradient-preview zheng_conic-1"></div>
+                <h3>锥形渐变（连续）</h3>
+                <p>围绕中心点的连续颜色过渡</p>
+                <div class="zheng_code-block">conic-gradient(from 0deg, #d95d46, #f2c05c, #245b72, #d95d46)</div>
+            </div>
+
+            <div class="zheng_gradient-card">
+                <div class="zheng_gradient-preview zheng_conic-2"></div>
+                <h3>锥形渐变（分段）</h3>
+                <p>四等分的色轮效果</p>
+                <div class="zheng_code-block">conic-gradient(#d95d46 0% 25%, #f2c05c 25% 50%, #245b72 50% 75%, #3a7a5c 75% 100%)</div>
+            </div>
+
+            <div class="zheng_gradient-card">
+                <div class="zheng_gradient-preview zheng_conic-3"></div>
+                <h3>锥形渐变（起始角度）</h3>
+                <p>从 45° 开始的锥形渐变</p>
+                <div class="zheng_code-block">conic-gradient(from 45deg, #245b72, #3a7a9c, #245b72)</div>
+            </div>
+        </div>
+
+        <section class="zheng_section-heading">
+            <h2>渐变类型对照</h2>
+            <p>三种渐变函数的核心区别。</p>
+        </section>
+
+        <div class="zheng_table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>类型</th>
+                        <th>函数</th>
+                        <th>特点</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>线性渐变</td>
+                        <td><code>linear-gradient()</code></td>
+                        <td>沿直线方向进行颜色过渡</td>
+                    </tr>
+                    <tr>
+                        <td>径向渐变</td>
+                        <td><code>radial-gradient()</code></td>
+                        <td>从中心点向外辐射的颜色过渡</td>
+                    </tr>
+                    <tr>
+                        <td>锥形渐变</td>
+                        <td><code>conic-gradient()</code></td>
+                        <td>围绕中心点旋转的颜色过渡</td>
+                    </tr>
+                    <tr>
+                        <td>重复渐变</td>
+                        <td><code>repeating-linear-gradient()</code> 等</td>
+                        <td>颜色模式重复平铺</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>© 525 郑雯迪 · 《高级网页设计》课堂实践</footer>
+</body>
+</html>

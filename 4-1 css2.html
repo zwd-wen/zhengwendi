@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        h2,h3,p{
+            padding:0;
+            margin:0;
+        }/*群组选择器*/
+        #box{
+            padding:8px;
+            margin:20px;
+            border:1px solid #ccc;
+            font-size: 12px;
+            width: 480px;
+        }
+        #box h3{
+            /* 字体大小16px */
+            font-size: 16px;
+            /* 行高33px */
+            line-height: 33px;
+            /* 居中 */
+            text-align: center;
+            /* 颜色#032 */
+            color: #032;
+            /* 字间距3px */
+            letter-spacing: 3px;
+        }
+        #box>p{
+            /* 颜色#666 */
+            color :#666;
+             /* 首行空2格 */
+            text-indent: 2em;
+            /* 行高150% */
+            line-height: 150%;
+        }
+        #box a{
+            /* 颜色#c00 */
+            color:#c00;
+            /* 下划线 */
+            text-decoration:none;
+        }
+        /*扩展样式*/
+        h2{
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            line-height: 150%;
+        }
+        .blue-bold{
+            color: blue;
+            font-weight: bold;
+        }
+        .bg-blue-white{
+            background-color: blue;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h2> css群组选择器和后代选择器 </h2>
+    <div id="box">
+        <h3>CSS进阶</h3>
+        <p> 
+            <span class="blue-bold">学号：525，姓名：郑雯迪，班级：计算机24005</span>，
+            《高级网页设计》设计学习难度：难，
+            本实例的知识点：<span class="bg-blue-white">CSS 群组选择器和后代选择器</span>。
+            <a href="#"> 【更多】</a>
+        </p>
+    </div>
+</body>
+</html>
