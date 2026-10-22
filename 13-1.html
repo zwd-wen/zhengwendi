@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>13-1 Font Awesome 字体图标 · 525 郑雯迪</title>
+    <!-- 本地引入 Font Awesome 字体图标样式 -->
+    <link rel="stylesheet" href="cdn/font-awesome/css/font-awesome.min.css">
+    <style>
+        :root {
+            --zheng-ink: #17212b;
+            --zheng-muted: #65727d;
+            --zheng-paper: #f5f1e8;
+            --zheng-card: #fffdf8;
+            --zheng-line: #dcd5c8;
+            --zheng-coral: #d95d46;
+            --zheng-blue: #245b72;
+            --zheng-yellow: #f2c05c;
+            --zheng-green: #2f8f5b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--zheng-ink);
+            background: var(--zheng-paper);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+
+        .zheng-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 24px 28px;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .zheng-mark { color: var(--zheng-coral); font-weight: 800; }
+        .zheng-topbar span:last-child { color: var(--zheng-muted); }
+
+        /* 顶部深蓝主视觉区 */
+        .zheng-hero {
+            position: relative;
+            overflow: hidden;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 70px clamp(28px, 7vw, 90px) 64px;
+            background: var(--zheng-blue);
+            color: #fffdf8;
+        }
+
+        .zheng-hero::after {
+            content: "";
+            position: absolute;
+            right: -70px;
+            bottom: -120px;
+            width: 300px;
+            height: 300px;
+            border: 54px solid var(--zheng-yellow);
+            border-radius: 50%;
+            opacity: .9;
+        }
+
+        .zheng-hero-copy { position: relative; z-index: 1; max-width: 720px; }
+
+        .zheng-eyebrow {
+            margin: 0 0 18px;
+            color: var(--zheng-yellow);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        h1, h2, h3, p { margin-top: 0; }
+
+        .zheng-hero h1 {
+            margin-bottom: 20px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(34px, 5vw, 58px);
+            line-height: 1.1;
+        }
+
+        .zheng-hero p { margin: 0; max-width: 580px; color: #dce9ea; font-size: 16px; }
+
+        .zheng-tag {
+            display: inline-block;
+            margin-top: 26px;
+            padding: 7px 14px;
+            border: 1px solid rgba(255, 255, 255, .45);
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        main { max-width: 1180px; margin: 0 auto; padding: 64px 28px 80px; }
+
+        .zheng-section { margin-bottom: 64px; }
+        .zheng-section:last-child { margin-bottom: 0; }
+
+        .zheng-section-head {
+            margin-bottom: 24px;
+            padding-left: 16px;
+            border-left: 4px solid var(--zheng-coral);
+        }
+
+        .zheng-section-head h2 {
+            margin-bottom: 4px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 26px;
+        }
+
+        .zheng-section-head p { margin: 0; color: var(--zheng-muted); font-size: 14px; }
+
+        /* 图标网格 */
+        .zheng-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 14px;
+        }
+
+        .zheng-icon-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 22px 12px;
+            border: 1px solid var(--zheng-line);
+            background: var(--zheng-card);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        .zheng-icon-card:hover {
+            border-color: var(--zheng-coral);
+            box-shadow: 6px 6px 0 var(--zheng-yellow);
+            transform: translate(-3px, -3px);
+        }
+
+        .zheng-icon-card i { font-size: 30px; color: var(--zheng-blue); transition: color .2s ease; }
+        .zheng-icon-card:hover i { color: var(--zheng-coral); }
+        .zheng-icon-card span { font-size: 12px; color: var(--zheng-muted); }
+
+        /* 演示卡片 */
+        .zheng-row { display: flex; flex-wrap: wrap; gap: 14px; }
+
+        .zheng-demo {
+            flex: 1 1 240px;
+            padding: 22px;
+            border: 1px solid var(--zheng-line);
+            background: var(--zheng-card);
+        }
+
+        .zheng-demo h3 { margin-bottom: 18px; color: var(--zheng-coral); font-size: 15px; }
+
+        .zheng-box { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
+        .zheng-box i { color: var(--zheng-blue); }
+        .zheng-blue-bg { padding: 14px 26px; background: var(--zheng-blue); }
+
+        /* 原理说明 */
+        .zheng-note {
+            padding: 22px 24px;
+            border: 1px dashed var(--zheng-line);
+            background: var(--zheng-card);
+            color: var(--zheng-muted);
+            font-size: 14px;
+        }
+
+        .zheng-note p { margin-bottom: 0; }
+        .zheng-note code { color: var(--zheng-coral); font-family: Consolas, monospace; }
+
+        footer { max-width: 1180px; margin: 0 auto; padding: 0 28px 28px; color: var(--zheng-muted); font-size: 13px; }
+
+        @media (max-width: 760px) {
+            .zheng-topbar { padding: 18px 20px; }
+            .zheng-hero { padding: 56px 24px 52px; }
+            main { padding: 48px 20px 64px; }
+            footer { padding: 0 20px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="zheng-topbar">
+        <span class="zheng-mark">525 / ZHENG WENDI</span>
+        <span>FONT AWESOME · FONT ICON</span>
+    </header>
+
+    <section class="zheng-hero" aria-labelledby="zheng-page-title">
+        <div class="zheng-hero-copy">
+            <p class="zheng-eyebrow">ADVANCED WEB DESIGN · 13-1</p>
+            <h1 id="zheng-page-title">Font Awesome<br>字体图标</h1>
+            <p>Font Awesome 通过 @font-face 引入一套字体文件，把图标映射为字符。使用时只需一个 class，就能像文字一样随意设置大小、颜色与样式。</p>
+            <span class="zheng-tag">字体图标 · FONT ICON</span>
+        </div>
+    </section>
+
+    <main>
+        <section class="zheng-section" aria-labelledby="zheng-grid-title">
+            <div class="zheng-section-head">
+                <h2 id="zheng-grid-title">图标总览</h2>
+                <p>Font Awesome 4.7 提供 675 个图标，这里挑选常用的一组。</p>
+            </div>
+            <div class="zheng-grid">
+                <div class="zheng-icon-card"><i class="fa fa-home"></i><span>home</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-user"></i><span>user</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-heart"></i><span>heart</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-star"></i><span>star</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-search"></i><span>search</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-envelope"></i><span>envelope</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-phone"></i><span>phone</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-cog"></i><span>cog</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-clock-o"></i><span>clock-o</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-calendar"></i><span>calendar</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-cloud"></i><span>cloud</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-download"></i><span>download</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-upload"></i><span>upload</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-lock"></i><span>lock</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-unlock"></i><span>unlock</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-bell"></i><span>bell</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-book"></i><span>book</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-camera"></i><span>camera</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-comment"></i><span>comment</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-flag"></i><span>flag</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-gift"></i><span>gift</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-music"></i><span>music</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-plane"></i><span>plane</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-shopping-cart"></i><span>shopping-cart</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-thumbs-up"></i><span>thumbs-up</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-trophy"></i><span>trophy</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-wifi"></i><span>wifi</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-paper-plane"></i><span>paper-plane</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-gamepad"></i><span>gamepad</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-graduation-cap"></i><span>graduation-cap</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-coffee"></i><span>coffee</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-sun-o"></i><span>sun-o</span></div>
+                <div class="zheng-icon-card"><i class="fa fa-moon-o"></i><span>moon-o</span></div>
+            </div>
+        </section>
+
+        <section class="zheng-section" aria-labelledby="zheng-size-title">
+            <div class="zheng-section-head">
+                <h2 id="zheng-size-title">尺寸与颜色</h2>
+                <p>图标本质是文字，可用 .fa-lg / .fa-2x 等类控制尺寸，用 CSS color 控制颜色。</p>
+            </div>
+            <div class="zheng-row">
+                <div class="zheng-demo">
+                    <h3>尺寸 .fa-lg / .fa-2x ~ .fa-5x</h3>
+                    <div class="zheng-box">
+                        <i class="fa fa-home fa-lg"></i>
+                        <i class="fa fa-home fa-2x"></i>
+                        <i class="fa fa-home fa-3x"></i>
+                        <i class="fa fa-home fa-4x"></i>
+                        <i class="fa fa-home fa-5x"></i>
+                    </div>
+                </div>
+                <div class="zheng-demo">
+                    <h3>颜色 color</h3>
+                    <div class="zheng-box">
+                        <i class="fa fa-heart fa-3x" style="color: #d95d46"></i>
+                        <i class="fa fa-star fa-3x" style="color: #f2c05c"></i>
+                        <i class="fa fa-bell fa-3x" style="color: #245b72"></i>
+                        <i class="fa fa-trophy fa-3x" style="color: #2f8f5b"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="zheng-section" aria-labelledby="zheng-effect-title">
+            <div class="zheng-section-head">
+                <h2 id="zheng-effect-title">旋转、翻转与动画</h2>
+                <p>通过 class 组合即可实现旋转、翻转和循环动画，无需额外 CSS。</p>
+            </div>
+            <div class="zheng-row">
+                <div class="zheng-demo">
+                    <h3>旋转 .fa-rotate-90 / 180 / 270</h3>
+                    <div class="zheng-box">
+                        <i class="fa fa-compass fa-3x"></i>
+                        <i class="fa fa-compass fa-rotate-90 fa-3x"></i>
+                        <i class="fa fa-compass fa-rotate-180 fa-3x"></i>
+                        <i class="fa fa-compass fa-rotate-270 fa-3x"></i>
+                    </div>
+                </div>
+                <div class="zheng-demo">
+                    <h3>翻转 .fa-flip-horizontal / vertical</h3>
+                    <div class="zheng-box">
+                        <i class="fa fa-flag fa-3x"></i>
+                        <i class="fa fa-flag fa-flip-horizontal fa-3x"></i>
+                        <i class="fa fa-flag fa-flip-vertical fa-3x"></i>
+                    </div>
+                </div>
+                <div class="zheng-demo">
+                    <h3>动画 .fa-spin / .fa-pulse</h3>
+                    <div class="zheng-box">
+                        <i class="fa fa-cog fa-spin fa-3x"></i>
+                        <i class="fa fa-spinner fa-pulse fa-3x"></i>
+                        <i class="fa fa-circle-o-notch fa-spin fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="zheng-section" aria-labelledby="zheng-stack-title">
+            <div class="zheng-section-head">
+                <h2 id="zheng-stack-title">堆叠、固定宽度与边框</h2>
+                <p>.fa-stack 可叠加两个图标，.fa-fw 让图标等宽对齐，.fa-border 添加边框。</p>
+            </div>
+            <div class="zheng-row">
+                <div class="zheng-demo">
+                    <h3>堆叠 .fa-stack</h3>
+                    <div class="zheng-box">
+                        <span class="fa-stack fa-2x">
+                            <i class="fa fa-square-o fa-stack-2x"></i>
+                            <i class="fa fa-heart fa-stack-1x" style="color: #d95d46"></i>
+                        </span>
+                        <span class="fa-stack fa-2x">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="fa fa-star fa-stack-1x fa-inverse"></i>
+                        </span>
+                        <span class="fa-stack fa-2x">
+                            <i class="fa fa-square fa-stack-2x" style="color: #245b72"></i>
+                            <i class="fa fa-check fa-stack-1x fa-inverse"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="zheng-demo">
+                    <h3>固定宽度 .fa-fw</h3>
+                    <div class="zheng-box" style="align-items: flex-start; flex-direction: column; gap: 14px">
+                        <i class="fa fa-check fa-fw" style="color: #2f8f5b"></i>
+                        <i class="fa fa-times fa-fw" style="color: #d95d46"></i>
+                        <i class="fa fa-info fa-fw" style="color: #245b72"></i>
+                        <i class="fa fa-warning fa-fw" style="color: #f2c05c"></i>
+                    </div>
+                </div>
+                <div class="zheng-demo">
+                    <h3>边框与反色</h3>
+                    <div class="zheng-box">
+                        <i class="fa fa-comment fa-3x fa-border"></i>
+                        <span class="zheng-blue-bg"><i class="fa fa-heart fa-3x fa-inverse"></i></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="zheng-section" aria-labelledby="zheng-principle-title">
+            <div class="zheng-section-head">
+                <h2 id="zheng-principle-title">原理说明</h2>
+                <p>为什么一个 class 就能显示图标？</p>
+            </div>
+            <div class="zheng-note">
+                <p>Font Awesome 在 CSS 中通过 <code>@font-face</code> 引入字体文件（woff2 / woff / ttf / eot / svg），再把每个图标定义为字体中的某个字符。当元素加上 <code>class="fa fa-xxx"</code> 时，CSS 的 <code>:before</code> 伪元素会插入对应字符，浏览器用字体渲染成图形。因此图标继承了文字的所有特性：可以像字号一样缩放，也可以直接用 <code>color</code> 改色，甚至能用 <code>text-shadow</code> 加阴影。</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>© 525 郑雯迪 · 《高级网页设计》课堂实践 · 13-1 Font Awesome 字体图标</footer>
+</body>
+</html>

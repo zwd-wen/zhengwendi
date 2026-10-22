@@ -7,10 +7,12 @@
 
 ## 技术栈
 
-- **纯原生 HTML / CSS**，不使用任何 CDN 或外部依赖
-- 内联 `<style>` 标签编写样式
+- **纯原生 HTML / CSS / JavaScript**，不使用任何第三方库或 CDN
+- 内联 `<style>` 标签编写样式，内联 `<script>` 编写脚本
 - 响应式设计（`@media` 查询、`clamp()` 函数）
 - 语义化 HTML 标签（`header`、`main`、`section`、`footer`）
+- 图标统一使用 `font/` 目录下的 iconfont 字体图标（`iconfont.css` + `iconfont.ttf`），禁止引入 font-awesome、lucide 等外部图标库
+- 数据获取统一使用原生 `fetch()` API
 
 ## 文件命名规范
 
@@ -20,6 +22,7 @@
 | `1.html` ~ `9-1transtion.html` | 课堂练习页面，按章节编号命名 |
 | `css.css` | 独立的 CSS 练习文件 |
 | `img/` | 图片资源目录 |
+| `cdn/` | ⚠️ 历史遗留目录（font-awesome / lucide），**禁止在新页面中引用** |
 
 ## 代码风格
 
@@ -37,10 +40,18 @@
 - 新增练习页面时，需同步更新 `index.html` 中的导航卡片
 - 使用相对路径引用本地资源（如图片）
 - 页面需具备基本的可访问性（`aria-labelledby`、`alt` 属性等）
+- **每个 HTML 页面 `<head>` 标签内必须包含页面注释**，格式如下：
+  ```html
+  <!--
+  姓名：郑雯迪
+  日期：yyyy-mm-dd
+  功能名称：（填写当前页面实际功能，如"CSS 变量主题切换演示"）
+  -->
+  ```
 
 ## 命名规范
 
-- 所有 CSS 类名、id 名、JS 变量名都必须以 `zheng_` 开头
+- 所有 CSS 类名、id 名、JS 变量名都必须以 `yl_` 开头
 
 ## 提示词记录
 

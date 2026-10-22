@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>13-3 移动端固定下导航 · 字体图标 · 525 郑雯迪</title>
+    <!-- 本地引入 iconfont 字体图标样式 -->
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        :root {
+            --zheng-ink: #17212b;
+            --zheng-muted: #65727d;
+            --zheng-paper: #f5f1e8;
+            --zheng-card: #fffdf8;
+            --zheng-line: #dcd5c8;
+            --zheng-coral: #d95d46;
+            --zheng-blue: #245b72;
+            --zheng-yellow: #f2c05c;
+            --zheng-danger: #ff4d4f;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+
+        body {
+            color: var(--zheng-ink);
+            background: var(--zheng-paper);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.6;
+            padding-bottom: 96px;
+        }
+
+        /* 页面顶部说明 */
+        .zheng-intro {
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 28px 20px 14px;
+        }
+
+        .zheng-intro h1 { margin: 0 0 8px; font-size: 20px; }
+        .zheng-intro p { margin: 0; color: var(--zheng-muted); font-size: 13px; }
+        .zheng-intro code { color: var(--zheng-coral); font-family: Consolas, monospace; }
+
+        /* 手机容器 */
+        .zheng-app {
+            position: relative;
+            max-width: 430px;
+            min-height: 720px;
+            margin: 0 auto;
+            overflow: hidden;
+            background: #f4f6f8;
+            border-radius: 22px 22px 0 0;
+            box-shadow: 0 10px 40px rgba(23, 33, 43, .12);
+        }
+
+        /* App 顶部栏 */
+        .zheng-appbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--zheng-blue);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .zheng-appbar i { font-size: 18px; }
+
+        /* 内容区 */
+        .zheng-content { padding: 16px 16px 96px; }
+
+        .zheng-profile {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px;
+            background: var(--zheng-card);
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(23, 33, 43, .05);
+        }
+
+        .zheng-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--zheng-coral);
+            color: #fff;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .zheng-profile-text { flex: 1; }
+        .zheng-profile-text h2 { margin: 0; font-size: 17px; }
+        .zheng-profile-text p { margin: 2px 0 0; color: var(--zheng-muted); font-size: 12px; }
+        .zheng-profile-setting { font-size: 20px; color: var(--zheng-muted); }
+
+        /* 统计卡片 */
+        .zheng-stats {
+            display: flex;
+            margin-top: 14px;
+            padding: 16px;
+            background: var(--zheng-card);
+            border-radius: 14px;
+        }
+
+        .zheng-stat { flex: 1; text-align: center; }
+        .zheng-stat strong { display: block; color: var(--zheng-blue); font-size: 20px; }
+        .zheng-stat span { color: var(--zheng-muted); font-size: 12px; }
+
+        /* 功能菜单 */
+        .zheng-menu {
+            margin-top: 14px;
+            overflow: hidden;
+            background: var(--zheng-card);
+            border-radius: 14px;
+        }
+
+        .zheng-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--zheng-line);
+            color: var(--zheng-ink);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .zheng-menu-item:last-child { border-bottom: none; }
+        .zheng-menu-item i:first-child { color: var(--zheng-coral); font-size: 18px; }
+        .zheng-menu-arrow { margin-left: auto; color: var(--zheng-muted); font-size: 16px; }
+
+        /* 说明卡片 */
+        .zheng-tip {
+            margin-top: 14px;
+            padding: 14px 16px;
+            background: var(--zheng-yellow);
+            border-radius: 14px;
+            color: #6b4d12;
+            font-size: 13px;
+        }
+
+        .zheng-tip strong { display: block; margin-bottom: 4px; }
+        .zheng-tip p { margin: 0; }
+
+        /* 底部固定导航 */
+        .zheng-tabbar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            display: flex;
+            width: 100%;
+            max-width: 430px;
+            margin: 0 auto;
+            padding-bottom: env(safe-area-inset-bottom);
+            background: var(--zheng-card);
+            border-top: 1px solid var(--zheng-line);
+        }
+
+        .zheng-tab-item {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 9px 0 7px;
+            color: var(--zheng-muted);
+            font-size: 11px;
+            text-decoration: none;
+            transition: color .2s ease;
+        }
+
+        .zheng-tab-item.zheng-active { color: var(--zheng-coral); }
+
+        .zheng-tab-icon {
+            position: relative;
+            display: inline-flex;
+            font-size: 23px;
+            line-height: 1;
+        }
+
+        .zheng-tab-label { font-size: 11px; }
+
+        /* 右上角红点 */
+        .zheng-dot {
+            position: absolute;
+            top: -3px;
+            right: -6px;
+            width: 8px;
+            height: 8px;
+            border: 1.5px solid var(--zheng-card);
+            border-radius: 50%;
+            background: var(--zheng-danger);
+        }
+
+        /* 数字徽章 */
+        .zheng-badge {
+            position: absolute;
+            top: -9px;
+            right: -20px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 5px;
+            border-radius: 9px;
+            background: var(--zheng-danger);
+            color: #fff;
+            font-size: 11px;
+            font-style: normal;
+            line-height: 17px;
+            text-align: center;
+        }
+
+        footer {
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 18px 20px 0;
+            color: var(--zheng-muted);
+            font-size: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="zheng-intro">
+        <h1>13-3 · 移动端固定下导航（字体图标）</h1>
+        <p>底部导航使用 <code>iconfont</code> 字体图标，通过 <code>@font-face</code> 加载。4 项内容用 <code>flex: 1</code> 等分，随屏幕宽度自适应；导航固定在底部，宽度占满全屏。</p>
+    </div>
+
+    <div class="zheng-app">
+        <header class="zheng-appbar">
+            <i class="iconfont icon-sousuo"></i>
+            <span>郑雯迪的移动应用</span>
+            <i class="iconfont icon-shanchu"></i>
+        </header>
+
+        <main class="zheng-content">
+            <section class="zheng-profile">
+                <div class="zheng-avatar">郑</div>
+                <div class="zheng-profile-text">
+                    <h2>郑雯迪</h2>
+                    <p>计算机 24005 · 高级网页设计</p>
+                </div>
+                <i class="iconfont icon-shezhi zheng-profile-setting"></i>
+            </section>
+
+            <section class="zheng-stats">
+                <div class="zheng-stat"><strong>128</strong><span>关注</span></div>
+                <div class="zheng-stat"><strong>36</strong><span>粉丝</span></div>
+                <div class="zheng-stat"><strong>57</strong><span>收藏</span></div>
+            </section>
+
+            <nav class="zheng-menu" aria-label="功能菜单">
+                <a class="zheng-menu-item" href="#"><i class="iconfont icon-shoucang"></i><span>我的收藏</span><i class="iconfont icon-xihuan zheng-menu-arrow"></i></a>
+                <a class="zheng-menu-item" href="#"><i class="iconfont icon-wodeguanzhu"></i><span>我的关注</span><i class="iconfont icon-xihuan zheng-menu-arrow"></i></a>
+                <a class="zheng-menu-item" href="#"><i class="iconfont icon-xiazai"></i><span>我的下载</span><i class="iconfont icon-xihuan zheng-menu-arrow"></i></a>
+                <a class="zheng-menu-item" href="#"><i class="iconfont icon-shezhi"></i><span>设置</span><i class="iconfont icon-xihuan zheng-menu-arrow"></i></a>
+            </nav>
+
+            <aside class="zheng-tip">
+                <strong>自适应宽度演示</strong>
+                <p>当前窗口宽度：<span id="zheng-width">0</span> px。拖动浏览器窗口改变宽度，观察底部导航 4 项始终等分并占满全屏宽度。</p>
+            </aside>
+        </main>
+
+        <!-- 固定下导航 -->
+        <nav class="zheng-tabbar" aria-label="底部导航">
+            <a class="zheng-tab-item zheng-active" href="#">
+                <span class="zheng-tab-icon"><i class="iconfont icon-shouye"></i><span class="zheng-dot"></span></span>
+                <span class="zheng-tab-label">首页</span>
+            </a>
+            <a class="zheng-tab-item" href="#">
+                <span class="zheng-tab-icon"><i class="iconfont icon-faxian"></i><i class="zheng-badge">5</i></span>
+                <span class="zheng-tab-label">发现</span>
+            </a>
+            <a class="zheng-tab-item" href="#">
+                <span class="zheng-tab-icon"><i class="iconfont icon-shangcheng"></i><i class="zheng-badge">12</i></span>
+                <span class="zheng-tab-label">商城</span>
+            </a>
+            <a class="zheng-tab-item" href="#">
+                <span class="zheng-tab-icon"><i class="iconfont icon-wode"></i><span class="zheng-dot"></span></span>
+                <span class="zheng-tab-label">我的</span>
+            </a>
+        </nav>
+    </div>
+
+    <footer>© 525 郑雯迪 · 《高级网页设计》课堂实践 · 13-3 字体图标固定下导航</footer>
+
+    <script>
+        // 点击切换导航选中状态
+        var zheng_tabs = document.querySelectorAll('.zheng-tab-item');
+        zheng_tabs.forEach(function (zheng_tab) {
+            zheng_tab.addEventListener('click', function (zheng_event) {
+                zheng_event.preventDefault();
+                zheng_tabs.forEach(function (zheng_item) { zheng_item.classList.remove('zheng-active'); });
+                zheng_tab.classList.add('zheng-active');
+            });
+        });
+
+        // 实时显示窗口宽度，演示自适应
+        var zheng_width = document.getElementById('zheng-width');
+        function zheng_updateWidth() { zheng_width.textContent = window.innerWidth; }
+        window.addEventListener('resize', zheng_updateWidth);
+        zheng_updateWidth();
+    </script>
+</body>
+</html>

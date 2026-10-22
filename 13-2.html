@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>13-2 Lucide SVG 图标 · 525 郑雯迪</title>
+    <!-- 本地引入 Lucide 图标库（JS 形式） -->
+    <script src="cdn/lucide/lucide.min.js"></script>
+    <style>
+        :root {
+            --zheng-ink: #17212b;
+            --zheng-muted: #65727d;
+            --zheng-paper: #f5f1e8;
+            --zheng-card: #fffdf8;
+            --zheng-line: #dcd5c8;
+            --zheng-coral: #d95d46;
+            --zheng-blue: #245b72;
+            --zheng-yellow: #f2c05c;
+            --zheng-green: #2f8f5b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--zheng-ink);
+            background: var(--zheng-paper);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+
+        .zheng-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 24px 28px;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .zheng-mark { color: var(--zheng-coral); font-weight: 800; }
+        .zheng-topbar span:last-child { color: var(--zheng-muted); }
+
+        /* 顶部深蓝主视觉区 */
+        .zheng-hero {
+            position: relative;
+            overflow: hidden;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 70px clamp(28px, 7vw, 90px) 64px;
+            background: var(--zheng-blue);
+            color: #fffdf8;
+        }
+
+        .zheng-hero::after {
+            content: "";
+            position: absolute;
+            right: -70px;
+            bottom: -120px;
+            width: 300px;
+            height: 300px;
+            border: 54px solid var(--zheng-yellow);
+            border-radius: 50%;
+            opacity: .9;
+        }
+
+        .zheng-hero-copy { position: relative; z-index: 1; max-width: 720px; }
+
+        .zheng-eyebrow {
+            margin: 0 0 18px;
+            color: var(--zheng-yellow);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        h1, h2, h3, p { margin-top: 0; }
+
+        .zheng-hero h1 {
+            margin-bottom: 20px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(34px, 5vw, 58px);
+            line-height: 1.1;
+        }
+
+        .zheng-hero p { margin: 0; max-width: 580px; color: #dce9ea; font-size: 16px; }
+
+        .zheng-tag {
+            display: inline-block;
+            margin-top: 26px;
+            padding: 7px 14px;
+            border: 1px solid rgba(255, 255, 255, .45);
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        main { max-width: 1180px; margin: 0 auto; padding: 64px 28px 80px; }
+
+        .zheng-section { margin-bottom: 64px; }
+        .zheng-section:last-child { margin-bottom: 0; }
+
+        .zheng-section-head {
+            margin-bottom: 24px;
+            padding-left: 16px;
+            border-left: 4px solid var(--zheng-coral);
+        }
+
+        .zheng-section-head h2 {
+            margin-bottom: 4px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 26px;
+        }
+
+        .zheng-section-head p { margin: 0; color: var(--zheng-muted); font-size: 14px; }
+
+        /* 图标网格 */
+        .zheng-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 14px;
+        }
+
+        .zheng-icon-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 22px 12px;
+            border: 1px solid var(--zheng-line);
+            background: var(--zheng-card);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        .zheng-icon-card:hover {
+            border-color: var(--zheng-coral);
+            box-shadow: 6px 6px 0 var(--zheng-yellow);
+            transform: translate(-3px, -3px);
+        }
+
+        .zheng-lucide { color: var(--zheng-blue); transition: color .2s ease, transform .25s ease; }
+        .zheng-icon-card:hover .zheng-lucide { color: var(--zheng-coral); transform: scale(1.12); }
+        .zheng-icon-card span { font-size: 12px; color: var(--zheng-muted); }
+
+        /* 演示卡片 */
+        .zheng-row { display: flex; flex-wrap: wrap; gap: 14px; }
+
+        .zheng-demo {
+            flex: 1 1 240px;
+            padding: 22px;
+            border: 1px solid var(--zheng-line);
+            background: var(--zheng-card);
+        }
+
+        .zheng-demo h3 { margin-bottom: 18px; color: var(--zheng-coral); font-size: 15px; }
+
+        .zheng-box { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
+        .zheng-blue-bg { padding: 14px 26px; background: var(--zheng-blue); }
+        .zheng-blue-bg .zheng-lucide { color: #fffdf8; }
+
+        .zheng-rotate-90 { transform: rotate(90deg); }
+        .zheng-rotate-180 { transform: rotate(180deg); }
+        .zheng-rotate-270 { transform: rotate(270deg); }
+
+        /* 原理说明 */
+        .zheng-note {
+            padding: 22px 24px;
+            border: 1px dashed var(--zheng-line);
+            background: var(--zheng-card);
+            color: var(--zheng-muted);
+            font-size: 14px;
+        }
+
+        .zheng-note p { margin-bottom: 0; }
+        .zheng-note code { color: var(--zheng-coral); font-family: Consolas, monospace; }
+
+        footer { max-width: 1180px; margin: 0 auto; padding: 0 28px 28px; color: var(--zheng-muted); font-size: 13px; }
+
+        @media (max-width: 760px) {
+            .zheng-topbar { padding: 18px 20px; }
+            .zheng-hero { padding: 56px 24px 52px; }
+            main { padding: 48px 20px 64px; }
+            footer { padding: 0 20px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="zheng-topbar">
+        <span class="zheng-mark">525 / ZHENG WENDI</span>
+        <span>LUCIDE · SVG ICON</span>
+    </header>
+
+    <section class="zheng-hero" aria-labelledby="zheng-page-title">
+        <div class="zheng-hero-copy">
+            <p class="zheng-eyebrow">ADVANCED WEB DESIGN · 13-2</p>
+            <h1 id="zheng-page-title">Lucide<br>SVG 图标</h1>
+            <p>Lucide 是一套开源的 SVG 图标库。它以 <code>data-lucide</code> 属性标记图标，再用 JS 把标记替换为真实的 SVG 元素，因此每个图标都是矢量图形，可以任意缩放与描边。</p>
+            <span class="zheng-tag">矢量图标 · SVG ICON</span>
+        </div>
+    </section>
+
+    <main>
+        <section class="zheng-section" aria-labelledby="zheng-grid-title">
+            <div class="zheng-section-head">
+                <h2 id="zheng-grid-title">图标总览</h2>
+                <p>Lucide 提供 1500+ 个图标，这里挑选常用的一组。</p>
+            </div>
+            <div class="zheng-grid">
+                <div class="zheng-icon-card"><i data-lucide="home" class="zheng-lucide"></i><span>home</span></div>
+                <div class="zheng-icon-card"><i data-lucide="user" class="zheng-lucide"></i><span>user</span></div>
+                <div class="zheng-icon-card"><i data-lucide="heart" class="zheng-lucide"></i><span>heart</span></div>
+                <div class="zheng-icon-card"><i data-lucide="star" class="zheng-lucide"></i><span>star</span></div>
+                <div class="zheng-icon-card"><i data-lucide="search" class="zheng-lucide"></i><span>search</span></div>
+                <div class="zheng-icon-card"><i data-lucide="mail" class="zheng-lucide"></i><span>mail</span></div>
+                <div class="zheng-icon-card"><i data-lucide="phone" class="zheng-lucide"></i><span>phone</span></div>
+                <div class="zheng-icon-card"><i data-lucide="settings" class="zheng-lucide"></i><span>settings</span></div>
+                <div class="zheng-icon-card"><i data-lucide="clock" class="zheng-lucide"></i><span>clock</span></div>
+                <div class="zheng-icon-card"><i data-lucide="calendar" class="zheng-lucide"></i><span>calendar</span></div>
+                <div class="zheng-icon-card"><i data-lucide="cloud" class="zheng-lucide"></i><span>cloud</span></div>
+                <div class="zheng-icon-card"><i data-lucide="download" class="zheng-lucide"></i><span>download</span></div>
+                <div class="zheng-icon-card"><i data-lucide="upload" class="zheng-lucide"></i><span>upload</span></div>
+                <div class="zheng-icon-card"><i data-lucide="lock" class="zheng-lucide"></i><span>lock</span></div>
+                <div class="zheng-icon-card"><i data-lucide="unlock" class="zheng-lucide"></i><span>unlock</span></div>
+                <div class="zheng-icon-card"><i data-lucide="bell" class="zheng-lucide"></i><span>bell</span></div>
+                <div class="zheng-icon-card"><i data-lucide="book" class="zheng-lucide"></i><span>book</span></div>
+                <div class="zheng-icon-card"><i data-lucide="camera" class="zheng-lucide"></i><span>camera</span></div>
+                <div class="zheng-icon-card"><i data-lucide="message-circle" class="zheng-lucide"></i><span>message-circle</span></div>
+                <div class="zheng-icon-card"><i data-lucide="flag" class="zheng-lucide"></i><span>flag</span></div>
+                <div class="zheng-icon-card"><i data-lucide="gift" class="zheng-lucide"></i><span>gift</span></div>
+                <div class="zheng-icon-card"><i data-lucide="music" class="zheng-lucide"></i><span>music</span></div>
+                <div class="zheng-icon-card"><i data-lucide="plane" class="zheng-lucide"></i><span>plane</span></div>
+                <div class="zheng-icon-card"><i data-lucide="shopping-cart" class="zheng-lucide"></i><span>shopping-cart</span></div>
+                <div class="zheng-icon-card"><i data-lucide="thumbs-up" class="zheng-lucide"></i><span>thumbs-up</span></div>
+                <div class="zheng-icon-card"><i data-lucide="trophy" class="zheng-lucide"></i><span>trophy</span></div>
+                <div class="zheng-icon-card"><i data-lucide="wifi" class="zheng-lucide"></i><span>wifi</span></div>
+                <div class="zheng-icon-card"><i data-lucide="send" class="zheng-lucide"></i><span>send</span></div>
+                <div class="zheng-icon-card"><i data-lucide="gamepad-2" class="zheng-lucide"></i><span>gamepad-2</span></div>
+                <div class="zheng-icon-card"><i data-lucide="graduation-cap" class="zheng-lucide"></i><span>graduation-cap</span></div>
+                <div class="zheng-icon-card"><i data-lucide="coffee" class="zheng-lucide"></i><span>coffee</span></div>
+                <div class="zheng-icon-card"><i data-lucide="sun" class="zheng-lucide"></i><span>sun</span></div>
+                <div class="zheng-icon-card"><i data-lucide="moon" class="zheng-lucide"></i><span>moon</span></div>
+            </div>
+        </section>
+
+        <section class="zheng-section" aria-labelledby="zheng-size-title">
+            <div class="zheng-section-head">
+                <h2 id="zheng-size-title">尺寸与颜色</h2>
+                <p>通过 width / height 属性控制尺寸，SVG 默认使用 currentColor，可用 CSS color 改色。</p>
+            </div>
+            <div class="zheng-row">
+                <div class="zheng-demo">
+                    <h3>尺寸 width / height</h3>
+                    <div class="zheng-box">
+                        <i data-lucide="home" class="zheng-lucide" width="20" height="20"></i>
+                        <i data-lucide="home" class="zheng-lucide" width="28" height="28"></i>
+                        <i data-lucide="home" class="zheng-lucide" width="36" height="36"></i>
+                        <i data-lucide="home" class="zheng-lucide" width="48" height="48"></i>
+                        <i data-lucide="home" class="zheng-lucide" width="64" height="64"></i>
+                    </div>
+                </div>
+                <div class="zheng-demo">
+                    <h3>颜色 color（currentColor）</h3>
+                    <div class="zheng-box">
+                        <i data-lucide="heart" class="zheng-lucide" width="36" height="36" style="color: #d95d46"></i>
+                        <i data-lucide="star" class="zheng-lucide" width="36" height="36" style="color: #f2c05c"></i>
+                        <i data-lucide="bell" class="zheng-lucide" width="36" height="36" style="color: #245b72"></i>
+                        <i data-lucide="trophy" class="zheng-lucide" width="36" height="36" style="color: #2f8f5b"></i>
+                    </div>
+                </div>
+                <div class="zheng-demo">
+                    <h3>深色背景上的图标</h3>
+                    <div class="zheng-box">
+                        <span class="zheng-blue-bg"><i data-lucide="heart" class="zheng-lucide" width="36" height="36"></i></span>
+                        <span class="zheng-blue-bg"><i data-lucide="check" class="zheng-lucide" width="36" height="36"></i></span>
+                        <span class="zheng-blue-bg"><i data-lucide="arrow-right" class="zheng-lucide" width="36" height="36"></i></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="zheng-section" aria-labelledby="zheng-stroke-title">
+            <div class="zheng-section-head">
+                <h2 id="zheng-stroke-title">描边宽度与旋转</h2>
+                <p>SVG 描边由 stroke-width 决定，用 CSS transform 即可旋转，矢量图形在任何尺寸下都清晰。</p>
+            </div>
+            <div class="zheng-row">
+                <div class="zheng-demo">
+                    <h3>描边 stroke-width</h3>
+                    <div class="zheng-box">
+                        <i data-lucide="star" class="zheng-lucide" width="36" height="36" stroke-width="1"></i>
+                        <i data-lucide="star" class="zheng-lucide" width="36" height="36" stroke-width="2"></i>
+                        <i data-lucide="star" class="zheng-lucide" width="36" height="36" stroke-width="3"></i>
+                        <i data-lucide="star" class="zheng-lucide" width="36" height="36" stroke-width="4"></i>
+                    </div>
+                </div>
+                <div class="zheng-demo">
+                    <h3>旋转 transform</h3>
+                    <div class="zheng-box">
+                        <i data-lucide="compass" class="zheng-lucide" width="40" height="40"></i>
+                        <i data-lucide="compass" class="zheng-lucide zheng-rotate-90" width="40" height="40"></i>
+                        <i data-lucide="compass" class="zheng-lucide zheng-rotate-180" width="40" height="40"></i>
+                        <i data-lucide="compass" class="zheng-lucide zheng-rotate-270" width="40" height="40"></i>
+                    </div>
+                </div>
+                <div class="zheng-demo">
+                    <h3>悬停放大</h3>
+                    <div class="zheng-box">
+                        <i data-lucide="arrow-up-right" class="zheng-lucide" width="40" height="40"></i>
+                        <i data-lucide="chevrons-up" class="zheng-lucide" width="40" height="40"></i>
+                        <i data-lucide="rocket" class="zheng-lucide" width="40" height="40"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="zheng-section" aria-labelledby="zheng-principle-title">
+            <div class="zheng-section-head">
+                <h2 id="zheng-principle-title">原理说明</h2>
+                <p>为什么 data-lucide 能变成图标？</p>
+            </div>
+            <div class="zheng-note">
+                <p>页面中的 <code>&lt;i data-lucide="home"&gt;</code> 只是一个占位标记。当脚本执行 <code>lucide.createIcons()</code> 时，Lucide 会根据属性值找到对应的 SVG 路径数据，把占位元素替换为真实的 <code>&lt;svg&gt;</code>。因为 SVG 是矢量图形，所以图标可以无损缩放；又因为描边默认使用 <code>currentColor</code>，所以直接用 CSS 的 <code>color</code> 就能改色。相比字体图标，SVG 图标还能用 <code>stroke-width</code> 控制线条粗细，并保留为可检查、可动画的 DOM 节点。</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>© 525 郑雯迪 · 《高级网页设计》课堂实践 · 13-2 Lucide SVG 图标</footer>
+
+    <!-- 将 data-lucide 占位标记替换为真实 SVG -->
+    <script>
+        lucide.createIcons({ attrs: { "stroke-width": 2 } });
+    </script>
+</body>
+</html>
