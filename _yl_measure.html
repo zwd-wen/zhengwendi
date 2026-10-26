@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+    姓名：郑雯迪
+    日期：2026-10-25
+    功能名称：四级项目一 网页元素设计（上图下文、左图右文、列表）
+    -->
+    <title>四级项目一 · 网页元素设计 | 525 郑雯迪</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        /* ===== 全局 CSS ===== */
+        :root {
+            --yl_ink: #17212b;
+            --yl_muted: #65727d;
+            --yl_paper: #f5f1e8;
+            --yl_card: #fffdf8;
+            --yl_line: #dcd5c8;
+            --yl_coral: #d95d46;
+            --yl_blue: #245b72;
+            --yl_yellow: #f2c05c;
+            --yl_serif: Georgia, "Songti SC", "SimSun", serif;
+            --yl_sans: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--yl_ink);
+            background: var(--yl_paper);
+            font-family: var(--yl_sans);
+            line-height: 1.75;
+        }
+
+        h1, h2, h3, p, figure, ol, ul { margin: 0; }
+
+        img { display: block; max-width: 100%; }
+
+        a { color: inherit; }
+
+        .yl_page {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 28px 90px;
+        }
+
+        /* ===== 页头 ===== */
+        .yl_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 24px 0;
+            border-bottom: 1px solid var(--yl_line);
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .yl_brand { color: var(--yl_coral); font-weight: 800; }
+
+        .yl_brand .iconfont { font-size: 18px; margin-right: 4px; }
+
+        .yl_topbar_note { color: var(--yl_muted); }
+
+        /* ===== 页面标题区 ===== */
+        .yl_intro { position: relative; padding: 66px 0 58px; }
+
+        .yl_intro::before {
+            content: "";
+            position: absolute;
+            top: 58px;
+            right: 0;
+            width: 210px;
+            height: 210px;
+            border: 34px solid var(--yl_yellow);
+            border-radius: 50%;
+            opacity: .55;
+        }
+
+        .yl_eyebrow {
+            position: relative;
+            margin-bottom: 16px;
+            color: var(--yl_coral);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        .yl_intro h1 {
+            position: relative;
+            margin-bottom: 20px;
+            font-family: var(--yl_serif);
+            font-size: clamp(38px, 5.4vw, 68px);
+            line-height: 1.12;
+        }
+
+        .yl_intro_text {
+            position: relative;
+            max-width: 520px;
+            color: var(--yl_muted);
+            font-size: 16px;
+        }
+
+        .yl_intro_meta {
+            position: relative;
+            margin-top: 26px;
+            color: var(--yl_blue);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* ===== 区块通用 ===== */
+        .yl_section { padding: 56px 0; border-top: 1px solid var(--yl_line); }
+
+        .yl_section_head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .yl_section_head h2 {
+            margin-top: 6px;
+            font-family: var(--yl_serif);
+            font-size: 32px;
+            line-height: 1.25;
+        }
+
+        .yl_no {
+            color: var(--yl_coral);
+            font-family: var(--yl_serif);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .yl_section_desc { margin-top: 8px; color: var(--yl_muted); font-size: 14px; }
+
+        .yl_more {
+            flex: none;
+            color: var(--yl_blue);
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            border-bottom: 1px solid var(--yl_blue);
+        }
+
+        /* ===== 元素一：上图下文 ===== */
+        .yl_cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .yl_card {
+            display: flex;
+            flex-direction: column;
+            background: var(--yl_card);
+            border: 1px solid var(--yl_line);
+            overflow: hidden;
+        }
+
+        .yl_card_media { aspect-ratio: 3 / 2; overflow: hidden; }
+
+        .yl_card_media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .yl_card_body {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            padding: 22px 22px 24px;
+        }
+
+        .yl_tag {
+            align-self: flex-start;
+            padding: 3px 10px;
+            background: rgba(217, 93, 70, .12);
+            color: var(--yl_coral);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .yl_card_body h3 {
+            margin: 12px 0 4px;
+            font-family: var(--yl_serif);
+            font-size: 23px;
+        }
+
+        .yl_author { color: var(--yl_muted); font-size: 13px; }
+
+        .yl_card_text {
+            margin-top: 12px;
+            color: var(--yl_muted);
+            font-size: 14px;
+            line-height: 1.75;
+        }
+
+        .yl_meta {
+            display: flex;
+            gap: 18px;
+            margin-top: auto;
+            padding-top: 18px;
+            border-top: 1px dashed var(--yl_line);
+            color: var(--yl_blue);
+            font-size: 12px;
+        }
+
+        .yl_meta .iconfont { margin-right: 5px; font-size: 14px; }
+
+        /* ===== 元素二：左图右文 ===== */
+        .yl_feature {
+            display: grid;
+            grid-template-columns: 1.02fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .yl_feature_media { position: relative; }
+
+        .yl_feature_media img { aspect-ratio: 4 / 3; width: 100%; object-fit: cover; }
+
+        .yl_feature_media figcaption {
+            margin-top: 12px;
+            color: var(--yl_muted);
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .yl_feature_body h2 {
+            margin: 10px 0 18px;
+            font-family: var(--yl_serif);
+            font-size: clamp(28px, 3.4vw, 42px);
+            line-height: 1.2;
+        }
+
+        .yl_feature_body p { color: var(--yl_muted); font-size: 15px; }
+
+        .yl_stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 28px 0;
+            padding: 22px 0;
+            border-top: 1px solid var(--yl_line);
+            border-bottom: 1px solid var(--yl_line);
+        }
+
+        .yl_stats strong {
+            display: block;
+            color: var(--yl_blue);
+            font-family: var(--yl_serif);
+            font-size: 30px;
+            line-height: 1.2;
+        }
+
+        .yl_stats span { color: var(--yl_muted); font-size: 12px; }
+
+        /* 纯 CSS 条形图（图表元素） */
+        .yl_chart_title {
+            margin-bottom: 12px;
+            color: var(--yl_ink) !important;
+            font-size: 13px !important;
+            font-weight: 700;
+        }
+
+        .yl_chart_row {
+            display: grid;
+            grid-template-columns: 92px 1fr 42px;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 9px;
+            font-size: 12px;
+        }
+
+        .yl_chart_label { color: var(--yl_muted); }
+
+        .yl_chart_track {
+            height: 12px;
+            background: #ece5d8;
+        }
+
+        .yl_chart_fill {
+            display: block;
+            height: 100%;
+            background: var(--yl_coral);
+        }
+
+        .yl_chart_row:nth-child(4) .yl_chart_fill { background: var(--yl_blue); }
+        .yl_chart_row:nth-child(5) .yl_chart_fill { background: var(--yl_yellow); }
+
+        .yl_chart_val { color: var(--yl_ink); text-align: right; font-weight: 700; }
+
+        /* ===== 元素三：列表 ===== */
+        .yl_list {
+            list-style: none;
+            padding: 0;
+            border-top: 1px solid var(--yl_line);
+        }
+
+        .yl_list_item {
+            display: grid;
+            grid-template-columns: 84px 1fr auto;
+            align-items: center;
+            gap: 26px;
+            padding: 24px 8px;
+            border-bottom: 1px solid var(--yl_line);
+        }
+
+        .yl_date {
+            text-align: center;
+            border-right: 1px solid var(--yl_line);
+        }
+
+        .yl_date strong {
+            display: block;
+            color: var(--yl_coral);
+            font-family: var(--yl_serif);
+            font-size: 32px;
+            line-height: 1.1;
+        }
+
+        .yl_date span { color: var(--yl_muted); font-size: 12px; letter-spacing: 1px; }
+
+        .yl_list_body h3 { margin-bottom: 4px; font-size: 17px; }
+
+        .yl_list_body p { color: var(--yl_muted); font-size: 13px; }
+
+        .yl_list_body .iconfont { margin-right: 6px; color: var(--yl_blue); font-size: 13px; }
+
+        .yl_status {
+            padding: 5px 12px;
+            border: 1px solid var(--yl_line);
+            color: var(--yl_muted);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .yl_status_hot {
+            border-color: var(--yl_coral);
+            background: var(--yl_coral);
+            color: #fffdf8;
+        }
+
+        /* ===== 页脚 ===== */
+        .yl_footer {
+            padding-top: 30px;
+            border-top: 1px solid var(--yl_line);
+            color: var(--yl_muted);
+            font-size: 13px;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 900px) {
+            .yl_cards { grid-template-columns: repeat(2, 1fr); }
+            .yl_feature { grid-template-columns: 1fr; gap: 30px; }
+            .yl_section_head { display: block; }
+            .yl_more { display: inline-block; margin-top: 14px; }
+        }
+
+        @media (max-width: 680px) {
+            .yl_page { padding: 0 20px 70px; }
+            .yl_intro { padding: 46px 0 42px; }
+            .yl_intro::before { width: 130px; height: 130px; top: 40px; border-width: 22px; }
+            .yl_cards { grid-template-columns: 1fr; }
+            .yl_section { padding: 42px 0; }
+            .yl_section_head h2 { font-size: 26px; }
+            .yl_list_item { grid-template-columns: 64px 1fr; gap: 16px; padding: 20px 0; }
+            .yl_status { grid-column: 2; justify-self: start; }
+            .yl_stats strong { font-size: 24px; }
+            .yl_chart_row { grid-template-columns: 74px 1fr 38px; gap: 8px; }
+            .yl_topbar { padding: 18px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="yl_page">
+        <header class="yl_topbar">
+            <span class="yl_brand"><i class="iconfont icon-langdu"></i>525 / ZHENG WENDI</span>
+            <span class="yl_topbar_note">LEVEL 4 PROJECT · 01</span>
+        </header>
+
+        <section class="yl_intro" aria-labelledby="yl_title">
+            <p class="yl_eyebrow">ADVANCED WEB DESIGN · 网页元素设计</p>
+            <h1 id="yl_title">读书节专题页<br>三个典型元素</h1>
+            <p class="yl_intro_text">从同一份设计稿出发，用 HTML 与 CSS 还原三种常见网页元素：上图下文、左图右文与列表。页面只用原生标签与 Flex / Grid 布局，不含任何交互脚本。</p>
+            <p class="yl_intro_meta">525 郑雯迪 · 计算机24005 · 2026-10-25</p>
+        </section>
+
+        <main>
+            <!-- 元素一：上图下文 -->
+            <section class="yl_section" id="yl_sec_cards" aria-labelledby="yl_h_cards">
+                <div class="yl_section_head">
+                    <div>
+                        <span class="yl_no">01 / ELEMENT</span>
+                        <h2 id="yl_h_cards">上图下文 · 本期书单</h2>
+                        <p class="yl_section_desc">三张卡片均采用“图片在上、文字在下”的结构，图片统一 3:2 裁切。</p>
+                    </div>
+                    <a class="yl_more" href="#yl_sec_list">查看活动日程 →</a>
+                </div>
+
+                <div class="yl_cards">
+                    <article class="yl_card">
+                        <figure class="yl_card_media">
+                            <img src="img/yl_book1.jpg" alt="窗台上摆放的一摞硬皮书与陶制茶杯">
+                        </figure>
+                        <div class="yl_card_body">
+                            <span class="yl_tag">城市 · 随笔</span>
+                            <h3>城市与记忆</h3>
+                            <p class="yl_author">林知远 / 著 · 2024</p>
+                            <p class="yl_card_text">沿着旧城区的街道行走，把一座城市拆成气味、声音与光线，重新拼回记忆里的样子。</p>
+                            <div class="yl_meta">
+                                <span><i class="iconfont icon-xihuan"></i>1,286</span>
+                                <span><i class="iconfont icon-shoucang"></i>已收藏</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="yl_card">
+                        <figure class="yl_card_media">
+                            <img src="img/yl_book2.jpg" alt="海边窗前藤椅上摊开的一本书">
+                        </figure>
+                        <div class="yl_card_body">
+                            <span class="yl_tag">小说 · 长篇</span>
+                            <h3>海边的房间</h3>
+                            <p class="yl_author">苏 岸 / 著 · 2025</p>
+                            <p class="yl_card_text">一间临海的旧房、三位租客和整个夏天的潮声，把一个关于告别与和解的故事慢慢说开。</p>
+                            <div class="yl_meta">
+                                <span><i class="iconfont icon-xihuan"></i>968</span>
+                                <span><i class="iconfont icon-shoucang"></i>已收藏</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="yl_card">
+                        <figure class="yl_card_media">
+                            <img src="img/yl_book3.jpg" alt="暖黄台灯下的笔记本、眼镜与座钟">
+                        </figure>
+                        <div class="yl_card_body">
+                            <span class="yl_tag">科普 · 时间</span>
+                            <h3>时间的秩序</h3>
+                            <p class="yl_author">周 屿 / 著 · 2023</p>
+                            <p class="yl_card_text">从一只老座钟讲起，用日常的观察解释时间为何在不同尺度里呈现出完全不同的面孔。</p>
+                            <div class="yl_meta">
+                                <span><i class="iconfont icon-xihuan"></i>1,542</span>
+                                <span><i class="iconfont icon-shoucang"></i>已收藏</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- 元素二：左图右文 -->
+            <section class="yl_section" id="yl_sec_feature" aria-labelledby="yl_h_feature">
+                <div class="yl_feature">
+                    <figure class="yl_feature_media">
+                        <img src="img/yl_book4.jpg" alt="临海窗边圆桌上的书、茶杯与一摞书">
+                        <figcaption>FIG. 02 — 本周共读现场 · 海边的阅读角</figcaption>
+                    </figure>
+
+                    <div class="yl_feature_body">
+                        <span class="yl_no">02 / ELEMENT</span>
+                        <h2 id="yl_h_feature">左图右文<br>把一本书读成一段旅程</h2>
+                        <p>本周共读选择《海边的房间》。左侧图片负责营造场景，右侧文字依次给出主题、数据与进度图表，形成稳定的视觉重心。</p>
+
+                        <div class="yl_stats">
+                            <div><strong>86%</strong><span>章节完成度</span></div>
+                            <div><strong>1,024</strong><span>参与读者</span></div>
+                            <div><strong>7</strong><span>共读小组</span></div>
+                        </div>
+
+                        <div class="yl_chart" role="img" aria-label="共读各章节阅读完成度：第一章 92%，第二章 86%，第三章 78%，第四章 64%，第五章 51%">
+                            <p class="yl_chart_title">各章节阅读完成度</p>
+                            <div class="yl_chart_row">
+                                <span class="yl_chart_label">第一章 出发</span>
+                                <span class="yl_chart_track"><span class="yl_chart_fill" style="width: 92%"></span></span>
+                                <span class="yl_chart_val">92%</span>
+                            </div>
+                            <div class="yl_chart_row">
+                                <span class="yl_chart_label">第二章 潮声</span>
+                                <span class="yl_chart_track"><span class="yl_chart_fill" style="width: 86%"></span></span>
+                                <span class="yl_chart_val">86%</span>
+                            </div>
+                            <div class="yl_chart_row">
+                                <span class="yl_chart_label">第三章 旧房</span>
+                                <span class="yl_chart_track"><span class="yl_chart_fill" style="width: 78%"></span></span>
+                                <span class="yl_chart_val">78%</span>
+                            </div>
+                            <div class="yl_chart_row">
+                                <span class="yl_chart_label">第四章 告别</span>
+                                <span class="yl_chart_track"><span class="yl_chart_fill" style="width: 64%"></span></span>
+                                <span class="yl_chart_val">64%</span>
+                            </div>
+                            <div class="yl_chart_row">
+                                <span class="yl_chart_label">第五章 归来</span>
+                                <span class="yl_chart_track"><span class="yl_chart_fill" style="width: 51%"></span></span>
+                                <span class="yl_chart_val">51%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 元素三：列表 -->
+            <section class="yl_section" id="yl_sec_list" aria-labelledby="yl_h_list">
+                <div class="yl_section_head">
+                    <div>
+                        <span class="yl_no">03 / ELEMENT</span>
+                        <h2 id="yl_h_list">列表 · 活动日程</h2>
+                        <p class="yl_section_desc">用有序列表承载日期、地点与状态三类信息，条目之间以细线分隔。</p>
+                    </div>
+                    <span class="yl_topbar_note">共 4 场活动</span>
+                </div>
+
+                <ol class="yl_list">
+                    <li class="yl_list_item">
+                        <div class="yl_date"><strong>26</strong><span>10月 · 周一</span></div>
+                        <div class="yl_list_body">
+                            <h3>读书节开幕式 · 主题分享</h3>
+                            <p><i class="iconfont icon-shouye"></i>图书馆三楼报告厅　19:00 — 20:30</p>
+                        </div>
+                        <span class="yl_status yl_status_hot">可报名</span>
+                    </li>
+                    <li class="yl_list_item">
+                        <div class="yl_date"><strong>28</strong><span>10月 · 周三</span></div>
+                        <div class="yl_list_body">
+                            <h3>《城市与记忆》作者对谈</h3>
+                            <p><i class="iconfont icon-faxian"></i>文科楼 201 教室　14:00 — 15:30</p>
+                        </div>
+                        <span class="yl_status">已约满</span>
+                    </li>
+                    <li class="yl_list_item">
+                        <div class="yl_date"><strong>30</strong><span>10月 · 周五</span></div>
+                        <div class="yl_list_body">
+                            <h3>夜读电台 · 一小时共读</h3>
+                            <p><i class="iconfont icon-langdu"></i>线上直播　21:00 — 22:00</p>
+                        </div>
+                        <span class="yl_status yl_status_hot">可报名</span>
+                    </li>
+                    <li class="yl_list_item">
+                        <div class="yl_date"><strong>02</strong><span>11月 · 周日</span></div>
+                        <div class="yl_list_body">
+                            <h3>读书笔记展 · 作品互评</h3>
+                            <p><i class="iconfont icon-bianji"></i>图书馆一层展厅　全天</p>
+                        </div>
+                        <span class="yl_status">筹备中</span>
+                    </li>
+                </ol>
+            </section>
+        </main>
+
+        <footer class="yl_footer">© 525 郑雯迪 · 高级网页设计 · 四级项目一 网页元素设计</footer>
+    </div>
+<script>
+window.addEventListener('load',function(){
+  var ids=['yl_sec_cards','yl_sec_feature','yl_sec_list'];var o={};
+  ids.forEach(function(id){var r=document.getElementById(id).getBoundingClientRect();o[id]={top:Math.round(r.top+window.scrollY),height:Math.round(r.height),width:Math.round(r.width)};});
+  o.doc=document.documentElement.scrollHeight;
+  document.title='YLMEASURE'+JSON.stringify(o);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>四级项目一 设计稿（线框）</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #e8e4dc; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; padding: 36px 39px; }
+    .canvas { width: 1122px; }
+    .board {
+        position: relative;
+        margin-bottom: 42px;
+        padding: 56px 0;
+        background: #fffdf8;
+        border: 1px solid #b9b3a6;
+    }
+    .board_tag {
+        position: absolute;
+        top: -26px;
+        left: 0;
+        color: #7a756b;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+    .ph {
+        position: relative;
+        background: #e3dfd6;
+        border: 1px dashed #a8a29a;
+    }
+    .ph::before {
+        content: "";
+        position: absolute; inset: 0;
+        background:
+            linear-gradient(to top right, transparent calc(50% - 0.5px), #b6b0a6 calc(50% - 0.5px), #b6b0a6 calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+            linear-gradient(to top left, transparent calc(50% - 0.5px), #b6b0a6 calc(50% - 0.5px), #b6b0a6 calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    }
+    .ph::after {
+        content: attr(data-label);
+        position: absolute; left: 50%; top: 50%;
+        transform: translate(-50%, -50%);
+        padding: 4px 10px;
+        background: #fffdf8;
+        border: 1px solid #b6b0a6;
+        color: #8b857b;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    .bar { background: #c9c4ba; border-radius: 2px; }
+    .bar_d { background: #8f8a80; }
+    .line { height: 9px; background: #d9d4ca; border-radius: 2px; }
+    .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 2px; color: #b06150; }
+    .sect_head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 30px; }
+    .sect_head .bar_d { width: 300px; height: 26px; margin: 8px 0 12px; }
+    .link_line { width: 84px; height: 8px; background: #9aa7ae; }
+
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .card { border: 1px solid #cfcabf; background: #fff; }
+    .card .ph { aspect-ratio: 3 / 2; }
+    .card_body { padding: 22px; }
+    .chip { width: 62px; height: 18px; background: #e8cdc7; margin-bottom: 12px; }
+    .card_body .t { width: 62%; height: 20px; background: #b3ada3; margin-bottom: 8px; }
+    .card_body .a { width: 40%; height: 8px; background: #dad5cb; margin-bottom: 14px; }
+    .card_body .l { width: 100%; height: 8px; background: #dad5cb; margin-bottom: 7px; }
+    .card_body .l2 { width: 72%; height: 8px; background: #dad5cb; margin-bottom: 16px; }
+    .meta { display: flex; gap: 18px; border-top: 1px dashed #dad5cb; padding-top: 14px; }
+    .meta i { width: 58px; height: 8px; background: #d3cec4; display: block; }
+
+    .feature { display: grid; grid-template-columns: 1.02fr 1fr; gap: 50px; align-items: center; }
+    .feature .ph { aspect-ratio: 4 / 3; }
+    .cap { width: 190px; height: 8px; background: #dad5cb; margin-top: 12px; }
+    .f_right .t1 { width: 38%; height: 24px; background: #b3ada3; margin: 10px 0 8px; }
+    .f_right .t2 { width: 78%; height: 24px; background: #b3ada3; margin-bottom: 18px; }
+    .f_right .l { width: 100%; height: 8px; background: #d9d4ca; margin-bottom: 7px; }
+    .f_right .l2 { width: 88%; height: 8px; background: #d9d4ca; margin-bottom: 22px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; border-top: 1px solid #dad5cb; border-bottom: 1px solid #dad5cb; padding: 22px 0; margin-bottom: 22px; }
+    .stats .n { width: 76px; height: 22px; background: #9fb0b8; margin-bottom: 8px; }
+    .stats .s { width: 60px; height: 8px; background: #dad5cb; }
+    .chart_t { width: 108px; height: 9px; background: #bdb8ae; margin-bottom: 12px; }
+    .row { display: grid; grid-template-columns: 92px 1fr 42px; align-items: center; gap: 12px; margin-bottom: 9px; }
+    .row .lb { height: 8px; background: #d9d4ca; }
+    .track { height: 12px; background: #ece7dd; }
+    .track i { display: block; height: 12px; background: #c96a55; }
+    .row .v { font-size: 11px; color: #8b857b; text-align: right; }
+
+    .list { border-top: 1px solid #cfcabf; }
+    .item { display: grid; grid-template-columns: 84px 1fr auto; align-items: center; gap: 26px; padding: 24px 8px; border-bottom: 1px solid #cfcabf; }
+    .date { text-align: center; border-right: 1px solid #cfcabf; }
+    .date .d { width: 40px; height: 30px; background: #c96a55; margin: 0 auto 6px; }
+    .date .s { width: 52px; height: 7px; background: #d9d4ca; margin: 0 auto; }
+    .item .bt { width: 46%; height: 16px; background: #b3ada3; margin-bottom: 8px; }
+    .item .bl { width: 62%; height: 8px; background: #d9d4ca; }
+    .status { width: 68px; height: 26px; border: 1px solid #b9b3a6; }
+    .status.hot { background: #c96a55; border-color: #c96a55; }
+
+    .swatches { position: absolute; right: 0; top: -26px; display: flex; gap: 6px; align-items: center; }
+    .swatches span { width: 14px; height: 14px; display: block; border: 1px solid rgba(0,0,0,.12); }
+    .swatches em { font-style: normal; font-size: 11px; color: #7a756b; margin-right: 4px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+    <div class="board" id="yl_d1">
+        <div class="board_tag">元素一 · 上图下文 · 设计稿 1122 × 745</div>
+        <div class="swatches"><em>配色</em><span style="background:#f5f1e8"></span><span style="background:#d95d46"></span><span style="background:#245b72"></span><span style="background:#f2c05c"></span></div>
+        <div class="sect_head">
+            <div>
+                <div class="eyebrow">01 / ELEMENT</div>
+                <div class="bar_d"></div>
+                <div class="line" style="width: 420px"></div>
+            </div>
+            <div class="link_line"></div>
+        </div>
+        <div class="cards">
+            <div class="card">
+                <div class="ph" data-label="图片 3:2"></div>
+                <div class="card_body">
+                    <div class="chip"></div><div class="t"></div><div class="a"></div>
+                    <div class="l"></div><div class="l2"></div>
+                    <div class="meta"><i></i><i></i></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="ph" data-label="图片 3:2"></div>
+                <div class="card_body">
+                    <div class="chip"></div><div class="t"></div><div class="a"></div>
+                    <div class="l"></div><div class="l2"></div>
+                    <div class="meta"><i></i><i></i></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="ph" data-label="图片 3:2"></div>
+                <div class="card_body">
+                    <div class="chip"></div><div class="t"></div><div class="a"></div>
+                    <div class="l"></div><div class="l2"></div>
+                    <div class="meta"><i></i><i></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="board" id="yl_d2">
+        <div class="board_tag">元素二 · 左图右文 · 设计稿 1122 × 669</div>
+        <div class="feature">
+            <div>
+                <div class="ph" data-label="图片 4:3"></div>
+                <div class="cap"></div>
+            </div>
+            <div class="f_right">
+                <div class="eyebrow">02 / ELEMENT</div>
+                <div class="t1"></div><div class="t2"></div>
+                <div class="l"></div><div class="l"></div><div class="l2"></div>
+                <div class="stats">
+                    <div><div class="n"></div><div class="s"></div></div>
+                    <div><div class="n"></div><div class="s"></div></div>
+                    <div><div class="n"></div><div class="s"></div></div>
+                </div>
+                <div class="chart_t"></div>
+                <div class="row"><div class="lb"></div><div class="track"><i style="width:92%"></i></div><div class="v">92%</div></div>
+                <div class="row"><div class="lb"></div><div class="track"><i style="width:86%"></i></div><div class="v">86%</div></div>
+                <div class="row"><div class="lb"></div><div class="track"><i style="width:78%"></i></div><div class="v">78%</div></div>
+                <div class="row"><div class="lb"></div><div class="track"><i style="width:64%"></i></div><div class="v">64%</div></div>
+                <div class="row"><div class="lb"></div><div class="track"><i style="width:51%"></i></div><div class="v">51%</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="board" id="yl_d3">
+        <div class="board_tag">元素三 · 列表 · 设计稿 1122 × 700</div>
+        <div class="sect_head">
+            <div>
+                <div class="eyebrow">03 / ELEMENT</div>
+                <div class="bar_d" style="width: 250px"></div>
+                <div class="line" style="width: 400px"></div>
+            </div>
+            <div class="link_line" style="width: 60px"></div>
+        </div>
+        <div class="list">
+            <div class="item">
+                <div class="date"><div class="d"></div><div class="s"></div></div>
+                <div><div class="bt"></div><div class="bl"></div></div>
+                <div class="status hot"></div>
+            </div>
+            <div class="item">
+                <div class="date"><div class="d"></div><div class="s"></div></div>
+                <div><div class="bt" style="width: 40%"></div><div class="bl" style="width: 55%"></div></div>
+                <div class="status"></div>
+            </div>
+            <div class="item">
+                <div class="date"><div class="d"></div><div class="s"></div></div>
+                <div><div class="bt" style="width: 36%"></div><div class="bl" style="width: 50%"></div></div>
+                <div class="status hot"></div>
+            </div>
+            <div class="item">
+                <div class="date"><div class="d"></div><div class="s"></div></div>
+                <div><div class="bt" style="width: 42%"></div><div class="bl" style="width: 58%"></div></div>
+                <div class="status"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+window.addEventListener('load', function () {
+    var res = {};
+    ['yl_d1', 'yl_d2', 'yl_d3'].forEach(function (id) {
+        var r = document.getElementById(id).getBoundingClientRect();
+        res[id] = { top: Math.round(r.top + window.scrollY), height: Math.round(r.height), left: Math.round(r.left), width: Math.round(r.width) };
+    });
+    res.doc = document.documentElement.scrollHeight;
+    document.title = 'YLMEASURE' + JSON.stringify(res);
+});
+</script>
+</body>
+</html>
