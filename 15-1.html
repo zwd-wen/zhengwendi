@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+    姓名：郑雯迪
+    日期：2026-10-26
+    功能名称：数7游戏（100个盒子，7的倍数与尾数为7的数显示空盒子）
+    -->
+    <title>15-1 数7游戏</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #faf6f0;
+            color: #3a3a3a;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .yl_container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .yl_header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .yl_header h1 {
+            font-size: clamp(22px, 4vw, 34px);
+            color: #2c3e50;
+            margin-bottom: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .yl_header h1 .iconfont {
+            color: #e67e22;
+            font-size: 30px;
+        }
+        .yl_subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .yl_author {
+            text-align: center;
+            color: #b07d2b;
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+        .yl_rules {
+            background: #fff;
+            border-left: 4px solid #e67e22;
+            padding: 14px 18px;
+            margin-bottom: 28px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.9;
+        }
+        .yl_rules strong { color: #c0392b; }
+        .yl_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+            gap: 10px;
+        }
+        .yl_box {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .yl_box:hover {
+            transform: scale(1.08);
+        }
+        .yl_box_num {
+            background: #fff;
+            color: #2c3e50;
+            border: 2px solid #e8e3da;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .yl_box_empty {
+            background: #e67e22;
+            color: #fff;
+            border: 2px solid #d35400;
+            box-shadow: 0 2px 6px rgba(230,126,34,0.35);
+        }
+        .yl_box_empty .iconfont {
+            font-size: 22px;
+        }
+        .yl_legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 28px;
+            font-size: 13px;
+            color: #7f8c8d;
+            flex-wrap: wrap;
+        }
+        .yl_legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .yl_dot {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+        .yl_dot_num { background: #fff; border: 2px solid #e8e3da; }
+        .yl_dot_empty { background: #e67e22; }
+        .yl_footer {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 12px;
+            padding-top: 24px;
+            margin-top: 32px;
+            border-top: 1px solid #e8e3da;
+        }
+    </style>
+</head>
+<body>
+    <div class="yl_container">
+        <header class="yl_header">
+            <h1><i class="iconfont icon-a-ziyuan1"></i>数7游戏</h1>
+        </header>
+        <p class="yl_subtitle">1 ~ 100 共 100 个盒子</p>
+        <p class="yl_author">郑雯迪 · 2026-10-26</p>
+
+        <section class="yl_rules">
+            <p>规则：遇到 <strong>7 的倍数</strong> 或 <strong>尾数为 7</strong> 的数字时，输出<span style="color:#e67e22;font-weight:bold;">空盒子</span>（拍手跳过）；其余数字正常显示。</p>
+        </section>
+
+        <section class="yl_grid" id="yl_grid" aria-label="数7游戏盒子网格"></section>
+
+        <div class="yl_legend">
+            <span><i class="yl_dot yl_dot_num"></i>数字盒子</span>
+            <span><i class="yl_dot yl_dot_empty"></i>空盒子（拍手）</span>
+        </div>
+
+        <footer class="yl_footer">郑雯迪 · 高级网页设计 · 数7游戏</footer>
+    </div>
+
+    <script>
+        // 数7游戏：生成 1~100 的盒子
+        (function () {
+            var yl_grid = document.getElementById("yl_grid");
+            var yl_html = "";
+            var yl_i;
+
+            for (yl_i = 1; yl_i <= 100; yl_i++) {
+                // 判断是否满足数7规则：7的倍数 或 尾数为7
+                var yl_isSkip = (yl_i % 7 === 0) || (yl_i % 10 === 7);
+
+                if (yl_isSkip) {
+                    yl_html += '<div class="yl_box yl_box_empty" title="' + yl_i + '：跳过"><i class="iconfont icon-xihuan"></i></div>';
+                } else {
+                    yl_html += '<div class="yl_box yl_box_num">' + yl_i + '</div>';
+                }
+            }
+
+            yl_grid.innerHTML = yl_html;
+        })();
+    </script>
+</body>
+</html>
