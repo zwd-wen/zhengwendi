@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+    姓名：郑雯迪
+    日期：2026-10-29
+    功能名称：影视剧排行榜标签切换演示
+    -->
+    <title>16-4 影视剧排行榜</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 60px 20px;
+        }
+
+        /* 排行榜容器 */
+        .zwd_rank_box {
+            width: 100%;
+            max-width: 360px;
+            background: #fff;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 标签栏 */
+        .zwd_tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .zwd_tab {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-right: 1px solid #e5e5e5;
+            user-select: none;
+        }
+
+        .zwd_tab:last-child { border-right: none; }
+
+        .zwd_tab.zwd_active {
+            background: #e0e0e0;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .zwd_tab:hover {
+            background: #ebebeb;
+        }
+
+        /* 排行榜列表 */
+        .zwd_rank_list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            padding: 8px 0;
+        }
+
+        .zwd_rank_item {
+            display: flex;
+            align-items: center;
+            padding: 9px 14px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .zwd_rank_item:hover {
+            background: #f9f9f9;
+        }
+
+        /* 排名数字方块 */
+        .zwd_rank_num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            background: #bbb;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* 前三名红色 */
+        .zwd_rank_item.zwd_top .zwd_rank_num {
+            background: #ff6b6b;
+        }
+
+        .zwd_rank_name {
+            font-size: 14px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .zwd_rank_item:hover .zwd_rank_name {
+            color: #ff6b6b;
+        }
+
+        /* 面板切换 */
+        .zwd_panel { display: none; }
+        .zwd_panel.zwd_active { display: block; }
+
+        .zwd_footer {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            padding: 16px 0;
+            border-top: 1px solid #eee;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 400px) {
+            .zwd_rank_name { font-size: 13px; }
+            .zwd_rank_item { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <main class="zwd_rank_box" aria-labelledby="zwd_rank_title">
+        <h1 id="zwd_rank_title" style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;">影视剧排行榜</h1>
+
+        <!-- 标签导航 -->
+        <nav class="zwd_tabs" role="tablist">
+            <div class="zwd_tab zwd_active" role="tab" data-panel="zwd_daily">每日</div>
+            <div class="zwd_tab" role="tab" data-panel="zwd_weekly">每周</div>
+            <div class="zwd_tab" role="tab" data-panel="zwd_monthly">每月</div>
+            <div class="zwd_tab" role="tab" data-panel="zwd_all">全部</div>
+        </nav>
+
+        <!-- 每日 -->
+        <section class="zwd_panel zwd_active" id="zwd_daily" role="tabpanel">
+            <div class="zwd_rank_list">
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">1</span><span class="zwd_rank_name">最美的时光</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">6</span><span class="zwd_rank_name">极品女士第2季</span></div>
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">2</span><span class="zwd_rank_name">咱们结婚吧</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">7</span><span class="zwd_rank_name">爱闪亮</span></div>
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">3</span><span class="zwd_rank_name">渗透</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">8</span><span class="zwd_rank_name">狼烟（2013）</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">4</span><span class="zwd_rank_name">继承者们</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">9</span><span class="zwd_rank_name">钱多多炼爱记</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">5</span><span class="zwd_rank_name">烽火佳人</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">10</span><span class="zwd_rank_name">苍狼</span></div>
+            </div>
+        </section>
+
+        <!-- 每周 -->
+        <section class="zwd_panel" id="zwd_weekly" role="tabpanel">
+            <div class="zwd_rank_list">
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">1</span><span class="zwd_rank_name">咱们结婚吧</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">6</span><span class="zwd_rank_name">狼烟（2013）</span></div>
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">2</span><span class="zwd_rank_name">继承者们</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">7</span><span class="zwd_rank_name">三十岁，你好</span></div>
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">3</span><span class="zwd_rank_name">最美的时光</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">8</span><span class="zwd_rank_name">钱多多炼爱记</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">4</span><span class="zwd_rank_name">爱闪亮</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">9</span><span class="zwd_rank_name">特种兵之火凤凰</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">5</span><span class="zwd_rank_name">渗透</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">10</span><span class="zwd_rank_name">极品女士第2季</span></div>
+            </div>
+        </section>
+
+        <!-- 每月 -->
+        <section class="zwd_panel" id="zwd_monthly" role="tabpanel">
+            <div class="zwd_rank_list">
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">1</span><span class="zwd_rank_name">特种兵之火凤凰</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">6</span><span class="zwd_rank_name">爱闪亮</span></div>
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">2</span><span class="zwd_rank_name">咱们结婚吧</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">7</span><span class="zwd_rank_name">爱情面前谁怕谁</span></div>
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">3</span><span class="zwd_rank_name">继承者们</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">8</span><span class="zwd_rank_name">英雄联盟</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">4</span><span class="zwd_rank_name">金玉满堂</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">9</span><span class="zwd_rank_name">小爸爸</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">5</span><span class="zwd_rank_name">王的女人</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">10</span><span class="zwd_rank_name">我们这拨人</span></div>
+            </div>
+        </section>
+
+        <!-- 全部 -->
+        <section class="zwd_panel" id="zwd_all" role="tabpanel">
+            <div class="zwd_rank_list">
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">1</span><span class="zwd_rank_name">永不磨灭的番号</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">6</span><span class="zwd_rank_name">心术</span></div>
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">2</span><span class="zwd_rank_name">特种兵之火凤凰</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">7</span><span class="zwd_rank_name">乡村爱情</span></div>
+                <div class="zwd_rank_item zwd_top"><span class="zwd_rank_num">3</span><span class="zwd_rank_name">新还珠格格</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">8</span><span class="zwd_rank_name">天天有喜</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">4</span><span class="zwd_rank_name">咱们结婚吧</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">9</span><span class="zwd_rank_name">一个鬼子都不留</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">5</span><span class="zwd_rank_name">小爸爸</span></div>
+                <div class="zwd_rank_item"><span class="zwd_rank_num">10</span><span class="zwd_rank_name">夏日甜心</span></div>
+            </div>
+        </section>
+
+        <footer class="zwd_footer">© 525 郑雯迪 · 《高级网页设计》课堂实践 · 16-4</footer>
+    </main>
+
+    <script>
+        // 标签切换逻辑
+        var zwd_tabs = document.querySelectorAll('.zwd_tab');
+        var zwd_panels = document.querySelectorAll('.zwd_panel');
+
+        zwd_tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                // 移除所有激活状态
+                zwd_tabs.forEach(function (t) { t.classList.remove('zwd_active'); });
+                zwd_panels.forEach(function (p) { p.classList.remove('zwd_active'); });
+                // 激活当前
+                tab.classList.add('zwd_active');
+                document.getElementById(tab.dataset.panel).classList.add('zwd_active');
+            });
+        });
+    </script>
+</body>
+</html>

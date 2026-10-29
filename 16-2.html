@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+    姓名：郑雯迪
+    日期：2026-10-29
+    功能名称：JavaScript 对象与字符串可视化演示
+    -->
+    <title>16-2 JavaScript 对象与字符串可视化演示</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #faf6f0;
+            color: #3a3a3a;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .zwd_container { max-width: 1000px; margin: 0 auto; }
+
+        /* ===== 头部 ===== */
+        .zwd_header { text-align: center; margin-bottom: 26px; }
+        .zwd_header h1 {
+            font-size: clamp(24px, 4vw, 36px);
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .zwd_header p { color: #7f8c8d; font-size: 14px; }
+        .zwd_header .iconfont { color: #2980b9; font-size: 30px; margin-right: 8px; }
+
+        .zwd_intro {
+            background: #fff;
+            border-left: 4px solid #2980b9;
+            padding: 14px 20px;
+            margin-bottom: 22px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .zwd_intro b { color: #2980b9; }
+
+        /* ===== 选项卡 ===== */
+        .zwd_tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .zwd_tab {
+            flex: 1;
+            border: 2px solid #d5dbe0;
+            background: #fff;
+            color: #7f8c8d;
+            padding: 12px 0;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .zwd_tab .iconfont { font-size: 18px; }
+        .zwd_tab:hover { border-color: #2980b9; color: #2980b9; }
+        .zwd_tab.zwd_active { background: #2c3e50; border-color: #2c3e50; color: #fff; }
+
+        /* ===== 面板 ===== */
+        .zwd_panel { display: none; }
+        .zwd_panel.zwd_active { display: block; animation: zwd_fade .3s ease; }
+        @keyframes zwd_fade {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .zwd_stage {
+            background: #fff;
+            border-radius: 10px;
+            padding: 22px 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        .zwd_stage_title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .zwd_stage_title .iconfont { color: #2980b9; margin-right: 6px; }
+        .zwd_reset_btn {
+            border: 1px solid #2980b9;
+            background: #fff;
+            color: #2980b9;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .zwd_reset_btn:hover { background: #2980b9; color: #fff; }
+
+        /* ===== 对象可视化：键值卡片 ===== */
+        .zwd_obj_box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            min-height: 80px;
+            padding: 16px;
+            background: #eef5fb;
+            border: 2px dashed #a9c9e8;
+            border-radius: 8px;
+            align-items: flex-start;
+        }
+        .zwd_brace {
+            font-family: "Consolas", monospace;
+            font-size: 40px;
+            color: #7fa8c9;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+        .zwd_pair {
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 0 rgba(0,0,0,.1);
+            animation: zwd_pop .35s ease;
+        }
+        @keyframes zwd_pop {
+            from { transform: scale(.4); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        .zwd_pair .zwd_key {
+            background: #2980b9;
+            color: #fff;
+            font-family: "Consolas", monospace;
+            font-size: 12px;
+            padding: 4px 12px;
+        }
+        .zwd_pair .zwd_val {
+            background: #fff;
+            color: #2c3e50;
+            font-family: "Consolas", monospace;
+            font-size: 15px;
+            font-weight: bold;
+            padding: 8px 12px;
+            min-width: 70px;
+            text-align: center;
+        }
+        .zwd_pair.zwd_is_fn .zwd_key { background: #8e44ad; }
+        .zwd_obj_tip { color: #7fa8c9; font-size: 13px; align-self: center; }
+
+        /* ===== 字符串可视化：字符格 ===== */
+        .zwd_str_input_row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .zwd_str_input {
+            flex: 1;
+            min-width: 220px;
+            border: 2px solid #d5dbe0;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 15px;
+            font-family: "Consolas", monospace;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .zwd_str_input:focus { border-color: #2980b9; }
+        .zwd_apply_btn {
+            border: none;
+            background: #2980b9;
+            color: #fff;
+            padding: 9px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .zwd_apply_btn:hover { filter: brightness(1.1); }
+        .zwd_chars_box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 16px;
+            background: #eef5fb;
+            border: 2px dashed #a9c9e8;
+            border-radius: 8px;
+            align-items: flex-end;
+        }
+        .zwd_quote {
+            font-family: "Consolas", monospace;
+            font-size: 30px;
+            color: #7fa8c9;
+            font-weight: bold;
+        }
+        .zwd_char_wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            animation: zwd_pop .3s ease;
+        }
+        .zwd_char {
+            width: 34px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: #2980b9;
+            color: #fff;
+            font-family: "Consolas", monospace;
+            font-size: 17px;
+            font-weight: bold;
+            transition: transform .2s;
+        }
+        .zwd_char.zwd_space { background: #b3c7d8; }
+        .zwd_char_wrap:hover .zwd_char { transform: translateY(-4px); }
+        .zwd_char_wrap .zwd_index { font-size: 10px; color: #7fa8c9; font-family: "Consolas", monospace; }
+        .zwd_str_meta { margin-top: 10px; font-size: 13px; color: #5d7a92; font-family: "Consolas", monospace; }
+
+        /* ===== 按钮区 ===== */
+        .zwd_groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .zwd_group {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .zwd_group h2 {
+            font-size: 15px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .zwd_group h2 .iconfont { font-size: 18px; }
+        .zwd_btns { display: flex; flex-wrap: wrap; gap: 8px; }
+        .zwd_btn {
+            border: none;
+            padding: 7px 13px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: "Consolas", monospace;
+            color: #fff;
+            cursor: pointer;
+            transition: transform .15s, filter .15s;
+        }
+        .zwd_btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .zwd_btn:active { transform: scale(.95); }
+        .zwd_c_read  { background: #2980b9; }
+        .zwd_c_write { background: #e67e22; }
+        .zwd_c_trav  { background: #8e44ad; }
+        .zwd_c_fn    { background: #27ae60; }
+        .zwd_c_str1  { background: #2980b9; }
+        .zwd_c_str2  { background: #e67e22; }
+        .zwd_c_str3  { background: #27ae60; }
+
+        /* ===== 结果面板 ===== */
+        .zwd_result_panel {
+            background: #2c3e50;
+            border-radius: 10px;
+            padding: 18px 24px;
+            color: #ecf0f1;
+            margin-bottom: 20px;
+            min-height: 110px;
+        }
+        .zwd_result_panel h2 {
+            font-size: 14px;
+            color: #f39c12;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .zwd_code {
+            font-family: "Consolas", monospace;
+            font-size: 15px;
+            color: #2ecc71;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+        .zwd_ret { font-size: 13px; line-height: 1.9; word-break: break-all; }
+        .zwd_ret .zwd_label { display: inline-block; min-width: 88px; color: #95a5a6; }
+        .zwd_ret_val {
+            background: #34495e;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-family: "Consolas", monospace;
+            color: #f1c40f;
+        }
+
+        /* ===== 知识卡片 ===== */
+        .zwd_cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-bottom: 26px;
+        }
+        .zwd_card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .zwd_card h3 { font-size: 15px; color: #2c3e50; margin-bottom: 10px; }
+        .zwd_card p { font-size: 13px; line-height: 1.9; color: #666; }
+        .zwd_card code {
+            background: #eef5fb;
+            color: #2471a3;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: "Consolas", monospace;
+            font-size: 12.5px;
+        }
+
+        .zwd_footer {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 12px;
+            padding-top: 20px;
+            border-top: 1px solid #e8e3da;
+        }
+
+        @media (max-width: 600px) {
+            .zwd_char { width: 26px; height: 36px; font-size: 14px; }
+            .zwd_quote { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zwd_container">
+        <!-- 头部 -->
+        <header class="zwd_header">
+            <h1><i class="iconfont icon-shezhi"></i>JavaScript 对象与字符串可视化演示</h1>
+            <p>对象像一张「档案卡」，字符串像一排「字符格」· 郑雯迪</p>
+        </header>
+
+        <div class="zwd_intro">
+            切换下方选项卡分别体验：<b>对象</b>部分把 <b>zwd_obj</b> 的每个属性画成「键 → 值」卡片，
+            直观演示属性的读取、新增、修改、删除与遍历；<b>字符串</b>部分把 <b>zwd_str</b> 拆成一格一格的字符，
+            直观演示下标索引与常用字符串方法。所有操作都会展示真实执行代码与返回值。
+        </div>
+
+        <!-- 选项卡 -->
+        <div class="zwd_tabs" role="tablist">
+            <button type="button" class="zwd_tab zwd_active" data-panel="zwd_obj_panel" id="zwd_tab_obj">
+                <i class="iconfont icon-wode"></i>对象 Object
+            </button>
+            <button type="button" class="zwd_tab" data-panel="zwd_str_panel" id="zwd_tab_str">
+                <i class="iconfont icon-langdu"></i>字符串 String
+            </button>
+        </div>
+
+        <!-- ================= 对象面板 ================= -->
+        <section class="zwd_panel zwd_active" id="zwd_obj_panel">
+            <div class="zwd_stage">
+                <div class="zwd_stage_title">
+                    <span><i class="iconfont icon-shouye"></i>当前对象 const zwd_obj</span>
+                    <button type="button" class="zwd_reset_btn" id="zwd_obj_reset">
+                        <i class="iconfont icon-icon_zhongxinshengcheng"></i> 重置对象
+                    </button>
+                </div>
+                <div class="zwd_obj_box" id="zwd_obj_box" aria-live="polite"></div>
+            </div>
+
+            <div class="zwd_groups">
+                <div class="zwd_group">
+                    <h2><i class="iconfont icon-sousuo" style="color:#2980b9"></i>读取属性</h2>
+                    <div class="zwd_btns">
+                        <button class="zwd_btn zwd_c_read" data-m="dotRead">zwd_obj.name</button>
+                        <button class="zwd_btn zwd_c_read" data-m="bracketRead">zwd_obj['age']</button>
+                        <button class="zwd_btn zwd_c_read" data-m="inOp">'major' in zwd_obj</button>
+                    </div>
+                </div>
+                <div class="zwd_group">
+                    <h2><i class="iconfont icon-bianji" style="color:#e67e22"></i>增 / 改 / 删</h2>
+                    <div class="zwd_btns">
+                        <button class="zwd_btn zwd_c_write" data-m="addProp">新增 hobby</button>
+                        <button class="zwd_btn zwd_c_write" data-m="modProp">age 改为 21</button>
+                        <button class="zwd_btn zwd_c_write" data-m="delProp">delete sid</button>
+                    </div>
+                </div>
+                <div class="zwd_group">
+                    <h2><i class="iconfont icon-faxian" style="color:#8e44ad"></i>遍历对象</h2>
+                    <div class="zwd_btns">
+                        <button class="zwd_btn zwd_c_trav" data-m="keys">Object.keys()</button>
+                        <button class="zwd_btn zwd_c_trav" data-m="values">Object.values()</button>
+                        <button class="zwd_btn zwd_c_trav" data-m="forIn">for-in 遍历</button>
+                    </div>
+                </div>
+                <div class="zwd_group">
+                    <h2><i class="iconfont icon-xihuan" style="color:#27ae60"></i>对象方法</h2>
+                    <div class="zwd_btns">
+                        <button class="zwd_btn zwd_c_fn" data-m="callFn">zwd_obj.sayHi()</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="zwd_result_panel" aria-live="polite">
+                <h2><i class="iconfont icon-xihuan"></i>运行结果</h2>
+                <div id="zwd_obj_result">
+                    <p class="zwd_ret" style="color:#95a5a6">点击上方任意按钮，这里会展示执行的代码、返回值，对象卡片会实时变化。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 字符串面板 ================= -->
+        <section class="zwd_panel" id="zwd_str_panel">
+            <div class="zwd_stage">
+                <div class="zwd_stage_title">
+                    <span><i class="iconfont icon-shouye"></i>当前字符串 let zwd_str</span>
+                    <button type="button" class="zwd_reset_btn" id="zwd_str_reset">
+                        <i class="iconfont icon-icon_zhongxinshengcheng"></i> 恢复示例
+                    </button>
+                </div>
+                <div class="zwd_str_input_row">
+                    <input type="text" class="zwd_str_input" id="zwd_str_input" value="Hello JavaScript" maxlength="30" aria-label="输入要演示的字符串">
+                    <button type="button" class="zwd_apply_btn" id="zwd_str_apply">更新字符串</button>
+                </div>
+                <div class="zwd_chars_box" id="zwd_chars_box" aria-live="polite"></div>
+                <p class="zwd_str_meta" id="zwd_str_meta"></p>
+            </div>
+
+            <div class="zwd_groups">
+                <div class="zwd_group">
+                    <h2><i class="iconfont icon-sousuo" style="color:#2980b9"></i>访问与查找</h2>
+                    <div class="zwd_btns">
+                        <button class="zwd_btn zwd_c_str1" data-m="length">.length</button>
+                        <button class="zwd_btn zwd_c_str1" data-m="charAt">charAt(4)</button>
+                        <button class="zwd_btn zwd_c_str1" data-m="charCodeAt">charCodeAt(0)</button>
+                        <button class="zwd_btn zwd_c_str1" data-m="indexOf">indexOf('a')</button>
+                        <button class="zwd_btn zwd_c_str1" data-m="includes">includes('Script')</button>
+                        <button class="zwd_btn zwd_c_str1" data-m="startsWith">startsWith('He')</button>
+                    </div>
+                </div>
+                <div class="zwd_group">
+                    <h2><i class="iconfont icon-bianji" style="color:#e67e22"></i>截取与拆分</h2>
+                    <div class="zwd_btns">
+                        <button class="zwd_btn zwd_c_str2" data-m="slice">slice(6, 10)</button>
+                        <button class="zwd_btn zwd_c_str2" data-m="substring">substring(6, 10)</button>
+                        <button class="zwd_btn zwd_c_str2" data-m="split">split(' ')</button>
+                    </div>
+                </div>
+                <div class="zwd_group">
+                    <h2><i class="iconfont icon-addNode" style="color:#27ae60"></i>变换与拼接</h2>
+                    <div class="zwd_btns">
+                        <button class="zwd_btn zwd_c_str3" data-m="toUpperCase">toUpperCase()</button>
+                        <button class="zwd_btn zwd_c_str3" data-m="toLowerCase">toLowerCase()</button>
+                        <button class="zwd_btn zwd_c_str3" data-m="replace">replace('Java','JS')</button>
+                        <button class="zwd_btn zwd_c_str3" data-m="repeat">repeat(2)</button>
+                        <button class="zwd_btn zwd_c_str3" data-m="template">模板字符串</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="zwd_result_panel" aria-live="polite">
+                <h2><i class="iconfont icon-xihuan"></i>运行结果</h2>
+                <div id="zwd_str_result">
+                    <p class="zwd_ret" style="color:#95a5a6">点击上方任意按钮体验字符串方法；也可以先修改输入框内容再试。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 知识卡片 -->
+        <section class="zwd_cards">
+            <article class="zwd_card">
+                <h3>对象：键值对的集合</h3>
+                <p>对象用 <code>{ key: value }</code> 存储数据，点语法 <code>obj.name</code> 适合已知属性名，
+                方括号 <code>obj['name']</code> 可以用变量做键。属性值也可以是函数，这时它叫「方法」。</p>
+            </article>
+            <article class="zwd_card">
+                <h3>字符串：不可变的字符序列</h3>
+                <p>字符串可以通过 <code>str[i]</code> 或 <code>charAt(i)</code> 按下标访问（从 0 开始），
+                但所有方法都不会修改原字符串，而是<b>返回新字符串</b>——试试上面的方法就明白了。</p>
+            </article>
+            <article class="zwd_card">
+                <h3> length 与遍历</h3>
+                <p><code>length</code> 是字符串最重要的属性；配合 <code>for</code> 循环或
+                <code>split('')</code> 转成数组，就能对每个字符做处理。模板字符串
+                <code>`你好 ${name}`</code> 则是拼接文字的现代写法。</p>
+            </article>
+        </section>
+
+        <footer class="zwd_footer">© 525 郑雯迪 · 《高级网页设计》课堂实践 · 16-2</footer>
+    </div>
+
+    <script>
+        // 所有变量以 zwd_ 开头（项目规范）
+        var zwd_initialObj = { name: '郑雯迪', sid: '525', age: 20, major: '计算机' };
+        var zwd_obj = {};
+        // 把初始对象深拷贝一份（含方法）
+        function zwd_copyObj() {
+            zwd_obj = {};
+            for (var k in zwd_initialObj) { zwd_obj[k] = zwd_initialObj[k]; }
+            zwd_obj.sayHi = function () { return '大家好，我是 ' + this.name + '，今年 ' + this.age + ' 岁！'; };
+        }
+        zwd_copyObj();
+
+        var zwd_initialStr = 'Hello JavaScript';
+        var zwd_str = zwd_initialStr;
+
+        // ============ 通用结果展示 ============
+        function zwd_fmt(v) {
+            if (Array.isArray(v)) return '[' + v.join(', ') + ']';
+            if (typeof v === 'object' && v !== null) return JSON.stringify(v);
+            if (typeof v === 'string') return '"' + v + '"';
+            return String(v);
+        }
+        function zwd_fillResult(el, code, ret) {
+            el.innerHTML = '<p class="zwd_code">' + code + '</p>'
+                + '<p class="zwd_ret"><span class="zwd_label">返回值：</span>'
+                + '<span class="zwd_ret_val">' + zwd_fmt(ret) + '</span></p>';
+        }
+
+        // ============ 选项卡切换 ============
+        document.querySelectorAll('.zwd_tab').forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                document.querySelectorAll('.zwd_tab').forEach(function (t) { t.classList.remove('zwd_active'); });
+                document.querySelectorAll('.zwd_panel').forEach(function (p) { p.classList.remove('zwd_active'); });
+                tab.classList.add('zwd_active');
+                document.getElementById(tab.dataset.panel).classList.add('zwd_active');
+            });
+        });
+
+        // ============ 对象部分 ============
+        var zwd_objBox = document.getElementById('zwd_obj_box');
+        var zwd_objResult = document.getElementById('zwd_obj_result');
+
+        // 渲染对象为键值卡片
+        function zwd_renderObj() {
+            zwd_objBox.innerHTML = '';
+            var open = document.createElement('span');
+            open.className = 'zwd_brace';
+            open.textContent = '{';
+            var close = document.createElement('span');
+            close.className = 'zwd_brace';
+            close.textContent = '}';
+            zwd_objBox.appendChild(open);
+            var keys = Object.keys(zwd_obj).filter(function (k) { return typeof zwd_obj[k] !== 'function'; });
+            if (keys.length === 0) {
+                var tip = document.createElement('span');
+                tip.className = 'zwd_obj_tip';
+                tip.textContent = '（属性都被删光啦，点「重置对象」恢复）';
+                zwd_objBox.appendChild(tip);
+            }
+            keys.forEach(function (k) {
+                var pair = document.createElement('div');
+                pair.className = 'zwd_pair';
+                var key = document.createElement('div');
+                key.className = 'zwd_key';
+                key.textContent = k;
+                var val = document.createElement('div');
+                val.className = 'zwd_val';
+                val.textContent = zwd_obj[k];
+                val.title = 'zwd_obj.' + k + ' = ' + zwd_obj[k];
+                pair.appendChild(key);
+                pair.appendChild(val);
+                zwd_objBox.appendChild(pair);
+            });
+            zwd_objBox.appendChild(close);
+        }
+
+        // 对象方法注册表
+        var zwd_objMethods = {
+            dotRead: function () {
+                return { code: 'zwd_obj.name', ret: zwd_obj.name };
+            },
+            bracketRead: function () {
+                return { code: "zwd_obj['age']", ret: zwd_obj['age'] };
+            },
+            inOp: function () {
+                return { code: "'major' in zwd_obj", ret: 'major' in zwd_obj };
+            },
+            addProp: function () {
+                zwd_obj.hobby = '篮球';
+                return { code: "zwd_obj.hobby = '篮球'", ret: zwd_obj.hobby };
+            },
+            modProp: function () {
+                zwd_obj.age = 21;
+                return { code: 'zwd_obj.age = 21', ret: zwd_obj.age };
+            },
+            delProp: function () {
+                delete zwd_obj.sid;
+                return { code: 'delete zwd_obj.sid', ret: 'sid 已被删除' };
+            },
+            keys: function () {
+                return { code: 'Object.keys(zwd_obj)', ret: Object.keys(zwd_obj) };
+            },
+            values: function () {
+                return { code: 'Object.values(zwd_obj)', ret: Object.values(zwd_obj).filter(function (v) { return typeof v !== 'function'; }) };
+            },
+            forIn: function () {
+                var lines = [];
+                for (var k in zwd_obj) {
+                    if (typeof zwd_obj[k] !== 'function') lines.push(k + ' → ' + zwd_obj[k]);
+                }
+                return { code: 'for (var k in zwd_obj) { ... }', ret: lines };
+            },
+            callFn: function () {
+                return { code: 'zwd_obj.sayHi()', ret: zwd_obj.sayHi() };
+            }
+        };
+
+        document.querySelectorAll('#zwd_obj_panel .zwd_btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var fn = zwd_objMethods[btn.dataset.m];
+                if (!fn) return;
+                var m = fn();
+                zwd_renderObj();
+                zwd_fillResult(zwd_objResult, m.code, m.ret);
+            });
+        });
+
+        document.getElementById('zwd_obj_reset').addEventListener('click', function () {
+            zwd_copyObj();
+            zwd_renderObj();
+            zwd_objResult.innerHTML = '<p class="zwd_ret" style="color:#95a5a6">对象已恢复初始值 { name: "郑雯迪", sid: "525", age: 20, major: "计算机" }。</p>';
+        });
+
+        // ============ 字符串部分 ============
+        var zwd_charsBox = document.getElementById('zwd_chars_box');
+        var zwd_strResult = document.getElementById('zwd_str_result');
+        var zwd_strMeta = document.getElementById('zwd_str_meta');
+        var zwd_strInput = document.getElementById('zwd_str_input');
+
+        // 渲染字符串为字符格（含下标）
+        function zwd_renderStr() {
+            zwd_charsBox.innerHTML = '';
+            var open = document.createElement('span');
+            open.className = 'zwd_quote';
+            open.textContent = '"';
+            var close = document.createElement('span');
+            close.className = 'zwd_quote';
+            close.textContent = '"';
+            zwd_charsBox.appendChild(open);
+            if (zwd_str.length === 0) {
+                var tip = document.createElement('span');
+                tip.className = 'zwd_obj_tip';
+                tip.textContent = '（空字符串，长度为 0）';
+                zwd_charsBox.appendChild(tip);
+            }
+            for (var i = 0; i < zwd_str.length; i++) {
+                var wrap = document.createElement('div');
+                wrap.className = 'zwd_char_wrap';
+                var ch = document.createElement('div');
+                ch.className = 'zwd_char' + (zwd_str[i] === ' ' ? ' zwd_space' : '');
+                ch.textContent = zwd_str[i] === ' ' ? '␣' : zwd_str[i];
+                ch.title = 'zwd_str[' + i + '] = "' + zwd_str[i] + '"';
+                var idx = document.createElement('span');
+                idx.className = 'zwd_index';
+                idx.textContent = i;
+                wrap.appendChild(ch);
+                wrap.appendChild(idx);
+                zwd_charsBox.appendChild(wrap);
+            }
+            zwd_charsBox.appendChild(close);
+            zwd_strMeta.textContent = 'zwd_str.length = ' + zwd_str.length + '　注意：空格也占一个下标';
+        }
+
+        // 字符串方法注册表（每个方法不修改原字符串，只返回新值）
+        var zwd_strMethods = {
+            length: function () {
+                return { code: 'zwd_str.length', ret: zwd_str.length };
+            },
+            charAt: function () {
+                return { code: 'zwd_str.charAt(4)', ret: zwd_str.charAt(4) };
+            },
+            charCodeAt: function () {
+                return { code: 'zwd_str.charCodeAt(0)', ret: zwd_str.charCodeAt(0) };
+            },
+            indexOf: function () {
+                return { code: "zwd_str.indexOf('a')", ret: zwd_str.indexOf('a') };
+            },
+            includes: function () {
+                return { code: "zwd_str.includes('Script')", ret: zwd_str.includes('Script') };
+            },
+            startsWith: function () {
+                return { code: "zwd_str.startsWith('He')", ret: zwd_str.startsWith('He') };
+            },
+            slice: function () {
+                return { code: 'zwd_str.slice(6, 10)', ret: zwd_str.slice(6, 10) };
+            },
+            substring: function () {
+                return { code: 'zwd_str.substring(6, 10)', ret: zwd_str.substring(6, 10) };
+            },
+            split: function () {
+                return { code: "zwd_str.split(' ')", ret: zwd_str.split(' ') };
+            },
+            toUpperCase: function () {
+                return { code: 'zwd_str.toUpperCase()', ret: zwd_str.toUpperCase() };
+            },
+            toLowerCase: function () {
+                return { code: 'zwd_str.toLowerCase()', ret: zwd_str.toLowerCase() };
+            },
+            replace: function () {
+                return { code: "zwd_str.replace('Java', 'JS')", ret: zwd_str.replace('Java', 'JS') };
+            },
+            repeat: function () {
+                return { code: 'zwd_str.repeat(2)', ret: zwd_str.repeat(2) };
+            },
+            template: function () {
+                var ret = '【' + zwd_str + '】这个字符串一共有 ' + zwd_str.length + ' 个字符！';
+                return { code: '`【${zwd_str}】这个字符串一共有 ${zwd_str.length} 个字符！`', ret: ret };
+            }
+        };
+
+        document.querySelectorAll('#zwd_str_panel .zwd_btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var fn = zwd_strMethods[btn.dataset.m];
+                if (!fn) return;
+                var m = fn();
+                zwd_fillResult(zwd_strResult, m.code, m.ret);
+            });
+        });
+
+        // 更新字符串输入
+        document.getElementById('zwd_str_apply').addEventListener('click', function () {
+            zwd_str = zwd_strInput.value;
+            zwd_renderStr();
+            zwd_fillResult(zwd_strResult, 'zwd_str = "' + zwd_str + '"', '字符串已更新，长度 ' + zwd_str.length);
+        });
+        zwd_strInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { document.getElementById('zwd_str_apply').click(); }
+        });
+
+        // 恢复示例
+        document.getElementById('zwd_str_reset').addEventListener('click', function () {
+            zwd_str = zwd_initialStr;
+            zwd_strInput.value = zwd_initialStr;
+            zwd_renderStr();
+            zwd_strResult.innerHTML = '<p class="zwd_ret" style="color:#95a5a6">字符串已恢复为 "Hello JavaScript"。</p>';
+        });
+
+        // 首次渲染
+        zwd_renderObj();
+        zwd_renderStr();
+    </script>
+</body>
+</html>
