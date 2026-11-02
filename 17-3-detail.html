@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-3 商品详情</title>
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-02
+    功能名称：商品详情页，通过 URL 参数 ?id= 从 dummyjson.com 获取单个商品数据并展示
+    -->
+    <style>
+        :root {
+            --ink: #17212b;
+            --muted: #65727d;
+            --paper: #f5f1e8;
+            --card: #fffdf8;
+            --line: #dcd5c8;
+            --coral: #d95d46;
+            --blue: #245b72;
+            --yellow: #f2c05c;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.6;
+        }
+        .zwd_container { max-width: 1100px; margin: 0 auto; padding: 40px 20px 60px; }
+        .zwd_home {
+            display: inline-block; margin-bottom: 24px;
+            color: var(--blue); text-decoration: none; font-weight: 600; font-size: 14px;
+        }
+        .zwd_home:hover { text-decoration: underline; }
+
+        /* Loading / Error */
+        .zwd_state { text-align: center; padding: 80px 20px; color: var(--muted); }
+        .zwd_spinner {
+            width: 48px; height: 48px; margin: 0 auto 16px;
+            border: 3px solid var(--line); border-top-color: var(--coral);
+            border-radius: 50%; animation: zwd_spin 1s linear infinite;
+        }
+        @keyframes zwd_spin { to { transform: rotate(360deg); } }
+        .zwd_error {
+            text-align: center; padding: 60px 20px;
+            background: #ffe3dc; border: 1px solid var(--coral); color: var(--coral);
+        }
+        .zwd_error a { color: var(--blue); font-weight: 600; text-decoration: none; }
+
+        /* 面包屑 */
+        .zwd_breadcrumb {
+            font-size: 13px; color: var(--muted); margin-bottom: 24px;
+        }
+        .zwd_breadcrumb a { color: var(--blue); text-decoration: none; }
+        .zwd_breadcrumb a:hover { text-decoration: underline; }
+
+        /* 详情布局 */
+        .zwd_detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            padding: 36px;
+        }
+        .zwd_gallery {}
+        .zwd_main-img {
+            width: 100%; aspect-ratio: 1 / 1;
+            background: var(--paper);
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--line);
+            overflow: hidden; margin-bottom: 12px;
+        }
+        .zwd_main-img img { width: 90%; height: 90%; object-fit: contain; transition: transform .3s ease; }
+        .zwd_thumbnails { display: flex; gap: 8px; flex-wrap: wrap; }
+        .zwd_thumb {
+            width: 64px; height: 64px; background: var(--paper);
+            border: 1px solid var(--line); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: border-color .2s, transform .2s;
+        }
+        .zwd_thumb:hover { border-color: var(--coral); transform: translateY(-2px); }
+        .zwd_thumb.zwd_active { border-color: var(--coral); box-shadow: 0 0 0 2px var(--yellow); }
+        .zwd_thumb img { width: 80%; height: 80%; object-fit: contain; }
+
+        /* 信息区 */
+        .zwd_info {}
+        .zwd_category-tag {
+            display: inline-block; font-size: 11px;
+            background: var(--blue); color: #fff;
+            padding: 3px 10px; border-radius: 2px; letter-spacing: 2px; margin-bottom: 12px;
+        }
+        .zwd_info h1 {
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(24px, 3vw, 32px); margin-bottom: 10px; line-height: 1.25;
+        }
+        .zwd_info .zwd_brand {
+            font-size: 13px; color: var(--muted); margin-bottom: 16px;
+        }
+        .zwd_info .zwd_brand strong { color: var(--blue); }
+
+        .zwd_rating-row {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+            padding-bottom: 18px; border-bottom: 1px solid var(--line);
+        }
+        .zwd_stars { color: #f2a900; font-size: 18px; letter-spacing: 2px; }
+        .zwd_stars span { color: var(--muted); font-size: 14px; margin-left: 6px; }
+        .zwd_stock {
+            font-size: 13px; padding: 2px 10px;
+            background: var(--paper); color: var(--muted); border: 1px solid var(--line);
+        }
+        .zwd_stock.zwd_low { color: var(--coral); border-color: var(--coral); }
+        .zwd_stock.zwd_out { color: var(--coral); background: #ffe3dc; border-color: var(--coral); }
+
+        .zwd_price-row {
+            display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px;
+        }
+        .zwd_now-price { font-size: 40px; font-weight: 700; color: var(--coral); }
+        .zwd_old-price { font-size: 18px; color: var(--muted); text-decoration: line-through; }
+        .zwd_discount {
+            background: var(--coral); color: #fff; font-size: 12px;
+            padding: 4px 10px; border-radius: 2px; letter-spacing: 1px;
+        }
+
+        .zwd_desc {
+            font-size: 14px; color: var(--ink); margin-bottom: 24px;
+            line-height: 1.8; padding: 16px; background: var(--paper);
+            border-left: 3px solid var(--yellow);
+        }
+
+        .zwd_meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        .zwd_meta-table th, .zwd_meta-table td {
+            padding: 10px 14px; text-align: left; font-size: 13px;
+            border-bottom: 1px solid var(--line);
+        }
+        .zwd_meta-table th {
+            width: 120px; color: var(--muted); font-weight: 500;
+            background: var(--paper);
+        }
+        .zwd_meta-table tr:last-child th, .zwd_meta-table tr:last-child td { border-bottom: none; }
+
+        .zwd_btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .zwd_btn {
+            padding: 12px 32px; font-family: inherit; font-size: 15px;
+            font-weight: 600; cursor: pointer; border: none;
+            transition: transform .15s, box-shadow .15s; text-decoration: none;
+            display: inline-block;
+        }
+        .zwd_btn-primary {
+            background: var(--coral); color: #fff;
+            box-shadow: 4px 4px 0 var(--yellow);
+        }
+        .zwd_btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--yellow); }
+        .zwd_btn-primary:active { transform: translate(0, 0); box-shadow: 2px 2px 0 var(--yellow); }
+        .zwd_btn-secondary {
+            background: var(--card); color: var(--blue);
+            border: 2px solid var(--blue);
+        }
+        .zwd_btn-secondary:hover { background: var(--blue); color: #fff; }
+
+        @media (max-width: 768px) {
+            .zwd_detail { grid-template-columns: 1fr; gap: 28px; padding: 24px; }
+            .zwd_now-price { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zwd_container">
+        <a class="zwd_home" href="index.html">← 返回作品集</a>
+
+        <div class="zwd_breadcrumb">
+            <a href="17-3.html">商品列表</a> / <span id="zwd_breadcrumb-title">商品详情</span>
+        </div>
+
+        <div id="zwd_content">
+            <div class="zwd_state">
+                <div class="zwd_spinner"></div>
+                <div>商品详情加载中…</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 姓名：郑雯迪
+        // 从 URL 获取 id 参数
+        var zwd_params = new URLSearchParams(window.location.search);
+        var zwd_id = zwd_params.get('id') || '1';
+        var zwd_content = document.getElementById('zwd_content');
+
+        async function zwd_loadDetail(id) {
+            var zwd_API = 'https://dummyjson.com/products/' + id;
+            try {
+                var res = await fetch(zwd_API);
+                if (!res.ok) throw new Error('HTTP ' + res.status + '：未找到该商品');
+                var p = await res.json();
+
+                // 归一化：dummyjson 直接返回对象
+                var discountPrice = p.price;
+                if (p.discountPercentage) {
+                    discountPrice = (p.price * (1 - p.discountPercentage / 100)).toFixed(2);
+                }
+                var stockClass = p.stock > 10 ? '' : (p.stock > 0 ? 'zwd_low' : 'zwd_out');
+                var stockText = p.stock > 0 ? ('库存 ' + p.stock + ' 件') : '暂时缺货';
+
+                // 面包屑
+                document.getElementById('zwd_breadcrumb-title').textContent = p.title;
+
+                // 生成星星
+                var fullStars = Math.round(p.rating || 0);
+                var stars = '★★★★★'.slice(0, fullStars) + '☆☆☆☆☆'.slice(0, 5 - fullStars);
+
+                // 缩略图
+                var thumbsHtml = '';
+                var images = (p.images && p.images.length) ? p.images : [p.thumbnail];
+                images.forEach(function(img, idx) {
+                    thumbsHtml += '<div class="zwd_thumb' + (idx === 0 ? ' zwd_active' : '') + '" data-src="' + img + '"><img src="' + img + '" alt=""></div>';
+                });
+
+                zwd_content.innerHTML =
+                    '<div class="zwd_detail">' +
+                        '<div class="zwd_gallery">' +
+                            '<div class="zwd_main-img"><img id="zwd_mainImg" src="' + (p.thumbnail || images[0]) + '" alt="' + p.title + '"></div>' +
+                            '<div class="zwd_thumbnails">' + thumbsHtml + '</div>' +
+                        '</div>' +
+
+                        '<div class="zwd_info">' +
+                            '<span class="zwd_category-tag">' + (p.category || '') + '</span>' +
+                            '<h1>' + p.title + '</h1>' +
+                            '<div class="zwd_brand">品牌：<strong>' + (p.brand || '未知') + '</strong>　商品编号：#' + p.id + '</div>' +
+
+                            '<div class="zwd_rating-row">' +
+                                '<div class="zwd_stars">' + stars + '<span>' + (p.rating || 0) + ' / 5.0</span></div>' +
+                                '<div class="zwd_stock ' + stockClass + '">' + stockText + '</div>' +
+                            '</div>' +
+
+                            '<div class="zwd_price-row">' +
+                                '<span class="zwd_now-price">¥' + discountPrice + '</span>' +
+                                (p.discountPercentage > 0 ? '<span class="zwd_old-price">¥' + p.price + '</span>' +
+                                '<span class="zwd_discount">省 ' + (p.price - discountPrice).toFixed(2) + ' (' + Math.round(p.discountPercentage) + '% OFF)</span>' : '') +
+                            '</div>' +
+
+                            '<div class="zwd_desc">' + (p.description || '暂无商品描述') + '</div>' +
+
+                            '<table class="zwd_meta-table">' +
+                                '<tr><th>分类</th><td>' + (p.category || '-') + '</td></tr>' +
+                                '<tr><th>品牌</th><td>' + (p.brand || '-') + '</td></tr>' +
+                                '<tr><th>商品ID</th><td>#' + p.id + '</td></tr>' +
+                                '<tr><th>库存</th><td>' + p.stock + ' 件</td></tr>' +
+                                '<tr><th>评分</th><td>' + (p.rating || 0) + ' / 5.0</td></tr>' +
+                            '</table>' +
+
+                            '<div class="zwd_btn-row">' +
+                                '<a class="zwd_btn zwd_btn-primary" href="17-3.html">← 返回列表</a>' +
+                                '<button class="zwd_btn zwd_btn-secondary" onclick="zwd_viewRandom()">随机看另一件</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+
+                // 缩略图点击切换
+                var thumbs = document.querySelectorAll('.zwd_thumb');
+                var mainImg = document.getElementById('zwd_mainImg');
+                thumbs.forEach(function(t) {
+                    t.addEventListener('click', function() {
+                        thumbs.forEach(function(x) { x.classList.remove('zwd_active'); });
+                        t.classList.add('zwd_active');
+                        mainImg.src = t.dataset.src;
+                    });
+                });
+
+            } catch (err) {
+                zwd_content.innerHTML =
+                    '<div class="zwd_error">' +
+                        '<h3>😢 ' + err.message + '</h3><br>' +
+                        '<p>商品 ID：' + id + '</p><br>' +
+                        '<a href="17-3.html">← 返回商品列表</a>' +
+                    '</div>';
+            }
+        }
+
+        // 随机查看
+        function zwd_viewRandom() {
+            var randomId = Math.floor(Math.random() * 100) + 1;
+            window.location.href = '17-3-detail.html?id=' + randomId;
+        }
+        window.zwd_viewRandom = zwd_viewRandom;
+
+        zwd_loadDetail(zwd_id);
+    </script>
+</body>
+</html>

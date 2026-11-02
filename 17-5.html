@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-5 JavaScript 两种定时器</title>
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-02
+    功能名称：JavaScript 两种定时器演示，setTimeout 一次性定时器与 setInterval 周期性定时器，含启动、暂停、取消与时间显示
+    -->
+    <style>
+        :root {
+            --ink: #17212b;
+            --muted: #65727d;
+            --paper: #f5f1e8;
+            --card: #fffdf8;
+            --line: #dcd5c8;
+            --coral: #d95d46;
+            --blue: #245b72;
+            --yellow: #f2c05c;
+            --green: #2d6a4f;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+        .zwd_container { max-width: 1050px; margin: 0 auto; }
+        .zwd_home {
+            display: inline-block; margin-bottom: 24px;
+            color: var(--blue); text-decoration: none; font-weight: 600; font-size: 14px;
+        }
+        .zwd_home:hover { text-decoration: underline; }
+
+        .zwd_header { text-align: center; margin-bottom: 36px; }
+        .zwd_header h1 {
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(26px, 4vw, 40px); margin: 0 0 8px;
+        }
+        .zwd_header p { color: var(--muted); margin: 0; font-size: 14px; }
+        .zwd_header .zwd_name {
+            display: inline-block; margin-top: 12px; padding: 4px 14px;
+            background: var(--blue); color: #fff; font-size: 13px; letter-spacing: 2px;
+        }
+
+        .zwd_section {
+            background: var(--card); border: 1px solid var(--line);
+            padding: 26px; margin-bottom: 24px;
+        }
+        .zwd_section h2 {
+            font-family: Georgia, "Songti SC", serif; font-size: 21px;
+            margin: 0 0 6px; display: flex; align-items: center; gap: 10px;
+        }
+        .zwd_tag {
+            font-family: "Consolas", monospace; font-size: 12px; font-weight: 700;
+            padding: 2px 9px; border-radius: 2px; color: #fff; letter-spacing: 1px;
+        }
+        .zwd_tag-out { background: var(--coral); }
+        .zwd_tag-int { background: var(--blue); }
+        .zwd_intro {
+            margin: 0 0 20px; padding-left: 2px;
+            font-size: 13.5px; color: var(--muted);
+        }
+        .zwd_intro code {
+            font-family: "Consolas", monospace; color: var(--coral);
+            background: var(--paper); padding: 1px 6px;
+        }
+
+        /* ===== setTimeout 演示 ===== */
+        .zwd_timer-box {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 26px; align-items: start;
+        }
+        .zwd_display {
+            background: var(--paper); border: 1px dashed var(--line);
+            padding: 26px 20px; text-align: center; position: relative;
+            overflow: hidden;
+        }
+        .zwd_big-number {
+            font-family: Georgia, "Consolas", monospace;
+            font-size: 64px; font-weight: 700; line-height: 1.1;
+            color: var(--coral); transition: color .3s;
+        }
+        .zwd_big-number.zwd_done { color: var(--green); }
+        .zwd_unit { font-size: 15px; color: var(--muted); margin-bottom: 4px; }
+        .zwd_state-text {
+            margin-top: 10px; font-size: 13px; color: var(--muted); min-height: 22px;
+        }
+        .zwd_state-text.zwd_ok { color: var(--green); font-weight: 700; }
+        .zwd_progress {
+            height: 6px; background: var(--line); margin-top: 18px; border-radius: 3px;
+            overflow: hidden;
+        }
+        .zwd_progress-bar {
+            height: 100%; width: 100%; background: var(--coral);
+            transition: width 100ms linear, background .4s;
+        }
+        .zwd_progress-bar.zwd_done { background: var(--green); }
+
+        .zwd_controls { display: flex; flex-direction: column; gap: 14px; }
+        .zwd_field label {
+            display: block; font-size: 12px; color: var(--muted);
+            letter-spacing: 1px; margin-bottom: 6px;
+        }
+        .zwd_field input[type="number"] {
+            width: 100%; padding: 9px 12px;
+            font-family: "Consolas", monospace; font-size: 14px; color: var(--ink);
+            background: #fff; border: 1px solid var(--line); border-radius: 3px;
+        }
+        .zwd_field input:focus {
+            outline: none; border-color: var(--coral);
+            box-shadow: 0 0 0 2px rgba(217, 93, 70, .12);
+        }
+        .zwd_btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .zwd_btn {
+            padding: 9px 20px; font-family: inherit; font-size: 13.5px; font-weight: 700;
+            border: none; cursor: pointer; color: #fff; background: var(--coral);
+            transition: transform .15s, background .2s;
+        }
+        .zwd_btn:hover { background: #c44a35; }
+        .zwd_btn:active { transform: translateY(1px); }
+        .zwd_btn.zwd_ghost {
+            background: transparent; color: var(--blue);
+            border: 1px solid var(--blue);
+        }
+        .zwd_btn.zwd_ghost:hover { background: var(--blue); color: #fff; }
+        .zwd_btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+        .zwd_id-note {
+            font-family: "Consolas", monospace; font-size: 12px;
+            color: var(--muted); background: var(--paper);
+            border-left: 3px solid var(--yellow); padding: 8px 12px;
+        }
+        .zwd_id-note strong { color: var(--blue); }
+
+        /* ===== setInterval 演示 ===== */
+        .zwd_cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .zwd_card {
+            border: 1px solid var(--line); background: var(--paper);
+            padding: 20px; text-align: center;
+        }
+        .zwd_card h3 { margin: 0 0 10px; font-size: 14px; color: var(--blue); letter-spacing: 1px; }
+        .zwd_clock {
+            font-family: "Consolas", monospace; font-weight: 700;
+            font-size: clamp(28px, 5vw, 40px); color: var(--ink);
+            letter-spacing: 2px; margin-bottom: 4px;
+        }
+        .zwd_clock .zwd_colon { color: var(--coral); }
+        .zwd_counter {
+            font-family: Georgia, monospace; font-weight: 700;
+            font-size: 40px; color: var(--coral); margin-bottom: 4px;
+        }
+        .zwd_sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+        .zwd_card .zwd_btn-row { justify-content: center; }
+        .zwd_card .zwd_btn { padding: 7px 16px; font-size: 12.5px; }
+        .zwd_interval-id {
+            margin-top: 12px; font-family: "Consolas", monospace;
+            font-size: 11.5px; color: var(--muted);
+        }
+
+        /* ===== 对比表 ===== */
+        .zwd_table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .zwd_table th, .zwd_table td {
+            text-align: left; padding: 12px 14px;
+            border-bottom: 1px solid var(--line); vertical-align: top;
+        }
+        .zwd_table thead th {
+            background: var(--paper); color: var(--blue);
+            font-size: 13px; letter-spacing: 1px;
+        }
+        .zwd_table tbody th {
+            width: 22%; color: var(--coral); font-weight: 600;
+            background: #faf7f0;
+        }
+        .zwd_table code {
+            font-family: "Consolas", monospace; color: var(--blue);
+            background: var(--paper); padding: 1px 5px; font-size: 12.5px;
+        }
+
+        /* ===== 代码块 ===== */
+        .zwd_code {
+            background: #1e272e; color: #f8f8f2;
+            padding: 18px; margin: 0;
+            font-family: "Consolas", monospace; font-size: 12.5px; line-height: 1.7;
+            border-radius: 4px; overflow-x: auto; white-space: pre;
+        }
+        .zwd_code .zwd-cm { color: #7f8c8d; }
+        .zwd_code .zwd-kw { color: #ff7675; }
+        .zwd_code .zwd-fn { color: #f2c05c; }
+        .zwd_code .zwd-str { color: #55efc4; }
+
+        /* ===== 事件日志 ===== */
+        .zwd_log {
+            font-family: "Consolas", monospace; font-size: 12px;
+            background: var(--paper); border: 1px solid var(--line);
+            padding: 12px; max-height: 170px; overflow-y: auto;
+        }
+        .zwd_log div { margin-bottom: 3px; }
+        .zwd_log .zwd_log-time { color: var(--muted); }
+        .zwd_log .zwd_log-ok { color: var(--green); }
+        .zwd_log .zwd_log-warn { color: var(--coral); }
+
+        @media (max-width: 720px) {
+            .zwd_timer-box, .zwd_cards { grid-template-columns: 1fr; }
+            .zwd_big-number { font-size: 52px; }
+            .zwd_section { padding: 18px; }
+            .zwd_table { font-size: 12.5px; }
+            .zwd_table th, .zwd_table td { padding: 9px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zwd_container">
+        <a class="zwd_home" href="index.html">← 返回作品集</a>
+
+        <header class="zwd_header">
+            <h1>JavaScript 两种定时器</h1>
+            <p>setTimeout 只执行一次，setInterval 每间隔一段时间重复执行</p>
+            <span class="zwd_name">郑雯迪</span>
+        </header>
+
+        <!-- ① setTimeout -->
+        <section class="zwd_section">
+            <h2><span class="zwd_tag zwd_tag-out">ONCE</span> setTimeout 一次性定时器</h2>
+            <p class="zwd_intro">
+                语法：<code>var id = setTimeout(函数, 毫秒)</code> —— 等待指定毫秒后<strong>只执行一次</strong>；
+                用 <code>clearTimeout(id)</code> 可以中途取消。下面的倒计时每滴答一次都会重新调用一次
+                <code>setTimeout</code>，正好说明它「只执行一次」的特点。
+            </p>
+
+            <div class="zwd_timer-box">
+                <div class="zwd_display">
+                    <div class="zwd_unit">剩余时间（秒）</div>
+                    <div class="zwd_big-number" id="zwd_countdown">3.0</div>
+                    <div class="zwd_state-text" id="zwd_stateText">等待启动…</div>
+                    <div class="zwd_progress">
+                        <div class="zwd_progress-bar" id="zwd_progressBar"></div>
+                    </div>
+                </div>
+
+                <div class="zwd_controls">
+                    <div class="zwd_field">
+                        <label>定时时长（秒，1 - 30）</label>
+                        <input type="number" id="zwd_seconds" value="3" min="1" max="30" step="1">
+                    </div>
+                    <div class="zwd_btn-row">
+                        <button class="zwd_btn" id="zwd_startBtn">▶ 启动定时器</button>
+                        <button class="zwd_btn zwd_ghost" id="zwd_cancelBtn" disabled>✕ clearTimeout 取消</button>
+                    </div>
+                    <div class="zwd_id-note">
+                        当前定时器 ID：<strong id="zwd_timeoutId">null</strong>（每次重新调用 setTimeout 都会得到新的 ID）
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ② setInterval -->
+        <section class="zwd_section">
+            <h2><span class="zwd_tag zwd_tag-int">REPEAT</span> setInterval 周期性定时器</h2>
+            <p class="zwd_intro">
+                语法：<code>var id = setInterval(函数, 毫秒)</code> —— 每隔指定毫秒<strong>重复执行</strong>，直到调用
+                <code>clearInterval(id)</code> 才停止。
+            </p>
+
+            <div class="zwd_cards">
+                <!-- 时钟 -->
+                <div class="zwd_card">
+                    <h3>实时时钟（每 1000ms 执行一次）</h3>
+                    <div class="zwd_clock" id="zwd_clock">--<span class="zwd_colon">:</span>--<span class="zwd_colon">:</span>--</div>
+                    <div class="zwd_sub" id="zwd_clockDate">—</div>
+                    <div class="zwd_btn-row">
+                        <button class="zwd_btn" id="zwd_clockStart">▶ 启动</button>
+                        <button class="zwd_btn zwd_ghost" id="zwd_clockStop">■ 停止</button>
+                    </div>
+                    <div class="zwd_interval-id">clearInterval 使用 ID：<span id="zwd_clockId">无</span></div>
+                </div>
+
+                <!-- 计数器 -->
+                <div class="zwd_card">
+                    <h3>计数器（每 500ms 自增一次）</h3>
+                    <div class="zwd_counter" id="zwd_counter">0</div>
+                    <div class="zwd_sub">数字每半秒 +1，用来观察「重复执行」</div>
+                    <div class="zwd_btn-row">
+                        <button class="zwd_btn" id="zwd_countStart">▶ 开始</button>
+                        <button class="zwd_btn zwd_ghost" id="zwd_countStop">⏸ 暂停</button>
+                        <button class="zwd_btn zwd_ghost" id="zwd_countReset">↺ 清零</button>
+                    </div>
+                    <div class="zwd_interval-id">clearInterval 使用 ID：<span id="zwd_countId">无</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ③ 对比 -->
+        <section class="zwd_section">
+            <h2>两种定时器对比</h2>
+            <table class="zwd_table">
+                <thead>
+                    <tr>
+                        <th>对比项</th>
+                        <th>setTimeout</th>
+                         <th>setInterval</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>执行次数</th>
+                        <td>只执行 <strong>1 次</strong></td>
+                        <td>每隔固定时间<strong>重复执行</strong>，直到被清除</td>
+                    </tr>
+                    <tr>
+                        <th>常用函数</th>
+                        <td><code>setTimeout(fn, ms)</code> / <code>clearTimeout(id)</code></td>
+                        <td><code>setInterval(fn, ms)</code> / <code>clearInterval(id)</code></td>
+                    </tr>
+                    <tr>
+                        <th>返回值</th>
+                        <td>数字 ID，用于取消</td>
+                        <td>数字 ID，用于取消</td>
+                    </tr>
+                    <tr>
+                        <th>典型场景</th>
+                        <td>延迟提示、动画只播放一次、防抖、倒计时结束</td>
+                        <td>时钟、轮播图自动切换、数据轮询刷新</td>
+                    </tr>
+                    <tr>
+                        <th>注意事项</th>
+                        <td>计时不准（主线程阻塞会推迟），需及时保存 ID</td>
+                        <td>停止时必须 <code>clearInterval</code>，否则页面离开后仍可能继续运行</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ④ 代码与日志 -->
+        <section class="zwd_section">
+            <h2>核心代码</h2>
+            <pre class="zwd_code"><span class="zwd-cm">// ① setTimeout：只执行一次</span>
+<span class="zwd-kw">var</span> id1 = <span class="zwd-fn">setTimeout</span>(<span class="zwd-kw">function</span> () {
+    console.<span class="zwd-fn">log</span>(<span class="zwd-str">'3 秒后，我只出现一次'</span>);
+}, 3000);
+<span class="zwd-fn">clearTimeout</span>(id1); <span class="zwd-cm">// 中途取消</span>
+
+<span class="zwd-cm">// ② setInterval：每 1 秒重复执行</span>
+<span class="zwd-kw">var</span> id2 = <span class="zwd-fn">setInterval</span>(<span class="zwd-kw">function</span> () {
+    console.<span class="zwd-fn">log</span>(<span class="zwd-str">'每秒打印一次'</span>);
+}, 1000);
+<span class="zwd-fn">clearInterval</span>(id2); <span class="zwd-cm">// 停止重复执行</span></pre>
+
+            <h2 style="font-size:15px;margin:22px 0 10px;border:none;padding:0;">事件日志</h2>
+            <div class="zwd_log" id="zwd_log"></div>
+        </section>
+    </div>
+
+    <script>
+        // 姓名：郑雯迪
+        var zwd_logBox = document.getElementById('zwd_log');
+
+        // 日志工具
+        function zwd_log(msg, type) {
+            var t = new Date().toLocaleTimeString();
+            var div = document.createElement('div');
+            div.innerHTML = '<span class="zwd_log-time">[' + t + ']</span> ' + msg;
+            if (type) div.classList.add('zwd_log-' + type);
+            zwd_logBox.insertBefore(div, zwd_logBox.firstChild);
+        }
+
+        /* ==================================================
+           ① setTimeout 一次性定时器（倒计时）
+           ================================================== */
+        var zwd_secondsInput = document.getElementById('zwd_seconds');
+        var zwd_countdownEl = document.getElementById('zwd_countdown');
+        var zwd_stateText = document.getElementById('zwd_stateText');
+        var zwd_progressBar = document.getElementById('zwd_progressBar');
+        var zwd_timeoutIdEl = document.getElementById('zwd_timeoutId');
+        var zwd_startBtn = document.getElementById('zwd_startBtn');
+        var zwd_cancelBtn = document.getElementById('zwd_cancelBtn');
+
+        var zwd_timeoutId = null;      // 当前 setTimeout 的返回值
+        var zwd_totalMs = 0;           // 总时长
+        var zwd_remainMs = 0;          // 剩余时长
+
+        // 每次滴答：更新界面，然后重新调用一次 setTimeout
+        function zwd_tick() {
+            // 更新剩余时间显示（保留一位小数）
+            zwd_countdownEl.textContent = (zwd_remainMs / 1000).toFixed(1);
+            // 更新进度条宽度
+            var percent = zwd_totalMs > 0 ? (zwd_remainMs / zwd_totalMs) * 100 : 0;
+            zwd_progressBar.style.width = percent + '%';
+
+            if (zwd_remainMs <= 0) {
+                // 到点：真正触发
+                zwd_timeoutIdEl.textContent = '已执行';
+                zwd_countdownEl.textContent = '0.0';
+                zwd_countdownEl.classList.add('zwd_done');
+                zwd_progressBar.classList.add('zwd_done');
+                zwd_stateText.textContent = '⏰ 时间到！setTimeout 已触发（只执行这一次）';
+                zwd_stateText.classList.add('zwd_ok');
+                zwd_startBtn.disabled = false;
+                zwd_cancelBtn.disabled = true;
+                zwd_log('setTimeout 触发：倒计时结束，函数只执行一次', 'ok');
+                return;
+            }
+
+            // 每 100 毫秒递减一次，并预约下一次执行
+            zwd_remainMs -= 100;
+            zwd_timeoutId = setTimeout(zwd_tick, 100);
+            zwd_timeoutIdEl.textContent = zwd_timeoutId;
+        }
+
+        zwd_startBtn.addEventListener('click', function() {
+            // 先清掉可能存在的旧定时器，避免叠加
+            if (zwd_timeoutId !== null) clearTimeout(zwd_timeoutId);
+
+            var secs = parseFloat(zwd_secondsInput.value);
+            if (isNaN(secs) || secs < 1) secs = 1;
+            if (secs > 30) secs = 30;
+            zwd_secondsInput.value = secs;
+
+            zwd_totalMs = secs * 1000;
+            zwd_remainMs = zwd_totalMs;
+
+            zwd_countdownEl.classList.remove('zwd_done');
+            zwd_progressBar.classList.remove('zwd_done');
+            zwd_stateText.classList.remove('zwd_ok');
+            zwd_stateText.textContent = '计时中…';
+            zwd_startBtn.disabled = true;
+            zwd_cancelBtn.disabled = false;
+
+            zwd_log('setTimeout 启动：' + secs + ' 秒后执行一次');
+            zwd_tick();   // 立即开始第一次滴答
+        });
+
+        zwd_cancelBtn.addEventListener('click', function() {
+            if (zwd_timeoutId !== null) {
+                clearTimeout(zwd_timeoutId);
+                zwd_log('clearTimeout(' + zwd_timeoutId + ') 已取消定时器', 'warn');
+            }
+            zwd_timeoutId = null;
+            zwd_timeoutIdEl.textContent = 'null（已取消）';
+            zwd_stateText.classList.remove('zwd_ok');
+            zwd_stateText.textContent = '已取消，函数不会执行';
+            zwd_startBtn.disabled = false;
+            zwd_cancelBtn.disabled = true;
+        });
+
+        /* ==================================================
+           ② setInterval 周期性定时器 —— 时钟
+           ================================================== */
+        var zwd_clockEl = document.getElementById('zwd_clock');
+        var zwd_clockDate = document.getElementById('zwd_clockDate');
+        var zwd_clockIdEl = document.getElementById('zwd_clockId');
+        var zwd_clockId = null;
+
+        function zwd_pad(n) {
+            return n < 10 ? '0' + n : String(n);
+        }
+
+        function zwd_updateClock() {
+            var now = new Date();
+            zwd_clockEl.innerHTML =
+                zwd_pad(now.getHours()) + '<span class="zwd_colon">:</span>' +
+                zwd_pad(now.getMinutes()) + '<span class="zwd_colon">:</span>' +
+                zwd_pad(now.getSeconds());
+            zwd_clockDate.textContent =
+                now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日';
+        }
+
+        document.getElementById('zwd_clockStart').addEventListener('click', function() {
+            if (zwd_clockId !== null) return;   // 已启动则忽略重复点击
+            zwd_updateClock();
+            zwd_clockId = setInterval(zwd_updateClock, 1000);
+            zwd_clockIdEl.textContent = zwd_clockId;
+            zwd_log('setInterval 启动：时钟每 1000ms 更新一次（ID=' + zwd_clockId + '）');
+        });
+
+        document.getElementById('zwd_clockStop').addEventListener('click', function() {
+            if (zwd_clockId === null) {
+                zwd_log('时钟未启动，无需停止', 'warn');
+                return;
+            }
+            clearInterval(zwd_clockId);
+            zwd_log('clearInterval(' + zwd_clockId + ') 已停止时钟', 'warn');
+            zwd_clockId = null;
+            zwd_clockIdEl.textContent = '无（已停止）';
+        });
+
+        // 进入页面先显示当前时间，但定时器需要点击才启动
+        zwd_updateClock();
+
+        /* ==================================================
+           ② setInterval 周期性定时器 —— 计数器
+           ================================================== */
+        var zwd_counterEl = document.getElementById('zwd_counter');
+        var zwd_countIdEl = document.getElementById('zwd_countId');
+        var zwd_count = 0;
+        var zwd_countId = null;
+
+        document.getElementById('zwd_countStart').addEventListener('click', function() {
+            if (zwd_countId !== null) {
+                zwd_log('计数器已在运行（ID=' + zwd_countId + '）', 'warn');
+                return;
+            }
+            zwd_countId = setInterval(function() {
+                zwd_count++;
+                zwd_counterEl.textContent = zwd_count;
+            }, 500);
+            zwd_countIdEl.textContent = zwd_countId;
+            zwd_log('计数器启动：每 500ms +1（ID=' + zwd_countId + '）');
+        });
+
+        document.getElementById('zwd_countStop').addEventListener('click', function() {
+            if (zwd_countId === null) {
+                zwd_log('计数器未运行', 'warn');
+                return;
+            }
+            clearInterval(zwd_countId);
+            zwd_log('clearInterval(' + zwd_countId + ') 暂停计数器，当前值 ' + zwd_count, 'warn');
+            zwd_countId = null;
+            zwd_countIdEl.textContent = '无（已暂停）';
+        });
+
+        document.getElementById('zwd_countReset').addEventListener('click', function() {
+            zwd_count = 0;
+            zwd_counterEl.textContent = '0';
+            zwd_log('计数器已清零');
+        });
+
+        // 页面关闭前清理定时器，养成好习惯
+        window.addEventListener('beforeunload', function() {
+            if (zwd_clockId !== null) clearInterval(zwd_clockId);
+            if (zwd_countId !== null) clearInterval(zwd_countId);
+            if (zwd_timeoutId !== null) clearTimeout(zwd_timeoutId);
+        });
+
+        zwd_log('页面加载完成，点击按钮观察两种定时器的行为差异');
+    </script>
+</body>
+</html>

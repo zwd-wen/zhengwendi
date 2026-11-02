@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-1 JSON 数据展示</title>
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-02
+    功能名称：JSON 数据展示，演示 JSON 的解析与可视化
+    -->
+    <style>
+        :root {
+            --ink: #17212b;
+            --muted: #65727d;
+            --paper: #f5f1e8;
+            --card: #fffdf8;
+            --line: #dcd5c8;
+            --coral: #d95d46;
+            --blue: #245b72;
+            --yellow: #f2c05c;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+        .zwd_container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .zwd_header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .zwd_header h1 {
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(28px, 4vw, 40px);
+            margin: 0 0 10px;
+        }
+        .zwd_header p {
+            color: var(--muted);
+            margin: 0;
+        }
+        .zwd_header .zwd_name {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 4px 14px;
+            background: var(--blue);
+            color: #fff;
+            font-size: 13px;
+            letter-spacing: 2px;
+        }
+
+        .zwd_section {
+            margin-bottom: 36px;
+            padding: 28px;
+            background: var(--card);
+            border: 1px solid var(--line);
+        }
+        .zwd_section h2 {
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 22px;
+            margin: 0 0 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--coral);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .zwd_section h2 span {
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 12px;
+            color: var(--muted);
+            background: var(--paper);
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--line);
+        }
+
+        .zwd_code {
+            background: #1e272e;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 0;
+        }
+        .zwd_code .zwd_key { color: #f2c05c; }
+        .zwd_code .zwd_string { color: #55efc4; }
+        .zwd_code .zwd_number { color: #ff7675; }
+        .zwd_code .zwd_bool { color: #74b9ff; }
+        .zwd_code .zwd_null { color: #a29bfe; }
+
+        .zwd_data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .zwd_data-card {
+            padding: 18px;
+            border: 1px solid var(--line);
+            background: var(--paper);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .zwd_data-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0 var(--yellow);
+        }
+        .zwd_data-card .zwd_label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .zwd_data-card .zwd_value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            word-break: break-all;
+        }
+        .zwd_data-card .zwd_value.zwd_num { color: var(--coral); }
+        .zwd_data-card .zwd_value.zwd_txt { color: var(--blue); }
+
+        .zwd_table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        .zwd_table th, .zwd_table td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+        }
+        .zwd_table th {
+            background: var(--paper);
+            color: var(--coral);
+            font-weight: 600;
+        }
+        .zwd_table tbody tr:hover {
+            background: #faf7f0;
+        }
+        .zwd_table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .zwd_btn {
+            display: inline-block;
+            padding: 8px 18px;
+            background: var(--coral);
+            color: #fff;
+            border: none;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .2s, transform .15s;
+            margin-top: 14px;
+        }
+        .zwd_btn:hover { background: #c44a35; transform: translateY(-1px); }
+        .zwd_btn:active { transform: translateY(0); }
+
+        .zwd_note {
+            background: #fff8e1;
+            border-left: 4px solid var(--yellow);
+            padding: 14px 18px;
+            margin-top: 18px;
+            font-size: 13px;
+            color: #5c4a1e;
+        }
+        .zwd_note code {
+            background: #f0e6c8;
+            padding: 2px 6px;
+            font-family: "Consolas", monospace;
+        }
+
+        .zwd_home {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: var(--blue);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .zwd_home:hover { text-decoration: underline; }
+
+        @media (max-width: 640px) {
+            .zwd_section { padding: 20px; }
+            .zwd_table th, .zwd_table td { padding: 8px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zwd_container">
+        <a class="zwd_home" href="index.html">← 返回作品集</a>
+
+        <header class="zwd_header">
+            <h1>JSON 数据展示</h1>
+            <p>解析 JSON 字符串，用 JS 操作并以多种形式可视化呈现</p>
+            <span class="zwd_name">郑雯迪</span>
+        </header>
+
+        <!-- 第一部分：原始 JSON 字符串 -->
+        <section class="zwd_section">
+            <h2>1. 原始 JSON 字符串 <span>String</span></h2>
+            <p style="color: var(--muted); margin-bottom: 12px;">下面是一段合法的 JSON 文本（字符串形式），可以直接赋值给变量或从文件读取：</p>
+            <pre class="zwd_code" id="zwd_jsonString"></pre>
+        </section>
+
+        <!-- 第二部分：JSON.parse 解析后的对象 -->
+        <section class="zwd_section">
+            <h2>2. 解析后的 JavaScript 对象 <span>JSON.parse()</span></h2>
+            <p style="color: var(--muted); margin-bottom: 12px;">使用 <code>JSON.parse()</code> 将字符串转为对象后，可以用点号/方括号访问属性：</p>
+            <div class="zwd_data-grid" id="zwd_objectView"></div>
+
+            <div class="zwd_note">
+                <strong>💡 常用方法：</strong>
+                <code>JSON.parse(str)</code> 字符串 → 对象；
+                <code>JSON.stringify(obj, null, 2)</code> 对象 → 格式化字符串。
+            </div>
+        </section>
+
+        <!-- 第三部分：遍历数组 -->
+        <section class="zwd_section">
+            <h2>3. 数组数据展示（书籍列表）<span>forEach 遍历</span></h2>
+            <table class="zwd_table" id="zwd_bookTable">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>书名</th>
+                        <th>作者</th>
+                        <th>出版年份</th>
+                        <th>评分</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- 第四部分：修改并序列化 -->
+        <section class="zwd_section">
+            <h2>4. 修改数据并序列化 <span>JSON.stringify()</span></h2>
+            <p style="color: var(--muted); margin-bottom: 12px;">点击按钮为书籍列表新增一本，然后把最新对象重新转成格式化 JSON：</p>
+            <button class="zwd_btn" id="zwd_addBtn">+ 新增一本书</button>
+            <button class="zwd_btn" id="zwd_removeBtn" style="background: var(--blue);">删除最后一本</button>
+            <pre class="zwd_code" id="zwd_result" style="margin-top: 20px;"></pre>
+        </section>
+
+    </div>
+
+    <script>
+        // 姓名：郑雯迪
+        // 预置一段 JSON 字符串
+        var zwd_jsonText = '{\n  "name": "郑雯迪",\n  "age": 20,\n  "school": "计算机24005",\n  "major": "计算机科学与技术",\n  "isStudent": true,\n  "skills": ["HTML", "CSS", "JavaScript"],\n  "address": null\n}';
+
+        // 预置书籍数组
+        var zwd_booksText = '[\n  {"title": "JavaScript高级程序设计", "author": "Nicholas", "year": 2020, "rating": 4.8},\n  {"title": "CSS权威指南", "author": "Eric Meyer", "year": 2018, "rating": 4.7},\n  {"title": "HTML+CSS网页设计", "author": "明日科技", "year": 2021, "rating": 4.5},\n  {"title": "现代JavaScript教程", "author": "Ivan Kanakov", "year": 2022, "rating": 4.9}\n]';
+
+        // 1. 显示原始 JSON 字符串（带语法高亮）
+        document.getElementById('zwd_jsonString').textContent = zwd_jsonText;
+
+        // 2. 解析为对象，然后展示每个属性
+        var zwd_person = JSON.parse(zwd_jsonText);
+        var zwd_objView = document.getElementById('zwd_objectView');
+        Object.keys(zwd_person).forEach(function(zwd_key) {
+            var zwd_val = zwd_person[zwd_key];
+            var zwd_type = typeof zwd_val;
+            if (zwd_val === null) zwd_type = 'null';
+            if (Array.isArray(zwd_val)) zwd_type = 'array';
+
+            var zwd_card = document.createElement('div');
+            zwd_card.className = 'zwd_data-card';
+            zwd_card.innerHTML =
+                '<div class="zwd_label">' + zwd_key + ' <span style="color:var(--coral);font-size:11px;">(' + zwd_type + ')</span></div>' +
+                '<div class="zwd_value ' + (zwd_type === 'number' ? 'zwd_num' : '') + ' ' + (zwd_type === 'string' ? 'zwd_txt' : '') + '">' +
+                    (zwd_type === 'array' ? '[' + zwd_val.join(', ') + ']' :
+                     zwd_val === null ? 'null' :
+                     zwd_val === true ? 'true' :
+                     zwd_val === false ? 'false' :
+                     zwd_val) +
+                '</div>';
+            zwd_objView.appendChild(zwd_card);
+        });
+
+        // 3. 解析书籍数组，渲染表格
+        var zwd_books = JSON.parse(zwd_booksText);
+
+        function zwd_renderBooks() {
+            var zwd_tbody = document.querySelector('#zwd_bookTable tbody');
+            zwd_tbody.innerHTML = '';
+            zwd_books.forEach(function(zwd_book, zwd_idx) {
+                var zwd_tr = document.createElement('tr');
+                zwd_tr.innerHTML =
+                    '<td>' + (zwd_idx + 1) + '</td>' +
+                    '<td><strong>' + zwd_book.title + '</strong></td>' +
+                    '<td>' + zwd_book.author + '</td>' +
+                    '<td>' + zwd_book.year + '</td>' +
+                    '<td style="color:var(--coral);font-weight:600;">★ ' + zwd_book.rating + '</td>';
+                zwd_tbody.appendChild(zwd_tr);
+            });
+            // 同步更新序列化输出
+            document.getElementById('zwd_result').textContent = JSON.stringify(zwd_books, null, 2);
+        }
+
+        zwd_renderBooks();
+
+        // 4. 新增按钮
+        var zwd_newBookPool = [
+            { title: "Vue.js 设计与实现", author: "霍春阳", year: 2022, rating: 4.9 },
+            { title: "React 实战", author: "Dan Abramov", year: 2023, rating: 4.6 },
+            { title: "TypeScript 编程", author: " Boris Cherny", year: 2021, rating: 4.7 }
+        ];
+        document.getElementById('zwd_addBtn').onclick = function() {
+            var zwd_rand = zwd_newBookPool[Math.floor(Math.random() * zwd_newBookPool.length)];
+            zwd_books.push(zwd_rand);
+            zwd_renderBooks();
+        };
+        document.getElementById('zwd_removeBtn').onclick = function() {
+            if (zwd_books.length > 0) {
+                zwd_books.pop();
+                zwd_renderBooks();
+            }
+        };
+    </script>
+</body>
+</html>

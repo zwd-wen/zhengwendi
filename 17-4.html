@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-4 远程接口测试工具</title>
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-02
+    功能名称：远程数据接口测试工具，支持 GET/POST/PUT/PATCH/DELETE 请求，显示响应状态、耗时、响应头和返回数据，并给出错误提示
+    -->
+    <style>
+        :root {
+            --ink: #17212b;
+            --muted: #65727d;
+            --paper: #f5f1e8;
+            --card: #fffdf8;
+            --line: #dcd5c8;
+            --coral: #d95d46;
+            --blue: #245b72;
+            --yellow: #f2c05c;
+            --green: #2d6a4f;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+        .zwd_container { max-width: 1100px; margin: 0 auto; }
+        .zwd_home {
+            display: inline-block; margin-bottom: 24px;
+            color: var(--blue); text-decoration: none; font-weight: 600; font-size: 14px;
+        }
+        .zwd_home:hover { text-decoration: underline; }
+
+        .zwd_header { text-align: center; margin-bottom: 34px; }
+        .zwd_header h1 {
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(28px, 4vw, 40px); margin: 0 0 8px;
+        }
+        .zwd_header p { color: var(--muted); margin: 0; font-size: 14px; }
+        .zwd_header .zwd_name {
+            display: inline-block; margin-top: 12px; padding: 4px 14px;
+            background: var(--blue); color: #fff; font-size: 13px; letter-spacing: 2px;
+        }
+
+        .zwd_presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .zwd_preset {
+            padding: 5px 12px; font-size: 12px; font-family: inherit;
+            border: 1px solid var(--line); background: var(--card);
+            color: var(--blue); cursor: pointer; transition: all .2s;
+        }
+        .zwd_preset:hover {
+            border-color: var(--coral); color: var(--coral);
+            box-shadow: 3px 3px 0 var(--yellow);
+        }
+
+        .zwd_panel {
+            background: var(--card); border: 1px solid var(--line);
+            padding: 22px; margin-bottom: 20px;
+        }
+        .zwd_urlbar { display: flex; gap: 10px; flex-wrap: wrap; }
+        .zwd_select, .zwd_input, .zwd_textarea {
+            font-family: "Consolas", "Microsoft YaHei", monospace;
+            font-size: 13px; color: var(--ink);
+            background: #fff; border: 1px solid var(--line);
+            border-radius: 3px; padding: 10px 12px;
+        }
+        .zwd_select { width: 120px; font-weight: 700; color: var(--blue); cursor: pointer; }
+        .zwd_input { flex: 1; min-width: 220px; }
+        .zwd_input:focus, .zwd_select:focus, .zwd_textarea:focus {
+            outline: none; border-color: var(--coral);
+            box-shadow: 0 0 0 2px rgba(217, 93, 70, .12);
+        }
+        .zwd_textarea { width: 100%; min-height: 96px; resize: vertical; line-height: 1.6; }
+
+        .zwd_btn {
+            padding: 10px 26px; font-family: inherit; font-size: 14px; font-weight: 700;
+            border: none; cursor: pointer; color: #fff; background: var(--coral);
+            transition: transform .15s, background .2s; letter-spacing: 1px;
+        }
+        .zwd_btn:hover { background: #c44a35; }
+        .zwd_btn:active { transform: translateY(1px); }
+        .zwd_btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+        .zwd_tabbar {
+            display: flex; gap: 22px; margin-top: 18px;
+            border-bottom: 1px solid var(--line);
+        }
+        .zwd_tab {
+            padding: 6px 0 9px; font-size: 13px; color: var(--muted);
+            background: none; border: none; border-bottom: 2px solid transparent;
+            cursor: pointer; font-family: inherit; font-weight: 600;
+        }
+        .zwd_tab.zwd_active { color: var(--coral); border-bottom-color: var(--coral); }
+        .zwd_tabbody { padding-top: 14px; }
+        .zwd_hide { display: none !important; }
+        .zwd_hint { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+
+        .zwd_meta { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+        .zwd_badge {
+            padding: 3px 12px; font-size: 13px; font-weight: 700;
+            font-family: "Consolas", monospace; color: #fff; border-radius: 3px;
+        }
+        .zwd_badge.zwd_ok { background: var(--green); }
+        .zwd_badge.zwd_warn { background: var(--yellow); color: var(--ink); }
+        .zwd_badge.zwd_bad { background: var(--coral); }
+        .zwd_badge.zwd_info { background: var(--blue); }
+        .zwd_meta-item { font-size: 13px; color: var(--muted); }
+        .zwd_meta-item strong { color: var(--ink); font-family: "Consolas", monospace; }
+
+        .zwd_code {
+            background: #1e272e; color: #f8f8f2;
+            padding: 16px; margin: 0;
+            font-family: "Consolas", monospace; font-size: 12.5px; line-height: 1.65;
+            border-radius: 4px; white-space: pre-wrap; word-break: break-all;
+            max-height: 420px; overflow: auto;
+        }
+        .zwd_code.zwd_plain { background: #f0ece2; color: var(--ink); }
+
+        .zwd_alert {
+            padding: 14px 18px; margin-bottom: 16px; font-size: 14px;
+            border-left: 4px solid; display: none;
+        }
+        .zwd_alert.zwd_err {
+            display: block; border-color: var(--coral);
+            background: #ffe3dc; color: #8d2c1a;
+        }
+        .zwd_alert.zwd_warn {
+            display: block; border-color: var(--yellow);
+            background: #fff6dd; color: #6b5317;
+        }
+        .zwd_alert.zwd_load {
+            display: block; border-color: var(--blue);
+            background: #e7f0f3; color: var(--blue);
+        }
+        .zwd_alert code {
+            font-family: "Consolas", monospace;
+            background: rgba(0,0,0,.06); padding: 1px 5px;
+        }
+
+        .zwd_headers { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .zwd_headers th, .zwd_headers td {
+            text-align: left; padding: 7px 10px;
+            border-bottom: 1px dashed var(--line);
+            font-family: "Consolas", monospace;
+        }
+        .zwd_headers th { width: 34%; color: var(--blue); font-weight: 600; }
+        .zwd_headers td { color: var(--muted); word-break: break-all; }
+
+        .zwd_history { max-height: 220px; overflow-y: auto; }
+        .zwd_history-item {
+            display: flex; gap: 10px; align-items: baseline;
+            padding: 7px 0; border-bottom: 1px dashed var(--line);
+            font-size: 12.5px;
+        }
+        .zwd_history-item:last-child { border-bottom: none; }
+        .zwd_history-method {
+            font-family: "Consolas", monospace; font-weight: 700;
+            min-width: 58px; font-size: 11px;
+        }
+        .zwd_history-url {
+            flex: 1; color: var(--muted); font-family: "Consolas", monospace;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .zwd_history-status { font-family: "Consolas", monospace; font-weight: 700; }
+        .zwd_history-status.zwd_ok { color: var(--green); }
+        .zwd_history-status.zwd_bad { color: var(--coral); }
+
+        .zwd_section {
+            background: var(--card); border: 1px solid var(--line);
+            padding: 22px; margin-bottom: 20px;
+        }
+        .zwd_section h2 {
+            font-family: Georgia, "Songti SC", serif; font-size: 18px;
+            margin: 0 0 14px; padding-bottom: 8px;
+            border-bottom: 2px solid var(--coral);
+        }
+        .zwd_section .zwd_empty { font-size: 13px; color: var(--muted); margin: 0; }
+
+        @media (max-width: 640px) {
+            .zwd_urlbar { flex-direction: column; }
+            .zwd_select, .zwd_input, .zwd_btn { width: 100%; }
+            .zwd_panel, .zwd_section { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zwd_container">
+        <a class="zwd_home" href="index.html">← 返回作品集</a>
+
+        <header class="zwd_header">
+            <h1>远程接口测试工具</h1>
+            <p>输入接口地址，选择 GET / POST 等方法，查看返回数据与错误信息</p>
+            <span class="zwd_name">郑雯迪</span>
+        </header>
+
+        <!-- 预设接口 -->
+        <div class="zwd_presets">
+            <button class="zwd_preset" data-method="GET" data-url="https://jsonplaceholder.typicode.com/posts">GET · jsonplaceholder</button>
+            <button class="zwd_preset" data-method="GET" data-url="https://jsonplaceholder.typicode.com/posts/1">GET · posts/1</button>
+            <button class="zwd_preset" data-method="POST" data-url="https://jsonplaceholder.typicode.com/posts">POST · jsonplaceholder</button>
+            <button class="zwd_preset" data-method="GET" data-url="https://dummyjson.com/products?limit=3">GET · dummyjson</button>
+            <button class="zwd_preset" data-method="GET" data-url="https://jsonplaceholder.typicode.com/not-found">GET · 404 错误示例</button>
+        </div>
+
+        <!-- 请求面板 -->
+        <div class="zwd_panel">
+            <div class="zwd_urlbar">
+                <select class="zwd_select" id="zwd_method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="PATCH">PATCH</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+                <input class="zwd_input" id="zwd_url" type="text"
+                       value="https://jsonplaceholder.typicode.com/posts"
+                       placeholder="https://example.com/api">
+                <button class="zwd_btn" id="zwd_sendBtn">发送请求</button>
+            </div>
+
+            <div class="zwd_tabbar">
+                <button class="zwd_tab zwd_active" data-tab="zwd_tabBody">请求体 Body</button>
+                <button class="zwd_tab" data-tab="zwd_tabHeader">请求头 Headers</button>
+            </div>
+
+            <div class="zwd_tabbody" id="zwd_tabBody">
+                <p class="zwd_hint">GET 请求会被浏览器忽略请求体，POST / PUT / PATCH 才会发送下面这段 JSON。</p>
+                <textarea class="zwd_textarea" id="zwd_body">{
+  "title": "郑雯迪的测试帖子",
+  "body": "这是通过 fetch POST 提交的内容",
+  "userId": 1
+}</textarea>
+            </div>
+
+            <div class="zwd_tabbody zwd_hide" id="zwd_tabHeader">
+                <p class="zwd_hint">按 JSON 对象格式填写，例如 <code>{"Content-Type": "application/json"}</code></p>
+                <textarea class="zwd_textarea" id="zwd_headersInput">{
+  "Content-Type": "application/json"
+}</textarea>
+            </div>
+        </div>
+
+        <!-- 提示信息 -->
+        <div class="zwd_alert" id="zwd_alert"></div>
+
+        <!-- 响应结果 -->
+        <section class="zwd_section">
+            <h2>响应结果</h2>
+            <div id="zwd_response">
+                <p class="zwd_empty">尚未发送请求。点击上方「发送请求」按钮开始测试。</p>
+            </div>
+        </section>
+
+        <!-- 请求历史 -->
+        <section class="zwd_section">
+            <h2>请求历史</h2>
+            <div class="zwd_history" id="zwd_history">
+                <p class="zwd_empty">暂无记录。</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 姓名：郑雯迪
+        var zwd_method = document.getElementById('zwd_method');
+        var zwd_url = document.getElementById('zwd_url');
+        var zwd_body = document.getElementById('zwd_body');
+        var zwd_headersInput = document.getElementById('zwd_headersInput');
+        var zwd_sendBtn = document.getElementById('zwd_sendBtn');
+        var zwd_alert = document.getElementById('zwd_alert');
+        var zwd_response = document.getElementById('zwd_response');
+        var zwd_history = document.getElementById('zwd_history');
+        var zwd_historyList = [];
+
+        // ===== Tab 切换 =====
+        var zwd_tabs = document.querySelectorAll('.zwd_tab');
+        zwd_tabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                zwd_tabs.forEach(function(t) { t.classList.remove('zwd_active'); });
+                tab.classList.add('zwd_active');
+                document.getElementById('zwd_tabBody').classList.add('zwd_hide');
+                document.getElementById('zwd_tabHeader').classList.add('zwd_hide');
+                document.getElementById(tab.dataset.tab).classList.remove('zwd_hide');
+            });
+        });
+
+        // ===== 预设接口 =====
+        document.querySelectorAll('.zwd_preset').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                zwd_method.value = btn.dataset.method;
+                zwd_url.value = btn.dataset.url;
+                zwd_alert.className = 'zwd_alert';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // ===== 提示信息工具 =====
+        function zwd_showAlert(type, html) {
+            zwd_alert.className = 'zwd_alert zwd_' + type;
+            zwd_alert.innerHTML = html;
+        }
+        function zwd_clearAlert() {
+            zwd_alert.className = 'zwd_alert';
+            zwd_alert.innerHTML = '';
+        }
+
+        // ===== 状态主题色 =====
+        function zwd_statusClass(code) {
+            if (code >= 200 && code < 300) return 'zwd_ok';
+            if (code >= 300 && code < 400) return 'zwd_info';
+            if (code >= 400 && code < 500) return 'zwd_warn';
+            return 'zwd_bad';
+        }
+
+        // ===== 渲染响应头 =====
+        function zwd_renderHeaders(respHeaders) {
+            var html = '<table class="zwd_headers"><tbody>';
+            var has = false;
+            respHeaders.forEach(function(value, key) {
+                has = true;
+                html += '<tr><th>' + key + '</th><td>' + value + '</td></tr>';
+            });
+            html += '</tbody></table>';
+            if (!has) html = '<p class="zwd_empty">该响应没有可读取的自定义响应头（部分头受浏览器限制不可见）。</p>';
+            return html;
+        }
+
+        // ===== 渲染响应主体 =====
+        function zwd_renderBody(text) {
+            if (!text) return '<p class="zwd_empty">响应体为空（例如 204 No Content 或 DELETE 成功）。</p>';
+            try {
+                var obj = JSON.parse(text);
+                return '<pre class="zwd_code">' + zwd_escape(JSON.stringify(obj, null, 2)) + '</pre>';
+            } catch (e) {
+                return '<pre class="zwd_code zwd_plain">' + zwd_escape(text) + '</pre>';
+            }
+        }
+
+        function zwd_escape(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // ===== 记录历史 =====
+        function zwd_addHistory(method, url, status, ms) {
+            zwd_historyList.unshift({ method: method, url: url, status: status, ms: ms });
+            var html = '';
+            zwd_historyList.slice(0, 10).forEach(function(h) {
+                var cls = h.status >= 200 && h.status < 300 ? 'zwd_ok' : 'zwd_bad';
+                html += '<div class="zwd_history-item">' +
+                    '<span class="zwd_history-method" style="color:var(--blue)">' + h.method + '</span>' +
+                    '<span class="zwd_history-url" title="' + zwd_escape(h.url) + '">' + zwd_escape(h.url) + '</span>' +
+                    '<span class="zwd_history-status ' + cls + '">' + h.status + '</span>' +
+                    '<span class="zwd_meta-item">' + h.ms + ' ms</span>' +
+                '</div>';
+            });
+            zwd_history.innerHTML = html;
+        }
+
+        // ===== 发送请求主流程 =====
+        async function zwd_send() {
+            var url = zwd_url.value.trim();
+            var method = zwd_method.value;
+
+            if (!url) {
+                zwd_showAlert('err', '❌ 请求地址不能为空，请先填写接口 URL。');
+                return;
+            }
+            if (!/^https?:\/\//i.test(url)) {
+                zwd_showAlert('err', '❌ 地址必须以 <code>http://</code> 或 <code>https://</code> 开头。');
+                return;
+            }
+
+            // 解析请求头
+            var headers = {};
+            var headersText = zwd_headersInput.value.trim();
+            if (headersText) {
+                try {
+                    headers = JSON.parse(headersText);
+                } catch (e) {
+                    zwd_showAlert('err', '❌ 请求头不是合法的 JSON：' + zwd_escape(e.message));
+                    return;
+                }
+            }
+
+            // 组装 fetch 参数
+            var options = { method: method, headers: headers };
+            if (method !== 'GET' && method !== 'HEAD') {
+                var bodyText = zwd_body.value.trim();
+                if (bodyText) {
+                    try {
+                        JSON.parse(bodyText);
+                    } catch (e) {
+                        zwd_showAlert('err', '❌ 请求体不是合法的 JSON：' + zwd_escape(e.message));
+                        return;
+                    }
+                    options.body = bodyText;
+                }
+            }
+
+            zwd_sendBtn.disabled = true;
+            zwd_showAlert('load', '⏳ 正在请求 <code>' + method + '</code> ' + zwd_escape(url) + ' …');
+            zwd_response.innerHTML = '<p class="zwd_empty">请求发送中，请稍候…</p>';
+
+            var startTime = performance.now();
+            var duration = 0;
+            try {
+                var res = await fetch(url, options);
+                duration = Math.round(performance.now() - startTime);
+                var text = await res.text();
+
+                // 状态提示：2xx 成功，其余给出警告
+                if (res.ok) {
+                    zwd_clearAlert();
+                } else {
+                    var tip = res.status === 404 ? '接口地址不存在（404）' :
+                              res.status === 401 || res.status === 403 ? '没有访问权限，可能需要 Token（' + res.status + '）' :
+                              res.status >= 500 ? '服务器内部错误（' + res.status + '）' :
+                              '请求未成功（' + res.status + '）';
+                    zwd_showAlert('warn', '⚠️ ' + tip + '，但服务器仍返回了响应内容，可查看下方响应体。');
+                }
+
+                // 渲染结果
+                var statusCls = zwd_statusClass(res.status);
+                zwd_response.innerHTML =
+                    '<div class="zwd_meta">' +
+                        '<span class="zwd_badge ' + statusCls + '">' + res.status + ' ' + zwd_escape(res.statusText || '') + '</span>' +
+                        '<span class="zwd_meta-item">方法 <strong>' + method + '</strong></span>' +
+                        '<span class="zwd_meta-item">耗时 <strong>' + duration + ' ms</strong></span>' +
+                        '<span class="zwd_meta-item">大小 <strong>' + text.length + ' 字符</strong></span>' +
+                    '</div>' +
+                    '<h3 style="font-size:14px;margin:16px 0 8px;color:var(--blue);">响应体</h3>' +
+                    zwd_renderBody(text) +
+                    '<h3 style="font-size:14px;margin:16px 0 8px;color:var(--blue);">响应头</h3>' +
+                    zwd_renderHeaders(res.headers);
+
+                zwd_addHistory(method, url, res.status, duration);
+
+            } catch (err) {
+                duration = Math.round(performance.now() - startTime);
+                var reason = err.message || String(err);
+                var tip2 = '网络请求失败。常见原因：';
+                tip2 += '<br>① 接口地址写错或服务未启动（ERR_CONNECTION_REFUSED）；';
+                tip2 += '<br>② 接口不允许跨域访问（CORS 被浏览器拦截）；';
+                tip2 += '<br>③ 请求被 https / http 协议混用阻断。';
+                zwd_showAlert('err', '❌ <strong>' + zwd_escape(reason) + '</strong><br>' + tip2);
+                zwd_response.innerHTML =
+                    '<div class="zwd_meta">' +
+                        '<span class="zwd_badge zwd_bad">请求失败</span>' +
+                        '<span class="zwd_meta-item">方法 <strong>' + method + '</strong></span>' +
+                        '<span class="zwd_meta-item">耗时 <strong>' + duration + ' ms</strong></span>' +
+                    '</div>' +
+                    '<p class="zwd_empty">没有收到服务器响应。错误详情：' + zwd_escape(reason) + '</p>';
+                zwd_addHistory(method, url, 0, duration);
+            } finally {
+                zwd_sendBtn.disabled = false;
+            }
+        }
+
+        // 方法改变时切换颜色提示
+        zwd_method.addEventListener('change', function() {
+            zwd_body.disabled = false;
+            if (zwd_method.value === 'GET') {
+                zwd_body.style.opacity = '.55';
+            } else {
+                zwd_body.style.opacity = '1';
+            }
+        });
+        zwd_method.dispatchEvent(new Event('change'));
+
+        zwd_sendBtn.addEventListener('click', zwd_send);
+        // Ctrl + Enter 快捷发送
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') zwd_send();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-6 Promise 异步流程 · 包饺子</title>
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-02
+    功能名称：使用 Promise、async/await 演示包饺子的异步流程，包含 Promise.race（线上线下并行竞速）与 Promise.all（和面和馅并行等待）
+    -->
+    <style>
+        :root {
+            --ink: #17212b;
+            --muted: #65727d;
+            --paper: #f5f1e8;
+            --card: #fffdf8;
+            --line: #dcd5c8;
+            --coral: #d95d46;
+            --blue: #245b72;
+            --yellow: #f2c05c;
+            --green: #2d6a4f;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+        .zwd_container { max-width: 1080px; margin: 0 auto; }
+        .zwd_home {
+            display: inline-block; margin-bottom: 24px;
+            color: var(--blue); text-decoration: none; font-weight: 600; font-size: 14px;
+        }
+        .zwd_home:hover { text-decoration: underline; }
+
+        .zwd_header { text-align: center; margin-bottom: 30px; }
+        .zwd_header h1 {
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(28px, 4vw, 42px); margin: 0 0 10px;
+        }
+        .zwd_header p { color: var(--muted); margin: 0; font-size: 14px; }
+        .zwd_header .zwd_name {
+            display: inline-block; margin-top: 12px; padding: 4px 14px;
+            background: var(--blue); color: #fff; font-size: 13px; letter-spacing: 2px;
+        }
+
+        /* ===== 控制栏 ===== */
+        .zwd_controls {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+            background: var(--card); border: 1px solid var(--line);
+            padding: 18px 22px; margin-bottom: 22px;
+        }
+        .zwd_btn {
+            padding: 10px 24px; font-family: inherit; font-size: 14px; font-weight: 700;
+            border: none; cursor: pointer; color: #fff; background: var(--coral);
+            transition: transform .15s, background .2s; letter-spacing: 1px;
+        }
+        .zwd_btn:hover { background: #c44a35; }
+        .zwd_btn:active { transform: translateY(1px); }
+        .zwd_btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+        .zwd_btn.zwd_ghost {
+            background: transparent; color: var(--blue); border: 1px solid var(--blue);
+        }
+        .zwd_btn.zwd_ghost:hover { background: var(--blue); color: #fff; }
+        .zwd_speed-box { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+        .zwd_speed-box select {
+            font-family: inherit; font-size: 13px; padding: 7px 10px;
+            border: 1px solid var(--line); background: #fff; color: var(--ink);
+            border-radius: 3px; cursor: pointer;
+        }
+        .zwd_elapsed {
+            margin-left: auto; font-family: "Consolas", monospace;
+            font-size: 13px; color: var(--muted);
+        }
+        .zwd_elapsed strong { color: var(--coral); font-size: 18px; }
+
+        /* ===== 总进度 ===== */
+        .zwd_overall { margin-bottom: 26px; }
+        .zwd_overall-top {
+            display: flex; justify-content: space-between;
+            font-size: 13px; color: var(--muted); margin-bottom: 6px;
+        }
+        .zwd_overall-top strong { color: var(--blue); }
+        .zwd_overall-bar {
+            height: 10px; background: var(--card); border: 1px solid var(--line);
+            border-radius: 5px; overflow: hidden;
+        }
+        .zwd_overall-fill {
+            height: 100%; width: 0; background: var(--blue);
+            transition: width .35s ease, background .3s;
+        }
+        .zwd_overall-fill.zwd_done { background: var(--green); }
+
+        /* ===== 流程卡片 ===== */
+        .zwd_stage {
+            background: var(--card); border: 1px solid var(--line);
+            border-left: 5px solid var(--line);
+            padding: 18px 20px; margin-bottom: 14px;
+            transition: border-color .3s, box-shadow .3s, opacity .3s;
+        }
+        .zwd_stage.zwd_run {
+            border-left-color: var(--coral);
+            box-shadow: 4px 4px 0 rgba(242, 192, 92, .55);
+        }
+        .zwd_stage.zwd_done { border-left-color: var(--green); }
+        .zwd_stage.zwd_wait { opacity: .55; }
+
+        .zwd_stage-head {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 4px;
+        }
+        .zwd_num {
+            flex: 0 0 auto; width: 30px; height: 30px; line-height: 30px;
+            text-align: center; border-radius: 50%;
+            background: var(--paper); color: var(--muted);
+            font-family: Georgia, serif; font-size: 15px; font-weight: 700;
+            border: 1px solid var(--line);
+            transition: all .25s;
+        }
+        .zwd_stage.zwd_run .zwd_num { background: var(--coral); color: #fff; border-color: var(--coral); }
+        .zwd_stage.zwd_done .zwd_num { background: var(--green); color: #fff; border-color: var(--green); }
+
+        .zwd_stage-title {
+            font-size: 16px; font-weight: 700; flex: 1;
+        }
+        .zwd_stage-title small {
+            display: block; font-size: 12px; font-weight: 400;
+            color: var(--muted); margin-top: 2px;
+        }
+        .zwd_stage-st {
+            font-size: 12px; color: var(--muted); white-space: nowrap;
+            padding: 2px 10px; border: 1px solid var(--line); border-radius: 10px;
+        }
+        .zwd_stage.zwd_run .zwd_stage-st { color: var(--coral); border-color: var(--coral); }
+        .zwd_stage.zwd_done .zwd_stage-st { color: var(--green); border-color: var(--green); }
+
+        /* 并行任务容器 */
+        .zwd_parallel {
+            margin-top: 12px; margin-left: 42px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        }
+        .zwd_task {
+            background: var(--paper); border: 1px solid var(--line);
+            padding: 12px 14px; transition: box-shadow .3s, opacity .3s;
+        }
+        .zwd_task.zwd_run { box-shadow: 0 0 0 2px var(--yellow); }
+        .zwd_task.zwd_done { background: #eef7ef; border-color: var(--green); }
+        .zwd_task.zwd_skip { opacity: .5; }
+        .zwd_task.zwd_win { box-shadow: 0 0 0 2px var(--coral); }
+
+        .zwd_task-top {
+            display: flex; align-items: baseline; gap: 8px; font-size: 13px;
+        }
+        .zwd_task-name { font-weight: 700; flex: 1; }
+        .zwd_task-time {
+            font-family: "Consolas", monospace; font-size: 11.5px; color: var(--muted);
+        }
+        .zwd_task-st {
+            font-size: 11.5px; color: var(--muted);
+            min-width: 48px; text-align: right;
+        }
+        .zwd_task.zwd_run .zwd_task-st { color: var(--coral); }
+        .zwd_task.zwd_done .zwd_task-st { color: var(--green); }
+        .zwd_task.zwd_skip .zwd_task-st { color: var(--muted); }
+
+        .zwd_bar {
+            height: 5px; background: #e7e1d5; border-radius: 3px;
+            margin-top: 8px; overflow: hidden;
+        }
+        .zwd_bar-fill {
+            height: 100%; width: 0; background: var(--coral); border-radius: 3px;
+        }
+        .zwd_task.zwd_done .zwd_bar-fill { background: var(--green); }
+        .zwd_task.zwd_skip .zwd_bar-fill { background: var(--muted); }
+
+        /* 单任务步骤（非并行） */
+        .zwd_single { margin-top: 12px; margin-left: 42px; }
+        .zwd_single .zwd_task { padding: 10px 14px; }
+
+        .zwd_result {
+            margin-top: 22px; padding: 20px;
+            background: var(--blue); color: #fff; text-align: center;
+            border-radius: 4px; display: none;
+        }
+        .zwd_result.zwd_show { display: block; animation: zwd_pop .5s ease; }
+        .zwd_result .zwd_big { font-size: 30px; font-weight: 700; letter-spacing: 4px; font-family: Georgia, serif; }
+        .zwd_result p { margin: 6px 0 0; font-size: 13px; color: #dce9ea; }
+        @keyframes zwd_pop {
+            from { transform: scale(.94); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* ===== 日志 ===== */
+        .zwd_section {
+            background: var(--card); border: 1px solid var(--line);
+            padding: 22px; margin-bottom: 20px;
+        }
+        .zwd_section h2 {
+            font-family: Georgia, "Songti SC", serif; font-size: 18px;
+            margin: 0 0 14px; padding-bottom: 8px;
+            border-bottom: 2px solid var(--coral);
+        }
+        .zwd_log {
+            font-family: "Consolas", monospace; font-size: 12.5px;
+            background: var(--paper); border: 1px solid var(--line);
+            padding: 12px; max-height: 240px; overflow-y: auto;
+        }
+        .zwd_log div { margin-bottom: 3px; }
+        .zwd_log .zwd_t { color: var(--muted); }
+        .zwd_log .zwd_ok { color: var(--green); }
+        .zwd_log .zwd_warn { color: var(--coral); }
+        .zwd_log .zwd_key { color: var(--blue); font-weight: 700; }
+
+        .zwd_code {
+            background: #1e272e; color: #f8f8f2;
+            padding: 18px; margin: 0;
+            font-family: "Consolas", monospace; font-size: 12.5px; line-height: 1.7;
+            border-radius: 4px; overflow-x: auto; white-space: pre;
+        }
+        .zwd_code .zwd_cm { color: #7f8c8d; }
+        .zwd_code .zwd_kw { color: #ff7675; }
+        .zwd_code .zwd_fn { color: #f2c05c; }
+        .zwd_code .zwd_str { color: #55efc4; }
+
+        @media (max-width: 720px) {
+            .zwd_parallel { grid-template-columns: 1fr; margin-left: 0; }
+            .zwd_single { margin-left: 0; }
+            .zwd_parallel, .zwd_single { margin-top: 10px; }
+            .zwd_controls { padding: 14px; }
+            .zwd_elapsed { margin-left: 0; width: 100%; }
+            .zwd_section { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zwd_container">
+        <a class="zwd_home" href="index.html">← 返回作品集</a>
+
+        <header class="zwd_header">
+            <h1>Promise 异步流程 · 包饺子</h1>
+            <p>用 setTimeout 模拟每一步耗时，用 Promise.race 与 Promise.all 控制流程</p>
+            <span class="zwd_name">郑雯迪</span>
+        </header>
+
+        <!-- 控制栏 -->
+        <div class="zwd_controls">
+            <button class="zwd_btn" id="zwd_startBtn">🥟 开始包饺子</button>
+            <button class="zwd_btn zwd_ghost" id="zwd_resetBtn">↺ 重置</button>
+            <div class="zwd_speed-box">
+                播放速度
+                <select id="zwd_speed">
+                    <option value="1">1 倍（完整时间）</option>
+                    <option value="2" selected>2 倍</option>
+                    <option value="4">4 倍</option>
+                </select>
+            </div>
+            <div class="zwd_elapsed">已用时间 <strong id="zwd_elapsed">0.0s</strong></div>
+        </div>
+
+        <!-- 总进度 -->
+        <div class="zwd_overall">
+            <div class="zwd_overall-top">
+                <span>流程进度</span>
+                <span><strong id="zwd_stageText">0 / 6</strong> 步</span>
+            </div>
+            <div class="zwd_overall-bar">
+                <div class="zwd_overall-fill" id="zwd_overallFill"></div>
+            </div>
+        </div>
+
+        <!-- ===== 流程步骤 ===== -->
+        <!-- 第 1 步：买原料（并行竞速） -->
+        <div class="zwd_stage zwd_wait" id="zwd_stage1">
+            <div class="zwd_stage-head">
+                <span class="zwd_num">1</span>
+                <div class="zwd_stage-title">买原料
+                    <small>线上、线下同时下单，谁先完成就用谁（Promise.race）</small>
+                </div>
+                <span class="zwd_stage-st" id="zwd_stageSt1">等待</span>
+            </div>
+            <div class="zwd_parallel">
+                <div class="zwd_task" id="zwd_taskOnline">
+                    <div class="zwd_task-top">
+                        <span class="zwd_task-name">🛵 线上购买</span>
+                        <span class="zwd_task-time">4 秒</span>
+                        <span class="zwd_task-st" id="zwd_stOnline">待开始</span>
+                    </div>
+                    <div class="zwd_bar"><div class="zwd_bar-fill" id="zwd_barOnline"></div></div>
+                </div>
+                <div class="zwd_task" id="zwd_taskOffline">
+                    <div class="zwd_task-top">
+                        <span class="zwd_task-name">🏪 线下购买</span>
+                        <span class="zwd_task-time">6 秒</span>
+                        <span class="zwd_task-st" id="zwd_stOffline">待开始</span>
+                    </div>
+                    <div class="zwd_bar"><div class="zwd_bar-fill" id="zwd_barOffline"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第 2 步：取原料 -->
+        <div class="zwd_stage zwd_wait" id="zwd_stage2">
+            <div class="zwd_stage-head">
+                <span class="zwd_num">2</span>
+                <div class="zwd_stage-title">取原料
+                    <small>原料到手后，再去拿回厨房</small>
+                </div>
+                <span class="zwd_stage-st" id="zwd_stageSt2">等待</span>
+            </div>
+            <div class="zwd_single">
+                <div class="zwd_task" id="zwd_taskPickup">
+                    <div class="zwd_task-top">
+                        <span class="zwd_task-name">📦 取回原料</span>
+                        <span class="zwd_task-time">2 秒</span>
+                        <span class="zwd_task-st" id="zwd_stPickup">待开始</span>
+                    </div>
+                    <div class="zwd_bar"><div class="zwd_bar-fill" id="zwd_barPickup"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第 3 步：和面 + 和馅（Promise.all） -->
+        <div class="zwd_stage zwd_wait" id="zwd_stage3">
+            <div class="zwd_stage-head">
+                <span class="zwd_num">3</span>
+                <div class="zwd_stage-title">和面 &amp; 和馅
+                    <small>两件事同时做，必须两件都完成才能继续（Promise.all）</small>
+                </div>
+                <span class="zwd_stage-st" id="zwd_stageSt3">等待</span>
+            </div>
+            <div class="zwd_parallel">
+                <div class="zwd_task" id="zwd_taskDough">
+                    <div class="zwd_task-top">
+                        <span class="zwd_task-name">🌾 和面</span>
+                        <span class="zwd_task-time">3 秒</span>
+                        <span class="zwd_task-st" id="zwd_stDough">待开始</span>
+                    </div>
+                    <div class="zwd_bar"><div class="zwd_bar-fill" id="zwd_barDough"></div></div>
+                </div>
+                <div class="zwd_task" id="zwd_taskFilling">
+                    <div class="zwd_task-top">
+                        <span class="zwd_task-name">🥬 和馅</span>
+                        <span class="zwd_task-time">4 秒</span>
+                        <span class="zwd_task-st" id="zwd_stFilling">待开始</span>
+                    </div>
+                    <div class="zwd_bar"><div class="zwd_bar-fill" id="zwd_barFilling"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第 4 步：包饺子 -->
+        <div class="zwd_stage zwd_wait" id="zwd_stage4">
+            <div class="zwd_stage-head">
+                <span class="zwd_num">4</span>
+                <div class="zwd_stage-title">包饺子
+                    <small>面与馅都准备好后，开始动手包</small>
+                </div>
+                <span class="zwd_stage-st" id="zwd_stageSt4">等待</span>
+            </div>
+            <div class="zwd_single">
+                <div class="zwd_task" id="zwd_taskWrap">
+                    <div class="zwd_task-top">
+                        <span class="zwd_task-name">🥟 包饺子</span>
+                        <span class="zwd_task-time">5 秒</span>
+                        <span class="zwd_task-st" id="zwd_stWrap">待开始</span>
+                    </div>
+                    <div class="zwd_bar"><div class="zwd_bar-fill" id="zwd_barWrap"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第 5 步：煮饺子 -->
+        <div class="zwd_stage zwd_wait" id="zwd_stage5">
+            <div class="zwd_stage-head">
+                <span class="zwd_num">5</span>
+                <div class="zwd_stage-title">煮饺子
+                    <small>包完下锅，等水开煮熟</small>
+                </div>
+                <span class="zwd_stage-st" id="zwd_stageSt5">等待</span>
+            </div>
+            <div class="zwd_single">
+                <div class="zwd_task" id="zwd_taskBoil">
+                    <div class="zwd_task-top">
+                        <span class="zwd_task-name">🍲 煮饺子</span>
+                        <span class="zwd_task-time">4 秒</span>
+                        <span class="zwd_task-st" id="zwd_stBoil">待开始</span>
+                    </div>
+                    <div class="zwd_bar"><div class="zwd_bar-fill" id="zwd_barBoil"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第 6 步：吃饺子 -->
+        <div class="zwd_stage zwd_wait" id="zwd_stage6">
+            <div class="zwd_stage-head">
+                <span class="zwd_num">6</span>
+                <div class="zwd_stage-title">吃饺子
+                    <small>热气腾腾，开动！</small>
+                </div>
+                <span class="zwd_stage-st" id="zwd_stageSt6">等待</span>
+            </div>
+            <div class="zwd_single">
+                <div class="zwd_task" id="zwd_taskEat">
+                    <div class="zwd_task-top">
+                        <span class="zwd_task-name">😋 吃饺子</span>
+                        <span class="zwd_task-time">2 秒</span>
+                        <span class="zwd_task-st" id="zwd_stEat">待开始</span>
+                    </div>
+                    <div class="zwd_bar"><div class="zwd_bar-fill" id="zwd_barEat"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 完成提示 -->
+        <div class="zwd_result" id="zwd_result">
+            <div class="zwd_big">🥟 饺子成功出锅！</div>
+            <p id="zwd_resultText">整个流程由 async / await + Promise 串联完成</p>
+        </div>
+
+        <!-- 日志 -->
+        <section class="zwd_section" style="margin-top: 22px;">
+            <h2>运行日志</h2>
+            <div class="zwd_log" id="zwd_log"></div>
+        </section>
+
+        <!-- 代码 -->
+        <section class="zwd_section">
+            <h2>核心代码（Promise + async/await）</h2>
+            <pre class="zwd_code"><span class="zwd-cm">// 用 setTimeout 模拟每个动作的耗时，返回一个 Promise</span>
+<span class="zwd-kw">function</span> <span class="zwd-fn">delay</span>(ms) {
+    <span class="zwd-kw">return new</span> <span class="zwd-fn">Promise</span>(<span class="zwd-kw">function</span> (resolve) {
+        <span class="zwd-fn">setTimeout</span>(resolve, ms);
+    });
+}
+
+<span class="zwd-kw">async function</span> <span class="zwd-fn">makeDumplings</span>() {
+    <span class="zwd-cm">// ① 线上、线下同时买，谁先回来用谁（race：只取最快的结果）</span>
+    <span class="zwd-kw">var</span> winner = <span class="zwd-kw">await</span> <span class="zwd-fn">Promise.race</span>([
+        <span class="zwd-fn">delay</span>(4000).<span class="zwd-fn">then</span>(<span class="zwd-kw">function</span> () { <span class="zwd-kw">return</span> <span class="zwd-str">'线上购买'</span>; }),
+        <span class="zwd-fn">delay</span>(6000).<span class="zwd-fn">then</span>(<span class="zwd-kw">function</span> () { <span class="zwd-kw">return</span> <span class="zwd-str">'线下购买'</span>; })
+    ]);
+    console.<span class="zwd-fn">log</span>(winner + <span class="zwd-str">' 先完成，原料到手'</span>);
+
+    <span class="zwd-cm">// ② 取原料</span>
+    <span class="zwd-kw">await</span> <span class="zwd-fn">delay</span>(2000);
+
+    <span class="zwd-cm">// ③ 和面、和馅同时进行，两件都完成才继续（all：等待全部完成）</span>
+    <span class="zwd-kw">await</span> <span class="zwd-fn">Promise.all</span>([ <span class="zwd-fn">delay</span>(3000), <span class="zwd-fn">delay</span>(4000) ]);
+
+    <span class="zwd-cm">// ④ 包饺子 → ⑤ 煮饺子 → ⑥ 吃饺子，依次执行</span>
+    <span class="zwd-kw">await</span> <span class="zwd-fn">delay</span>(5000);
+    <span class="zwd-kw">await</span> <span class="zwd-fn">delay</span>(4000);
+    <span class="zwd-kw">await</span> <span class="zwd-fn">delay</span>(2000);
+    console.<span class="zwd-fn">log</span>(<span class="zwd-str">'开吃！'</span>);
+}</pre>
+        </section>
+    </div>
+
+    <script>
+        // 姓名：郑雯迪
+        var zwd_startBtn = document.getElementById('zwd_startBtn');
+        var zwd_resetBtn = document.getElementById('zwd_resetBtn');
+        var zwd_speedSel = document.getElementById('zwd_speed');
+        var zwd_elapsedEl = document.getElementById('zwd_elapsed');
+        var zwd_overallFill = document.getElementById('zwd_overallFill');
+        var zwd_stageText = document.getElementById('zwd_stageText');
+        var zwd_logBox = document.getElementById('zwd_log');
+        var zwd_result = document.getElementById('zwd_result');
+        var zwd_resultText = document.getElementById('zwd_resultText');
+
+        // 任务名 → 页面元素 id 后缀
+        var zwd_taskKeys = ['Online', 'Offline', 'Pickup', 'Dough', 'Filling', 'Wrap', 'Boil', 'Eat'];
+
+        var zwd_timers = {};        // 保存每个任务 setTimeout 的返回值，便于取消
+        var zwd_startTime = Date.now();
+        var zwd_elapsedTimer = null;
+        var zwd_running = false;
+        var zwd_doneStages = 0;
+
+        // ===== 工具函数 =====
+        function zwd_factor() {
+            return parseFloat(zwd_speedSel.value) || 1;
+        }
+        function zwd_actual(ms) {
+            return Math.round(ms / zwd_factor());
+        }
+        function zwd_log(msg, type) {
+            var t = ((Date.now() - zwd_startTime) / 1000).toFixed(1);
+            var div = document.createElement('div');
+            div.innerHTML = '<span class="zwd_t">[' + t + 's]</span> ' + msg;
+            if (type) div.classList.add('zwd_' + type);
+            zwd_logBox.appendChild(div);
+            zwd_logBox.scrollTop = zwd_logBox.scrollHeight;
+        }
+        function zwd_task(key) {
+            return document.getElementById('zwd_task' + key);
+        }
+        function zwd_setTaskState(key, cls, text) {
+            var el = zwd_task(key);
+            el.className = 'zwd_task' + (cls ? ' zwd_' + cls : '');
+            document.getElementById('zwd_st' + key).textContent = text;
+        }
+        function zwd_setStage(idx, cls, text) {
+            var stage = document.getElementById('zwd_stage' + idx);
+            stage.className = 'zwd_stage' + (cls ? ' zwd_' + cls : '');
+            document.getElementById('zwd_stageSt' + idx).textContent = text;
+        }
+        function zwd_updateOverall() {
+            var percent = (zwd_doneStages / 6) * 100;
+            zwd_overallFill.style.width = percent + '%';
+            zwd_stageText.textContent = zwd_doneStages + ' / 6';
+            if (zwd_doneStages === 6) zwd_overallFill.classList.add('zwd_done');
+        }
+
+        // ===== 核心：用 setTimeout 模拟一个耗时任务，返回 Promise =====
+        function zwd_runTask(key, ms, label) {
+            var actual = zwd_actual(ms);
+            var bar = document.getElementById('zwd_bar' + key);
+
+            zwd_setTaskState(key, 'run', '进行中');
+            bar.style.transition = 'none';
+            bar.style.width = '0%';
+            // 强制浏览器重排，让下一帧的过渡动画生效
+            void bar.offsetWidth;
+            bar.style.transition = 'width ' + actual + 'ms linear';
+            bar.style.width = '100%';
+
+            return new Promise(function(resolve) {
+                zwd_timers[key] = setTimeout(function() {
+                    zwd_timers[key] = null;
+                    zwd_setTaskState(key, 'done', '完成');
+                    zwd_log('<span class="zwd_key">' + label + '</span> 完成，用时 ' + (ms / 1000) + ' 秒', 'ok');
+                    resolve(key);
+                }, actual);
+            });
+        }
+
+        // 竞速失败的一方：取消定时器并冻结进度条
+        function zwd_skipTask(key, label) {
+            if (zwd_timers[key]) {
+                clearTimeout(zwd_timers[key]);
+                zwd_timers[key] = null;
+            }
+            var bar = document.getElementById('zwd_bar' + key);
+            var w = bar.getBoundingClientRect().width / bar.parentNode.getBoundingClientRect().width * 100;
+            bar.style.transition = 'none';
+            bar.style.width = w + '%';
+            zwd_setTaskState(key, 'skip', '未采用');
+            zwd_log('<span class="zwd_key">' + label + '</span> 未采用，已取消（race 只需要最快的那个）', 'warn');
+        }
+
+        // ===== 主流程：async / await =====
+        async function zwd_makeDumplings() {
+            zwd_running = true;
+            zwd_startBtn.disabled = true;
+            zwd_resetBtn.disabled = false;
+            zwd_speedSel.disabled = true;
+            zwd_result.classList.remove('zwd_show');
+            zwd_startTime = Date.now();
+            zwd_logBox.innerHTML = '';
+            zwd_elapsedTimer = setInterval(function() {
+                zwd_elapsedEl.textContent = ((Date.now() - zwd_startTime) / 1000).toFixed(1) + 's';
+            }, 100);
+
+            zwd_log('开始包饺子，速度 ×' + zwd_factor());
+
+            /* ===== 第 1 步：买原料（Promise.race）===== */
+            zwd_setStage(1, 'run', '进行中');
+            zwd_log('第 1 步：线上、线下同时下单（Promise.race）');
+
+            var pOnline = zwd_runTask('Online', 4000, '线上购买').then(function() { return 'Online'; });
+            var pOffline = zwd_runTask('Offline', 6000, '线下购买').then(function() { return 'Offline'; });
+
+            var winner = await Promise.race([pOnline, pOffline]);
+            var loser = winner === 'Online' ? 'Offline' : 'Online';
+
+            zwd_task(winner).classList.add('zwd_win');
+
+            // 让失败的一方在界面上保持在「进行中」状态一小会儿，再标记未采用，
+            // 这样能直观看到两个任务确实是同时在跑的
+            await zwd_sleepReal(150);
+            zwd_skipTask(loser, loser === 'Online' ? '线上购买' : '线下购买');
+
+            zwd_setStage(1, 'done', '完成');
+            zwd_doneStages++;
+            zwd_updateOverall();
+            zwd_log('race 得到结果：' + (winner === 'Online' ? '🛵 线上购买' : '🏪 线下购买') +
+                     ' 先完成，直接进入下一步', 'ok');
+
+            /* ===== 第 2 步：取原料 ===== */
+            zwd_setStage(2, 'run', '进行中');
+            zwd_log('第 2 步：把原料取回来');
+            await zwd_runTask('Pickup', 2000, '取原料');
+            zwd_setStage(2, 'done', '完成');
+            zwd_doneStages++;
+            zwd_updateOverall();
+
+            /* ===== 第 3 步：和面 + 和馅（Promise.all）===== */
+            zwd_setStage(3, 'run', '进行中');
+            zwd_log('第 3 步：和面、和馅同时开始（Promise.all，两件都完成才继续）');
+            await Promise.all([
+                zwd_runTask('Dough', 3000, '和面'),
+                zwd_runTask('Filling', 4000, '和馅')
+            ]);
+            zwd_setStage(3, 'done', '完成');
+            zwd_doneStages++;
+            zwd_updateOverall();
+            zwd_log('all 得到结果：和面、和馅都完成，可以开始包了', 'ok');
+
+            /* ===== 第 4 步：包饺子 ===== */
+            zwd_setStage(4, 'run', '进行中');
+            zwd_log('第 4 步：包饺子');
+            await zwd_runTask('Wrap', 5000, '包饺子');
+            zwd_setStage(4, 'done', '完成');
+            zwd_doneStages++;
+            zwd_updateOverall();
+
+            /* ===== 第 5 步：煮饺子 ===== */
+            zwd_setStage(5, 'run', '进行中');
+            zwd_log('第 5 步：下锅煮饺子');
+            await zwd_runTask('Boil', 4000, '煮饺子');
+            zwd_setStage(5, 'done', '完成');
+            zwd_doneStages++;
+            zwd_updateOverall();
+
+            /* ===== 第 6 步：吃饺子 ===== */
+            zwd_setStage(6, 'run', '进行中');
+            zwd_log('第 6 步：开吃！');
+            await zwd_runTask('Eat', 2000, '吃饺子');
+            zwd_setStage(6, 'done', '完成');
+            zwd_doneStages++;
+            zwd_updateOverall();
+
+            /* ===== 结束 ===== */
+            clearInterval(zwd_elapsedTimer);
+            zwd_elapsedEl.textContent = ((Date.now() - zwd_startTime) / 1000).toFixed(1) + 's';
+            zwd_resultText.textContent = '总耗时 ' + zwd_elapsedEl.textContent +
+                '（原始时长约 20 秒，按 ×' + zwd_factor() + ' 播放）';
+            zwd_result.classList.add('zwd_show');
+            zwd_log('🥟 全部完成，饺子可以吃了！', 'ok');
+
+            zwd_running = false;
+            zwd_startBtn.disabled = false;
+            zwd_speedSel.disabled = false;
+        }
+
+        // 仅用于界面节奏的小延时，不参与业务计时
+        function zwd_sleepReal(ms) {
+            return new Promise(function(resolve) { setTimeout(resolve, ms); });
+        }
+
+        // ===== 重置 =====
+        function zwd_reset() {
+            // 清掉所有未完成的定时器
+            Object.keys(zwd_timers).forEach(function(key) {
+                if (zwd_timers[key]) clearTimeout(zwd_timers[key]);
+                zwd_timers[key] = null;
+            });
+            if (zwd_elapsedTimer) clearInterval(zwd_elapsedTimer);
+
+            zwd_taskKeys.forEach(function(key) {
+                var el = zwd_task(key);
+                el.className = 'zwd_task';
+                var bar = document.getElementById('zwd_bar' + key);
+                bar.style.transition = 'none';
+                bar.style.width = '0%';
+                document.getElementById('zwd_st' + key).textContent = '待开始';
+            });
+            for (var i = 1; i <= 6; i++) {
+                zwd_setStage(i, 'wait', '等待');
+            }
+
+            zwd_doneStages = 0;
+            zwd_overallFill.classList.remove('zwd_done');
+            zwd_updateOverall();
+            zwd_result.classList.remove('zwd_show');
+            zwd_elapsedEl.textContent = '0.0s';
+            zwd_logBox.innerHTML = '<div><span class="zwd_t">[0.0s]</span> 已重置，可以重新开始</div>';
+
+            zwd_running = false;
+            zwd_startBtn.disabled = false;
+            zwd_speedSel.disabled = false;
+        }
+
+        zwd_startBtn.addEventListener('click', function() {
+            if (zwd_running) return;
+            zwd_makeDumplings();
+        });
+        zwd_resetBtn.addEventListener('click', zwd_reset);
+
+        // 初始状态
+        zwd_updateOverall();
+        zwd_log('准备就绪，点击「开始包饺子」按钮观察流程');
+    </script>
+</body>
+</html>

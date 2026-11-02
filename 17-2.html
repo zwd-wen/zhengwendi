@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-2 fetch 接口数据展示（GET & POST）</title>
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-02
+    功能名称：使用 fetch API 演示 GET（获取商品列表/单条）与 POST（新增商品），接口：dummyjson.com/products
+    -->
+    <style>
+        :root {
+            --ink: #17212b;
+            --muted: #65727d;
+            --paper: #f5f1e8;
+            --card: #fffdf8;
+            --line: #dcd5c8;
+            --coral: #d95d46;
+            --blue: #245b72;
+            --yellow: #f2c05c;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+        .zwd_container { max-width: 1100px; margin: 0 auto; }
+        .zwd_header { text-align: center; margin-bottom: 40px; }
+        .zwd_header h1 {
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(28px, 4vw, 40px); margin: 0 0 10px;
+        }
+        .zwd_header p { color: var(--muted); margin: 0; }
+        .zwd_header .zwd_name {
+            display: inline-block; margin-top: 12px; padding: 4px 14px;
+            background: var(--blue); color: #fff; font-size: 13px; letter-spacing: 2px;
+        }
+        .zwd_home {
+            display: inline-block; margin-bottom: 24px;
+            color: var(--blue); text-decoration: none; font-weight: 600; font-size: 14px;
+        }
+        .zwd_home:hover { text-decoration: underline; }
+
+        .zwd_api-source {
+            background: var(--paper); border: 1px dashed var(--line);
+            padding: 14px 18px; margin-bottom: 24px; font-size: 13px; color: var(--muted);
+        }
+        .zwd_api-source code {
+            font-family: "Consolas", monospace; color: var(--coral);
+            background: var(--card); padding: 2px 6px; margin: 0 2px;
+        }
+
+        .zwd_group {
+            background: var(--card); border: 1px solid var(--line);
+            padding: 20px; margin-bottom: 20px;
+        }
+        .zwd_group h3 { margin: 0 0 14px; font-size: 15px; color: var(--blue); letter-spacing: 1px; }
+        .zwd_controls { display: flex; gap: 10px; flex-wrap: wrap; }
+        .zwd_btn {
+            padding: 9px 18px; font-family: inherit; font-size: 13px;
+            border: none; cursor: pointer; color: #fff;
+            transition: transform .15s, background .2s;
+        }
+        .zwd_btn-primary { background: var(--coral); }
+        .zwd_btn-primary:hover { background: #c44a35; }
+        .zwd_btn-secondary { background: var(--blue); }
+        .zwd_btn-secondary:hover { background: #1a4558; }
+        .zwd_btn-yellow { background: var(--yellow); color: var(--ink); }
+        .zwd_btn-yellow:hover { background: #e2b248; }
+        .zwd_btn:active { transform: translateY(1px); }
+        .zwd_btn:disabled { opacity: .5; cursor: not-allowed; }
+
+        .zwd_form {
+            display: grid; gap: 10px; grid-template-columns: 1fr 1fr; margin-top: 14px;
+        }
+        .zwd_form label { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+        .zwd_form input, .zwd_form select {
+            width: 100%; padding: 8px 10px; font-family: inherit; font-size: 13px;
+            border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 3px;
+        }
+        .zwd_form input:focus, .zwd_form select:focus { outline: none; border-color: var(--coral); }
+        .zwd_form .zwd_btn { grid-column: 1 / -1; justify-self: start; }
+
+        .zwd_status {
+            padding: 12px 18px; margin-bottom: 20px;
+            font-size: 14px; border: 1px solid var(--line); background: var(--card); display: none;
+        }
+        .zwd_status.zwd_loading { display: block; color: var(--blue); background: #eef4f6; border-color: var(--blue); }
+        .zwd_status.zwd_success { display: block; color: #2d6a4f; border-color: #2d6a4f; background: #d8f3dc; }
+        .zwd_status.zwd_error { display: block; color: var(--coral); border-color: var(--coral); background: #ffe3dc; }
+        .zwd_status .zwd_url {
+            word-break: break-all; font-family: "Consolas", monospace;
+            color: var(--ink); background: var(--paper); padding: 2px 6px;
+        }
+        .zwd_method-tag {
+            display: inline-block; font-size: 11px; font-weight: 700;
+            padding: 2px 8px; margin-right: 8px; border-radius: 2px; letter-spacing: 1px;
+        }
+        .zwd_method-GET { background: var(--blue); color: #fff; }
+        .zwd_method-POST { background: var(--coral); color: #fff; }
+
+        .zwd_section {
+            background: var(--card); border: 1px solid var(--line);
+            padding: 20px; margin-bottom: 20px;
+        }
+        .zwd_section h2 {
+            font-family: Georgia, "Songti SC", serif; font-size: 18px;
+            margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--coral);
+        }
+
+        .zwd_product-list {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .zwd_product {
+            border: 1px solid var(--line); background: var(--paper);
+            overflow: hidden; transition: transform .2s, box-shadow .2s;
+        }
+        .zwd_product:hover { transform: translateY(-3px); box-shadow: 5px 5px 0 var(--yellow); }
+        .zwd_product-img {
+            width: 100%; height: 140px; background: var(--card);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .zwd_product-img img { width: 85%; height: 85%; object-fit: contain; }
+        .zwd_product-body { padding: 12px 14px 14px; }
+        .zwd_product-body h4 { margin: 0 0 4px; font-size: 14px; color: var(--ink); }
+        .zwd_product-body .zwd_cat {
+            display: inline-block; font-size: 10px; background: var(--blue); color: #fff;
+            padding: 1px 6px; border-radius: 2px; letter-spacing: 1px; margin-bottom: 6px;
+        }
+        .zwd_product-body .zwd_info {
+            font-size: 12px; color: var(--muted); margin-bottom: 6px;
+            display: flex; justify-content: space-between;
+        }
+        .zwd_product-body .zwd_price { color: var(--coral); font-weight: 700; font-size: 16px; }
+        .zwd_product.zwd_new { border-color: var(--coral); box-shadow: 3px 3px 0 var(--coral); }
+        .zwd_product.zwd_new .zwd_product-img::after {
+            content: "NEW"; position: absolute; top: 8px; left: 8px;
+            background: var(--coral); color: #fff; font-size: 10px;
+            padding: 2px 6px; letter-spacing: 1px; border-radius: 2px;
+        }
+        .zwd_product-img { position: relative; }
+
+        .zwd_code {
+            background: #1e272e; color: #f8f8f2;
+            padding: 16px; font-family: "Consolas", monospace;
+            font-size: 12px; line-height: 1.6; border-radius: 4px;
+            overflow-x: auto; white-space: pre-wrap; word-break: break-all;
+            max-height: 320px; overflow-y: auto; margin: 0;
+        }
+
+        .zwd_log {
+            font-family: "Consolas", monospace; font-size: 12px;
+            background: var(--paper); border: 1px solid var(--line);
+            padding: 12px; max-height: 200px; overflow-y: auto;
+        }
+        .zwd_log div { margin-bottom: 3px; }
+        .zwd_log .zwd_log-time { color: var(--muted); }
+        .zwd_log .zwd_log-ok { color: #2d6a4f; }
+        .zwd_log .zwd_log-err { color: var(--coral); }
+
+        @media (max-width: 640px) {
+            .zwd_form { grid-template-columns: 1fr; }
+            .zwd_product-list { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="zwd_container">
+        <a class="zwd_home" href="index.html">← 返回作品集</a>
+
+        <header class="zwd_header">
+            <h1>fetch GET & POST 演示</h1>
+            <p>使用原生 fetch 获取商品数据，同时演示 POST 提交新商品</p>
+            <span class="zwd_name">郑雯迪</span>
+        </header>
+
+        <div class="zwd_api-source">
+            📡 接口来源：<code>https://dummyjson.com/products</code>（免费跨域商品 API）<br>
+            支持的方法：<code>GET /products</code>、<code>GET /products/{id}</code>、<code>POST /products/add</code>
+        </div>
+
+        <!-- ① GET 按钮 -->
+        <div class="zwd_group">
+            <h3>① GET 请求（获取商品数据）</h3>
+            <div class="zwd_controls">
+                <button class="zwd_btn zwd_btn-primary" id="zwd_getListBtn">获取商品列表（前 6 件）</button>
+                <button class="zwd_btn zwd_btn-secondary" id="zwd_getSingleBtn">获取单件商品 /products/1</button>
+                <button class="zwd_btn zwd_btn-secondary" id="zwd_getErrorBtn">模拟失败（404）</button>
+            </div>
+        </div>
+
+        <!-- ② POST 表单 -->
+        <div class="zwd_group">
+            <h3>② POST 请求（新增一件商品）</h3>
+            <div class="zwd_form">
+                <div>
+                    <label>商品名称（title）</label>
+                    <input type="text" id="zwd_inputTitle" value="郑雯迪测试商品">
+                </div>
+                <div>
+                    <label>品牌（brand）</label>
+                    <input type="text" id="zwd_inputBrand" value="ZWDBrand">
+                </div>
+                <div>
+                    <label>分类（category）</label>
+                    <select id="zwd_inputCategory">
+                        <option value="beauty">beauty</option>
+                        <option value="fragrances">fragrances</option>
+                        <option value="furniture">furniture</option>
+                        <option value="groceries">groceries</option>
+                        <option value="home-decoration">home-decoration</option>
+                        <option value="kitchen-accessories">kitchen-accessories</option>
+                        <option value="laptops">laptops</option>
+                        <option value="men's-shoes">men's-shoes</option>
+                        <option value="mens-shirts">mens-shirts</option>
+                        <option value="mens-watches">mens-watches</option>
+                        <option value="mobile-accessories">mobile-accessories</option>
+                        <option value="motorcycle">motorcycle</option>
+                        <option value="lighting">lighting</option>
+                        <option value="skincare">skincare</option>
+                        <option value="sports-accessories">sports-accessories</option>
+                        <option value="sunglasses">sunglasses</option>
+                        <option value="tablets">tablets</option>
+                        <option value="tops">tops</option>
+                        <option value="vehicle">vehicle</option>
+                        <option value="women's-bags">women's-bags</option>
+                        <option value="women's-dresses">women's-dresses</option>
+                        <option value="women's-jewellery">women's-jewellery</option>
+                        <option value="women's-shoes">women's-shoes</option>
+                        <option value="women's-watches">women's-watches</option>
+                    </select>
+                </div>
+                <div>
+                    <label>价格（price，元）</label>
+                    <input type="number" id="zwd_inputPrice" value="99" min="0">
+                </div>
+                <div>
+                    <label>库存（stock，件）</label>
+                    <input type="number" id="zwd_inputStock" value="50" min="0">
+                </div>
+                <div>
+                    <label>评分（rating，0-5）</label>
+                    <input type="number" id="zwd_inputRating" value="4.5" min="0" max="5" step="0.1">
+                </div>
+                <button class="zwd_btn zwd_btn-yellow" id="zwd_postBtn">📤 发送 POST /products/add</button>
+            </div>
+        </div>
+
+        <div class="zwd_status" id="zwd_status"></div>
+
+        <section class="zwd_section" id="zwd_listSection" style="display:none;">
+            <h2>🛒 商品数据展示</h2>
+            <div class="zwd_product-list" id="zwd_productList"></div>
+        </section>
+
+        <section class="zwd_section" id="zwd_jsonSection" style="display:none;">
+            <h2>🔧 原始 JSON 响应</h2>
+            <pre class="zwd_code" id="zwd_rawJson"></pre>
+        </section>
+
+        <section class="zwd_section">
+            <h2>📋 请求日志</h2>
+            <div class="zwd_log" id="zwd_log"></div>
+        </section>
+    </div>
+
+    <script>
+        // 姓名：郑雯迪
+        var zwd_API_BASE = 'https://dummyjson.com/products';
+        var zwd_STATUS = document.getElementById('zwd_status');
+        var zwd_PRODUCTLIST = document.getElementById('zwd_productList');
+        var zwd_RAWJSON = document.getElementById('zwd_rawJson');
+        var zwd_LISTSECTION = document.getElementById('zwd_listSection');
+        var zwd_JSONSECTION = document.getElementById('zwd_jsonSection');
+        var zwd_LOG = document.getElementById('zwd_log');
+
+        function zwd_log(msg, type) {
+            var d = new Date();
+            var t = d.toLocaleTimeString();
+            var div = document.createElement('div');
+            div.innerHTML = '<span class="zwd_log-time">[' + t + ']</span> ' + msg;
+            if (type) div.classList.add('zwd_log-' + type);
+            zwd_LOG.insertBefore(div, zwd_LOG.firstChild);
+        }
+        function zwd_setStatus(cls, html) {
+            zwd_STATUS.className = 'zwd_status ' + cls;
+            zwd_STATUS.innerHTML = html;
+        }
+
+        async function zwd_fetchGET(url) {
+            zwd_setStatus('zwd_loading',
+                '<span class="zwd_method-tag zwd_method-GET">GET</span>⏳ 请求 <span class="zwd_url">' + url + '</span> …');
+            zwd_log('GET ' + url);
+            var res = await fetch(url);
+            if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+            return await res.json();
+        }
+        async function zwd_fetchPOST(url, payload) {
+            zwd_setStatus('zwd_loading',
+                '<span class="zwd_method-tag zwd_method-POST">POST</span>⏳ 提交到 <span class="zwd_url">' + url + '</span> …');
+            zwd_log('POST ' + url + ' body=' + JSON.stringify(payload));
+            var res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return await res.json();
+        }
+
+        // === 渲染商品卡片 ===
+        function zwd_renderProducts(list, isNew) {
+            zwd_PRODUCTLIST.innerHTML = '';
+            list.forEach(function(p) {
+                var div = document.createElement('div');
+                div.className = 'zwd_product' + (isNew ? ' zwd_new' : '');
+                div.innerHTML =
+                    '<div class="zwd_product-img"><img src="' + (p.thumbnail || '') + '" alt="' + p.title + '" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect width=%22100%22 height=%22100%22 fill=%22%23f0f0f0%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23aaa%22 font-size=%2212%22>图</text></svg>\'"></div>' +
+                    '<div class="zwd_product-body">' +
+                        '<span class="zwd_cat">' + (p.category || '-') + '</span>' +
+                        '<h4>' + p.title + '</h4>' +
+                        '<div class="zwd_info"><span>#' + p.id + ' ' + (p.brand || '') + '</span></div>' +
+                        '<div class="zwd_info"><span>★ ' + (p.rating || 0) + '</span><span>库存 ' + (p.stock || 0) + '</span></div>' +
+                        '<div class="zwd_price">¥' + (p.price ?? 0) + '</div>' +
+                    '</div>';
+                zwd_PRODUCTLIST.appendChild(div);
+            });
+        }
+
+        // === 按钮事件 ===
+        document.getElementById('zwd_getListBtn').onclick = async function() {
+            try {
+                var data = await zwd_fetchGET(zwd_API_BASE + '?limit=6');
+                // dummyjson 列表返回 { products: [...], total, skip, limit }
+                var list = Array.isArray(data) ? data : (data.products || []);
+                zwd_renderProducts(list);
+                zwd_RAWJSON.textContent = JSON.stringify(data, null, 2);
+                zwd_LISTSECTION.style.display = 'block';
+                zwd_JSONSECTION.style.display = 'block';
+                zwd_setStatus('zwd_success',
+                    '✅ GET 成功！共 <strong>' + (data.total || list.length) + '</strong> 件商品，本次展示 <strong>' + list.length + '</strong> 件');
+                zwd_log('✅ 获取 ' + list.length + ' 件', 'ok');
+            } catch (err) {
+                zwd_setStatus('zwd_error', '❌ GET 失败：' + err.message);
+                zwd_log('❌ ' + err.message, 'err');
+            }
+        };
+
+        document.getElementById('zwd_getSingleBtn').onclick = async function() {
+            try {
+                var data = await zwd_fetchGET(zwd_API_BASE + '/1');
+                zwd_renderProducts([data]);
+                zwd_RAWJSON.textContent = JSON.stringify(data, null, 2);
+                zwd_LISTSECTION.style.display = 'block';
+                zwd_JSONSECTION.style.display = 'block';
+                zwd_setStatus('zwd_success', '✅ GET 成功！单件商品 #<strong>' + data.id + '</strong>：' + data.title);
+                zwd_log('✅ 单件：' + data.title, 'ok');
+            } catch (err) {
+                zwd_setStatus('zwd_error', '❌ GET 失败：' + err.message);
+                zwd_log('❌ ' + err.message, 'err');
+            }
+        };
+
+        document.getElementById('zwd_getErrorBtn').onclick = async function() {
+            try {
+                var data = await zwd_fetchGET(zwd_API_BASE + '/99999');
+                zwd_setStatus('zwd_success', '意外成功：' + JSON.stringify(data));
+            } catch (err) {
+                zwd_setStatus('zwd_error', '❌ 错误（预期）：' + err.message + ' —— response.ok 检测到非 2xx');
+                zwd_log('❌ 预期错误：' + err.message, 'err');
+                zwd_LISTSECTION.style.display = 'none';
+                zwd_JSONSECTION.style.display = 'none';
+            }
+        };
+
+        document.getElementById('zwd_postBtn').onclick = async function() {
+            var title = document.getElementById('zwd_inputTitle').value.trim();
+            var brand = document.getElementById('zwd_inputBrand').value.trim();
+            var category = document.getElementById('zwd_inputCategory').value;
+            var price = parseFloat(document.getElementById('zwd_inputPrice').value) || 0;
+            var stock = parseInt(document.getElementById('zwd_inputStock').value) || 0;
+            var rating = parseFloat(document.getElementById('zwd_inputRating').value) || 0;
+
+            if (!title) {
+                zwd_setStatus('zwd_error', '⚠️ 商品名称不能为空');
+                return;
+            }
+            this.disabled = true;
+            try {
+                var payload = {
+                    title: title,
+                    description: '由郑雯迪通过 fetch POST 创建的商品',
+                    category: category,
+                    price: price,
+                    stock: stock,
+                    brand: brand,
+                    rating: rating
+                };
+                var result = await zwd_fetchPOST(zwd_API_BASE + '/add', payload);
+
+                // dummyjson /products/add 返回新商品对象（含 id）
+                zwd_renderProducts([result], true);
+                zwd_RAWJSON.textContent =
+                    '// 请求体（Request Body）\n' + JSON.stringify(payload, null, 2) +
+                    '\n\n// 响应体（Response）\n' + JSON.stringify(result, null, 2);
+                zwd_LISTSECTION.style.display = 'block';
+                zwd_JSONSECTION.style.display = 'block';
+                zwd_setStatus('zwd_success',
+                    '✅ POST 成功！新商品 ID 为 <strong>' + result.id + '</strong> — "' + result.title + '"');
+                zwd_log('✅ POST 返回 id=' + result.id, 'ok');
+            } catch (err) {
+                zwd_setStatus('zwd_error', '❌ POST 失败：' + err.message);
+                zwd_log('❌ ' + err.message, 'err');
+            } finally {
+                this.disabled = false;
+            }
+        };
+
+        zwd_log('页面加载完成，等待用户点击按钮触发 fetch…');
+    </script>
+</body>
+</html>
