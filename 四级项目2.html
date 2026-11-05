@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0">
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-05
+    功能名称：四级项目二 传统茶文化 App 图像解决方案（iconfont 图标转 SVG，420px 手机容器 + 固定下导航）
+    -->
+    <title>四级项目二 · 传统茶文化 App SVG 下导航 | 525 郑雯迪</title>
+    <style>
+        /* ===== 全局 CSS ===== */
+        :root {
+            --zwd_ink: #17212b;
+            --zwd_muted: #7c8792;
+            --zwd_paper: #f5f1e8;
+            --zwd_card: #fffdf8;
+            --zwd_line: #dcd5c8;
+            --zwd_coral: #d95d46;
+            --zwd_blue: #245b72;
+            --zwd_yellow: #f2c05c;
+            --zwd_serif: Georgia, "Songti SC", "SimSun", serif;
+            --zwd_sans: "Microsoft YaHei", "PingFang SC", sans-serif;
+            --zwd_nav_h: 60px;
+            --zwd_app_w: 420px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--zwd_ink);
+            background: #e7e1d4;
+            font-family: var(--zwd_sans);
+            line-height: 1.7;
+        }
+
+        h1, h2, h3, p, figure, ol, ul { margin: 0; padding: 0; }
+
+        img, svg { display: block; }
+
+        a { color: inherit; text-decoration: none; }
+
+        li { list-style: none; }
+
+        /* ===== 手机页面容器：最大 420px，窗口居中 ===== */
+        .zwd_app {
+            width: 100%;
+            max-width: var(--zwd_app_w);
+            min-height: 100vh;
+            margin: 0 auto;
+            padding-bottom: calc(var(--zwd_nav_h) + 26px);
+            background: var(--zwd_paper);
+            box-shadow: 0 0 30px rgba(23, 33, 43, 0.12);
+        }
+
+        /* ===== 页面头部 ===== */
+        .zwd_appbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 18px;
+            background: rgba(245, 241, 232, 0.94);
+            border-bottom: 1px solid var(--zwd_line);
+            backdrop-filter: blur(6px);
+        }
+
+        .zwd_appbar_title {
+            font-family: var(--zwd_serif);
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .zwd_appbar_tag {
+            padding: 3px 9px;
+            border: 1px solid var(--zwd_coral);
+            border-radius: 999px;
+            color: var(--zwd_coral);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .zwd_hero {
+            position: relative;
+            margin: 0 0 22px;
+        }
+
+        .zwd_hero img {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+        }
+
+        .zwd_hero_text {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 46px 18px 16px;
+            background: linear-gradient(transparent, rgba(23, 33, 43, 0.82));
+            color: #fffdf8;
+        }
+
+        .zwd_hero_text h1 {
+            font-family: var(--zwd_serif);
+            font-size: 22px;
+            letter-spacing: 2px;
+        }
+
+        .zwd_hero_text p {
+            margin-top: 4px;
+            font-size: 12px;
+            opacity: 0.86;
+        }
+
+        /* ===== 内容区块 ===== */
+        .zwd_section {
+            padding: 0 18px;
+            margin-bottom: 24px;
+        }
+
+        .zwd_section_head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .zwd_section_head h2 {
+            font-family: var(--zwd_serif);
+            font-size: 17px;
+            letter-spacing: 1px;
+        }
+
+        .zwd_section_head span {
+            color: var(--zwd_muted);
+            font-size: 11px;
+        }
+
+        /* 三张茶单卡片 */
+        .zwd_tea_row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .zwd_tea_card {
+            overflow: hidden;
+            border-radius: 12px;
+            background: var(--zwd_card);
+            box-shadow: 0 4px 14px rgba(23, 33, 43, 0.07);
+        }
+
+        .zwd_tea_card img {
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            object-fit: cover;
+        }
+
+        .zwd_tea_card p {
+            padding: 8px 9px 9px;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .zwd_tea_card p strong {
+            display: block;
+            font-size: 12px;
+        }
+
+        .zwd_tea_card p span { color: var(--zwd_muted); }
+
+        /* 茶事日程列表 */
+        .zwd_note {
+            padding: 16px 18px;
+            margin: 0 18px 24px;
+            border-left: 3px solid var(--zwd_yellow);
+            background: #fbf6e9;
+            color: var(--zwd_blue);
+            font-size: 12px;
+        }
+
+        .zwd_note strong { color: var(--zwd_coral); }
+
+        .zwd_list_item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--zwd_line);
+        }
+
+        .zwd_list_item:last-child { border-bottom: 0; }
+
+        .zwd_list_date {
+            width: 42px;
+            flex: none;
+            text-align: center;
+            color: var(--zwd_blue);
+        }
+
+        .zwd_list_date strong {
+            display: block;
+            font-family: var(--zwd_serif);
+            font-size: 22px;
+            line-height: 1.1;
+        }
+
+        .zwd_list_date span { font-size: 10px; color: var(--zwd_muted); }
+
+        .zwd_list_body { flex: 1; min-width: 0; }
+
+        .zwd_list_body h3 {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .zwd_list_body p {
+            margin-top: 2px;
+            color: var(--zwd_muted);
+            font-size: 11px;
+        }
+
+        .zwd_status {
+            flex: none;
+            padding: 2px 8px;
+            border: 1px solid var(--zwd_line);
+            border-radius: 999px;
+            color: var(--zwd_muted);
+            font-size: 10px;
+        }
+
+        .zwd_status_hot {
+            border-color: var(--zwd_coral);
+            color: var(--zwd_coral);
+        }
+
+        .zwd_page_foot {
+            color: var(--zwd_muted);
+            font-size: 11px;
+        }
+
+        /* ===== 固定下导航（SVG 图标） ===== */
+        .zwd_nav {
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            z-index: 100;
+            width: 100%;
+            max-width: var(--zwd_app_w);
+            height: calc(var(--zwd_nav_h) + env(safe-area-inset-bottom, 0px));
+            padding: 0 4px env(safe-area-inset-bottom, 0);
+            display: flex;
+            align-items: flex-end;
+            transform: translateX(-50%);
+            background: var(--zwd_card);
+            border-top: 1px solid var(--zwd_line);
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -8px 26px rgba(23, 33, 43, 0.09);
+        }
+
+        .zwd_nav_item {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            height: var(--zwd_nav_h);
+            padding-bottom: 5px;
+            color: var(--zwd_muted);
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        /* SVG 图标：fill 用 currentColor，颜色交由 CSS 控制 */
+        .zwd_nav_item .zwd_icon {
+            width: 23px;
+            height: 23px;
+            fill: currentColor;
+            transition: transform 0.2s ease;
+        }
+
+        .zwd_nav_item:hover,
+        .zwd_nav_item.is_active { color: var(--zwd_coral); }
+
+        .zwd_nav_item.is_active .zwd_icon { transform: translateY(-2px) scale(1.1); }
+
+        .zwd_nav_item.is_active .zwd_label { font-weight: 700; }
+
+        /* 中间“记一泡”凸起按钮 */
+        .zwd_nav_item.zwd_center {
+            margin-top: -24px;
+            height: calc(var(--zwd_nav_h) + 24px);
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        .zwd_nav_item.zwd_center .zwd_icon {
+            width: 40px;
+            height: 40px;
+            padding: 8px;
+            border-radius: 50%;
+            background: var(--zwd_card);
+            fill: var(--zwd_coral);
+            box-shadow: 0 6px 16px rgba(217, 93, 70, 0.34);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .zwd_nav_item.zwd_center.is_active .zwd_icon,
+        .zwd_nav_item.zwd_center:hover .zwd_icon {
+            background: var(--zwd_coral);
+            fill: var(--zwd_card);
+            transform: none;
+        }
+
+        /* 数字徽章 */
+        .zwd_badge {
+            position: absolute;
+            top: 3px;
+            left: calc(50% + 6px);
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border-radius: 999px;
+            background: var(--zwd_coral);
+            color: #fffdf8;
+            font-size: 10px;
+            font-style: normal;
+            line-height: 16px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* 红点提醒 */
+        .zwd_dot {
+            position: absolute;
+            top: 8px;
+            left: calc(50% + 8px);
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--zwd_coral);
+        }
+
+        /* ===== 小屏适配 ===== */
+        @media (max-width: 360px) {
+            .zwd_nav_item { font-size: 10px; letter-spacing: 0; }
+            .zwd_nav_item .zwd_icon { width: 21px; height: 21px; }
+            .zwd_tea_row { gap: 8px; }
+        }
+
+        /* ===== 大屏：容器居中显示，两侧留白，更接近 App 预览 ===== */
+        @media (min-width: 700px) {
+            body { background: #ddd6c7; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 手机页面容器：宽度自适应，最大 420px -->
+    <div class="zwd_app">
+        <header class="zwd_appbar">
+            <span class="zwd_appbar_title">茶事 · 霜降</span>
+            <span class="zwd_appbar_tag">一年茶期 24 候</span>
+        </header>
+
+        <main>
+            <figure class="zwd_hero">
+                <img src="img/zwd_tea4.jpg" alt="中式茶席上的陶壶与三只青瓷茶杯">
+                <div class="zwd_hero_text">
+                    <h1>今日一盏</h1>
+                    <p>寒露已过，宜陈香老茶，水温 95℃</p>
+                </div>
+            </figure>
+
+            <section class="zwd_section" aria-labelledby="zwd_tea_title">
+                <div class="zwd_section_head">
+                    <h2 id="zwd_tea_title">今日茶单</h2>
+                    <span>共 12 款</span>
+                </div>
+                <div class="zwd_tea_row">
+                    <div class="zwd_tea_card">
+                        <img src="img/zwd_tea1.jpg" alt="玻璃杯中舒展的绿茶茶叶">
+                        <p><strong>西湖龙井</strong><span>绿茶 · 85℃</span></p>
+                    </div>
+                    <div class="zwd_tea_card">
+                        <img src="img/zwd_tea2.jpg" alt="紫砂壶斟出橙黄色的乌龙茶汤">
+                        <p><strong>武夷岩茶</strong><span>乌龙 · 100℃</span></p>
+                    </div>
+                    <div class="zwd_tea_card">
+                        <img src="img/zwd_tea3.jpg" alt="普洱紧压茶饼与青瓷茶杯">
+                        <p><strong>云南普洱</strong><span>黑茶 · 95℃</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <p class="zwd_note"><strong>小记：</strong>下导航使用固定定位，始终贴在屏幕底部，五栏等分宽度，随视口宽度自适应。</p>
+
+            <section class="zwd_section" aria-labelledby="zwd_event_title">
+                <div class="zwd_section_head">
+                    <h2 id="zwd_event_title">茶事日程</h2>
+                    <span>本周 4 场</span>
+                </div>
+                <ol>
+                    <li class="zwd_list_item">
+                        <div class="zwd_list_date"><strong>25</strong><span>10月 · 周六</span></div>
+                        <div class="zwd_list_body">
+                            <h3>秋日茶会 · 三家茶对饮</h3>
+                            <p>文澜茶室　14:00 — 16:00</p>
+                        </div>
+                        <span class="zwd_status zwd_status_hot">可报名</span>
+                    </li>
+                    <li class="zwd_list_item">
+                        <div class="zwd_list_date"><strong>27</strong><span>10月 · 周一</span></div>
+                        <div class="zwd_list_body">
+                            <h3>龙井品鉴 · 明前与雨前</h3>
+                            <p>文澜茶室　14:00 — 15:30</p>
+                        </div>
+                        <span class="zwd_status">已约满</span>
+                    </li>
+                    <li class="zwd_list_item">
+                        <div class="zwd_list_date"><strong>30</strong><span>10月 · 周五</span></div>
+                        <div class="zwd_list_body">
+                            <h3>线上茶课 · 乌龙七道冲泡</h3>
+                            <p>线上直播　21:00 — 22:00</p>
+                        </div>
+                        <span class="zwd_status zwd_status_hot">可报名</span>
+                    </li>
+                    <li class="zwd_list_item">
+                        <div class="zwd_list_date"><strong>02</strong><span>11月 · 周日</span></div>
+                        <div class="zwd_list_body">
+                            <h3>茶器展 · 紫砂与青瓷</h3>
+                            <p>一层展厅　全天</p>
+                        </div>
+                        <span class="zwd_status">筹备中</span>
+                    </li>
+                </ol>
+            </section>
+
+            <footer class="zwd_section zwd_page_foot">
+                525 郑雯迪 · 高级网页设计 · 图像解决方案
+            </footer>
+        </main>
+    </div>
+
+    <!-- ===== 固定下导航：5 栏，图标取自 iconfont 项目 5244853 并转为内联 SVG ===== -->
+    <nav class="zwd_nav" aria-label="底部导航">
+        <a class="zwd_nav_item is_active" href="#" data-zwd-nav="home" aria-label="首页">
+            <svg class="zwd_icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M22.27 10.72 13.86 1.88Q13.44 1.44 12.87 1.28Q12.3 1.12 11.72 1.27Q11.14 1.42 10.72 1.86L1.75 10.87Q1.25 11.37 1.21 11.92Q1.16 12.47 1.57 12.83Q1.99 13.18 2.72 13.18L5.25 13.16L4.49 12.43V20.56Q4.49 21.18 4.8 21.68Q5.11 22.19 5.61 22.49Q6.12 22.8 6.73 22.8H9.43V21.3H6.73Q6.41 21.3 6.2 21.09Q5.99 20.88 5.99 20.56V12.43Q5.99 12.11 5.77 11.89Q5.55 11.67 5.25 11.67L2.7 11.69Q2.55 11.69 2.51 11.67Q2.6 11.71 2.66 11.85Q2.72 11.98 2.68 12.09Q2.7 12.03 2.81 11.92L11.77 2.92Q11.98 2.68 12.28 2.69Q12.57 2.71 12.78 2.92L21.19 11.75Q21.3 11.86 21.32 11.92Q21.28 11.84 21.33 11.71Q21.38 11.58 21.47 11.54Q21.43 11.58 21.28 11.58V13.06Q22 13.06 22.41 12.7Q22.82 12.34 22.8 11.79Q22.78 11.24 22.27 10.72ZM17.53 22.8Q18.14 22.8 18.64 22.49Q19.15 22.19 19.46 21.68Q19.76 21.18 19.76 20.56V12.34L19.02 13.08L21.28 13.06V11.58H19Q18.71 11.58 18.49 11.8Q18.26 12.03 18.26 12.34V20.56Q18.26 20.86 18.05 21.08Q17.84 21.3 17.53 21.3H14.83V22.8ZM13.48 15.36Q13.5 15.36 13.5 22.8H14.97V15.36Q14.97 14.72 14.54 14.29Q14.11 13.86 13.48 13.86H10.53Q9.89 13.86 9.46 14.29Q9.03 14.72 9.03 15.36ZM10.5 15.36H9.03V22.8H10.5Z"/>
+            </svg>
+            <span class="zwd_label">首页</span>
+        </a>
+
+        <a class="zwd_nav_item" href="#" data-zwd-nav="library" aria-label="茶库">
+            <svg class="zwd_icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 1.2Q14.93 1.2 17.44 2.69Q19.89 4.11 21.31 6.56Q22.8 9.07 22.8 12Q22.8 14.93 21.31 17.44Q19.89 19.89 17.44 21.31Q14.93 22.8 12 22.8Q9.07 22.8 6.56 21.31Q4.11 19.89 2.69 17.44Q1.2 14.93 1.2 12Q1.2 9.07 2.69 6.56Q4.11 4.11 6.56 2.69Q9.07 1.2 12 1.2ZM12 2.82Q9.5 2.82 7.37 4.08Q5.3 5.3 4.08 7.37Q2.82 9.5 2.82 12Q2.82 14.5 4.08 16.63Q5.3 18.7 7.37 19.92Q9.5 21.18 12 21.18Q14.5 21.18 16.63 19.92Q18.7 18.7 19.92 16.63Q21.18 14.5 21.18 12Q21.18 9.5 19.92 7.37Q18.7 5.3 16.63 4.08Q14.5 2.82 12 2.82ZM15.77 6.84Q16.07 6.74 16.38 6.8Q16.68 6.87 16.91 7.09Q17.13 7.32 17.2 7.62Q17.26 7.93 17.16 8.23L15.19 13.72Q14.98 14.23 14.61 14.61Q14.23 14.98 13.72 15.19L8.23 17.16Q7.93 17.26 7.62 17.2Q7.32 17.13 7.09 16.91Q6.87 16.68 6.8 16.38Q6.74 16.07 6.84 15.77L8.81 10.28Q9.02 9.77 9.39 9.39Q9.77 9.02 10.28 8.81ZM15.24 8.76 10.84 10.36Q10.48 10.48 10.36 10.84L8.76 15.24L13.16 13.64Q13.52 13.52 13.64 13.16Z"/>
+            </svg>
+            <span class="zwd_label">茶库</span>
+            <i class="zwd_dot" aria-hidden="true"></i>
+        </a>
+
+        <a class="zwd_nav_item zwd_center" href="#" data-zwd-nav="brew" aria-label="记一泡">
+            <svg class="zwd_icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 22.8Q9.81 22.8 7.82 21.96Q5.88 21.13 4.4 19.64Q2.91 18.14 2.11 16.2Q1.26 14.19 1.26 12Q1.26 9.81 2.11 7.8Q2.91 5.86 4.4 4.36Q5.88 2.87 7.82 2.04Q9.81 1.2 12 1.2Q14.19 1.2 16.18 2.04Q18.12 2.87 19.6 4.36Q21.09 5.86 21.89 7.8Q22.74 9.81 22.74 12Q22.74 14.19 21.89 16.2Q21.09 18.14 19.6 19.64Q18.12 21.13 16.18 21.96Q14.19 22.8 12 22.8ZM12 2.63Q9.47 2.63 7.3 3.92Q5.19 5.17 3.96 7.28Q2.7 9.45 2.7 11.99Q2.7 14.53 3.96 16.73Q5.19 18.83 7.3 20.08Q9.47 21.37 12 21.37Q14.53 21.37 16.7 20.08Q18.81 18.83 20.04 16.73Q21.3 14.53 21.3 11.99Q21.3 9.45 20.04 7.28Q18.81 5.17 16.7 3.92Q14.53 2.63 12 2.63ZM16.94 12.63H12.74L12.72 17.48Q12.72 18.39 11.92 18.39Q11.45 18.39 11.3 18.14Q11.2 17.99 11.22 17.61V12.63H6.58Q6.26 12.63 6.14 12.51Q5.92 12.32 5.92 11.7Q5.92 11.41 6.14 11.24Q6.3 11.14 6.54 11.09H11.22V6.45Q11.22 6.2 11.41 6.04Q11.6 5.88 11.98 5.9Q12.36 5.93 12.54 6.06Q12.72 6.2 12.72 6.45V11.09H17.19Q17.48 11.11 17.65 11.26Q17.91 11.45 17.89 11.83Q17.89 12.36 17.53 12.53Q17.32 12.63 16.98 12.63Z"/>
+            </svg>
+            <span class="zwd_label">记一泡</span>
+        </a>
+
+        <a class="zwd_nav_item" href="#" data-zwd-nav="friends" aria-label="茶友">
+            <svg class="zwd_icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8.33 8.37Q8.03 8.37 7.81 8.55Q7.59 8.73 7.59 9Q7.59 9.26 7.81 9.44Q8.03 9.62 8.33 9.62Q8.63 9.62 8.79 9.45Q8.96 9.28 8.96 9Q8.96 8.71 8.79 8.54Q8.63 8.37 8.33 8.37ZM13.43 11.99Q13.24 11.99 13.09 12.16Q12.94 12.33 12.94 12.51Q12.94 12.69 13.09 12.85Q13.24 13 13.43 13Q13.7 13 13.87 12.85Q14.04 12.69 14.04 12.5Q14.04 12.31 13.87 12.15Q13.7 11.99 13.43 11.99ZM11.82 9.62Q12.1 9.62 12.26 9.44Q12.43 9.26 12.43 8.99Q12.43 8.71 12.26 8.54Q12.1 8.37 11.81 8.37Q11.52 8.37 11.29 8.55Q11.06 8.73 11.06 9Q11.06 9.26 11.29 9.44Q11.52 9.62 11.82 9.62ZM16.16 11.99Q15.97 11.99 15.82 12.16Q15.67 12.33 15.67 12.51Q15.67 12.69 15.82 12.85Q15.97 13 16.16 13Q16.41 13 16.59 12.85Q16.77 12.69 16.77 12.5Q16.77 12.31 16.59 12.15Q16.41 11.99 16.16 11.99ZM12.01 1.2Q9.81 1.2 7.8 2.05Q5.85 2.87 4.36 4.36Q2.87 5.85 2.05 7.8Q1.2 9.81 1.2 12Q1.2 14.19 2.05 16.2Q2.87 18.15 4.36 19.64Q5.85 21.13 7.8 21.95Q9.81 22.8 12 22.8Q14.19 22.8 16.2 21.95Q18.15 21.13 19.64 19.64Q21.13 18.15 21.95 16.2Q22.8 14.19 22.8 12Q22.8 9.81 21.95 7.8Q21.13 5.85 19.64 4.36Q18.15 2.87 16.2 2.05Q14.19 1.2 12.01 1.2ZM9.96 14.76Q9.56 14.76 9.11 14.7Q8.84 14.66 8.31 14.53L8.22 14.51L6.51 15.37L7 13.87Q6.04 13.2 5.54 12.35Q5.01 11.48 5.01 10.49Q5.01 9.3 5.67 8.33Q6.34 7.36 7.47 6.79Q8.6 6.21 9.96 6.21Q11.14 6.21 12.21 6.67Q13.28 7.12 14.01 7.93Q14.74 8.73 14.95 9.73Q14.63 9.7 14.46 9.7Q13.32 9.7 12.36 10.24Q11.4 10.78 10.84 11.69Q10.28 12.6 10.28 13.68Q10.28 14.17 10.45 14.74Q10.13 14.76 9.96 14.76ZM17.28 16.52 17.66 17.76 16.31 17.02Q15.33 17.28 14.82 17.28Q13.66 17.28 12.69 16.79Q11.71 16.31 11.15 15.46Q10.59 14.61 10.59 13.63Q10.59 12.65 11.14 11.81Q11.69 10.97 12.67 10.49Q13.64 10 14.78 10Q15.88 10 16.86 10.5Q17.83 11 18.41 11.83Q18.99 12.67 18.99 13.64Q18.99 14.44 18.51 15.23Q18.06 15.92 17.28 16.52Z"/>
+            </svg>
+            <span class="zwd_label">茶友</span>
+            <i class="zwd_badge" aria-hidden="true">12</i>
+        </a>
+
+        <a class="zwd_nav_item" href="#" data-zwd-nav="profile" aria-label="我的">
+            <svg class="zwd_icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M22.69 20.72Q22.69 20.56 22.64 20.33Q22.57 19.79 22.46 19.23Q22.04 17.43 21.17 15.94Q19.94 13.82 17.98 12.61Q15.9 11.32 13.13 11.11Q14.22 10.86 15.12 10.16Q16.02 9.46 16.52 8.43Q17.02 7.4 17.02 6.22Q17.02 4.86 16.34 3.71Q15.67 2.55 14.51 1.88Q13.36 1.2 11.99 1.2Q10.63 1.2 9.48 1.88Q8.32 2.55 7.64 3.71Q6.97 4.86 6.97 6.22Q6.97 7.4 7.48 8.43Q7.99 9.46 8.88 10.16Q9.77 10.86 10.89 11.11Q8.09 11.32 6.03 12.61Q4.08 13.82 2.84 15.94Q1.95 17.43 1.53 19.23Q1.42 19.81 1.35 20.33L1.3 20.75Q1.23 21.28 1.45 21.76Q1.67 22.24 2.12 22.52Q2.56 22.8 3.12 22.8H20.87Q21.43 22.8 21.88 22.52Q22.34 22.24 22.56 21.76Q22.78 21.28 22.69 20.72ZM8.32 6.22Q8.32 5.21 8.81 4.37Q9.3 3.53 10.15 3.03Q11 2.53 12.01 2.53Q13.01 2.53 13.85 3.03Q14.69 3.53 15.19 4.37Q15.69 5.21 15.69 6.22Q15.69 7.22 15.19 8.07Q14.69 8.92 13.85 9.41Q13.01 9.9 12.01 9.9Q11 9.9 10.15 9.41Q9.3 8.92 8.81 8.07Q8.32 7.22 8.32 6.22ZM20.87 21.47H3.12Q2.86 21.47 2.73 21.31Q2.61 21.14 2.63 20.91L2.68 20.51Q2.75 20.05 2.84 19.53Q3.21 17.95 3.98 16.62Q5.17 14.59 7.08 13.54Q9.14 12.42 11.99 12.42Q14.85 12.42 16.9 13.54Q18.82 14.59 20.01 16.62Q20.78 17.95 21.15 19.53Q21.27 20.05 21.31 20.51L21.36 20.91Q21.41 21.14 21.27 21.31Q21.13 21.47 20.87 21.47Z"/>
+            </svg>
+            <span class="zwd_label">我的</span>
+            <i class="zwd_dot" aria-hidden="true"></i>
+        </a>
+    </nav>
+
+    <script>
+        // 点击切换激活项，仅作交互演示
+        (function () {
+            var zwd_items = document.querySelectorAll('.zwd_nav_item');
+            zwd_items.forEach(function (zwd_el) {
+                zwd_el.addEventListener('click', function (zwd_e) {
+                    zwd_e.preventDefault();
+                    zwd_items.forEach(function (zwd_i) { zwd_i.classList.remove('is_active'); });
+                    zwd_el.classList.add('is_active');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

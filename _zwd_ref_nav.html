@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0; padding: 18px 20px 8px;
+        width: 500px;
+        background: #ffffff;
+        font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        color: #444;
+    }
+    .zwd_title { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: 1px; }
+    .zwd_sub { margin: 3px 0 0; font-size: 11px; color: #999; letter-spacing: 1px; }
+
+    .zwd_measure {
+        position: relative;
+        width: 420px; height: 26px;
+        margin: 26px 0 0;
+        border-top: 1px solid #b9b2a4;
+    }
+    .zwd_measure::before, .zwd_measure::after {
+        content: ""; position: absolute; top: -4px;
+        width: 1px; height: 8px; background: #b9b2a4;
+    }
+    .zwd_measure::before { left: 0; }
+    .zwd_measure::after { right: 0; }
+    .zwd_measure span {
+        position: absolute; left: 50%; top: 3px;
+        transform: translateX(-50%);
+        font-size: 10px; color: #8b8578; background: #fff; padding: 0 6px;
+    }
+
+    .zwd_nav {
+        position: relative;
+        width: 420px; height: 60px;
+        margin-top: 8px;
+        display: flex; align-items: flex-end;
+        border: 1.5px dashed #d95d46;
+        background: #fffdf8;
+    }
+    .zwd_col {
+        position: relative;
+        flex: 1;
+        height: 60px;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 4px;
+    }
+    .zwd_col b {
+        display: block; width: 23px; height: 23px;
+        border: 1.5px solid #a9a294; border-radius: 50%;
+        background: #f4f1e9;
+    }
+    .zwd_col i {
+        display: block; width: 30px; height: 7px;
+        background: #d9d3c6; border-radius: 2px;
+    }
+    .zwd_col.zwd_mid {
+        height: 84px; margin-top: -24px;
+        justify-content: flex-end; padding-bottom: 6px;
+    }
+    .zwd_col.zwd_mid b {
+        position: relative;
+        width: 40px; height: 40px;
+        border: 1.5px solid #d95d46; border-radius: 50%;
+        background: #fff;
+        box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.05);
+    }
+    .zwd_col.zwd_mid b::before, .zwd_col.zwd_mid b::after {
+        content: ""; position: absolute; left: 50%; top: 50%;
+        background: #d95d46; transform: translate(-50%, -50%);
+    }
+    .zwd_col.zwd_mid b::before { width: 16px; height: 2px; }
+    .zwd_col.zwd_mid b::after { width: 2px; height: 16px; }
+
+    .zwd_badge, .zwd_dot {
+        position: absolute; left: 58%; font-style: normal;
+    }
+    .zwd_badge {
+        top: 11px; width: 15px; height: 15px;
+        border: 1.5px solid #d95d46; border-radius: 50%;
+        color: #d95d46; font-size: 9px; font-weight: 700;
+        line-height: 12px; text-align: center;
+    }
+    .zwd_dot {
+        top: 15px; width: 7px; height: 7px;
+        border: 1.2px solid #d95d46; border-radius: 50%;
+    }
+
+    .zwd_notes {
+        margin: 30px 0 0;
+        font-size: 11.5px; line-height: 1.95; color: #6c675c;
+    }
+    .zwd_notes h3 { margin: 0 0 4px; font-size: 12px; color: #333; }
+    .zwd_notes ul { margin: 0; padding: 0; }
+    .zwd_notes li { list-style: none; }
+    .zwd_notes li::before {
+        content: "·"; color: #d95d46; font-weight: 700; margin-right: 7px;
+    }
+</style>
+</head>
+<body>
+    <p class="zwd_title">下导航原图 · 结构线框稿</p>
+    <p class="zwd_sub">传统茶文化 App / 五栏等分 / 中间凸起 / 徽章与红点</p>
+
+    <div class="zwd_measure"><span>420 px（宽度 100%，最大 420 px）</span></div>
+
+    <div class="zwd_nav">
+        <div class="zwd_col"><b></b><i></i></div>
+        <div class="zwd_col"><b></b><i></i><em class="zwd_dot"></em></div>
+        <div class="zwd_col zwd_mid"><b></b><i></i></div>
+        <div class="zwd_col"><b></b><i></i><em class="zwd_badge">12</em></div>
+        <div class="zwd_col"><b></b><i></i><em class="zwd_dot"></em></div>
+    </div>
+
+    <div class="zwd_notes">
+        <h3>结构说明</h3>
+        <ul>
+            <li>导航高 60 px，固定页面底部；五栏 flex: 1 等分，随视口自适应</li>
+            <li>图标 23 px、文字标签 11 px，图标与标签间距 3 px</li>
+            <li>中间“记一泡”按钮 40 px，上移 24 px 做圆形凸起</li>
+            <li>“茶友”右上角为数字徽章 12，“茶库”“我的”为红点提醒</li>
+            <li>当前项“首页”用珊瑚红高亮，其余项为灰色</li>
+        </ul>
+    </div>
+</body>
+</html>

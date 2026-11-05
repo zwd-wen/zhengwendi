@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-05
+    功能名称：基于 Canvas 绘制电商系统全站分层架构图，支持悬停提示、点击查看模块职责与数据流动画
+    -->
+    <title>18-2 电商系统全站架构图 · Canvas</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        :root {
+            --zwd_ink: #17212b;
+            --zwd_muted: #65727d;
+            --zwd_paper: #f5f1e8;
+            --zwd_card: #fffdf8;
+            --zwd_line: #dcd5c8;
+            --zwd_coral: #d95d46;
+            --zwd_blue: #245b72;
+            --zwd_yellow: #f2c05c;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 36px 20px 56px;
+            background: var(--zwd_paper);
+            color: var(--zwd_ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+        .zwd_page { max-width: 1180px; margin: 0 auto; }
+
+        .zwd_home {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--zwd_blue);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .zwd_home:hover { text-decoration: underline; }
+        .zwd_home .iconfont { font-size: 15px; }
+
+        .zwd_header { margin: 22px 0 24px; }
+        .zwd_eyebrow {
+            margin: 0 0 8px;
+            color: var(--zwd_coral);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+        .zwd_header h1 {
+            margin: 0 0 10px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(28px, 4vw, 44px);
+            line-height: 1.2;
+        }
+        .zwd_header p {
+            margin: 0;
+            max-width: 780px;
+            color: var(--zwd_muted);
+            font-size: 15px;
+        }
+        .zwd_header .zwd_name {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 4px 14px;
+            background: var(--zwd_blue);
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .zwd_stage {
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+            border: 1px solid var(--zwd_line);
+            background: var(--zwd_paper);
+            box-shadow: 10px 10px 0 rgba(36, 91, 114, .08);
+        }
+        #zwd_canvas {
+            display: block;
+            width: 100%;
+            min-width: 1000px;
+            height: auto;
+            cursor: default;
+        }
+        .zwd_tooltip {
+            position: absolute;
+            z-index: 3;
+            width: 232px;
+            padding: 12px 14px;
+            border: 1px solid var(--zwd_blue);
+            background: var(--zwd_card);
+            box-shadow: 5px 5px 0 rgba(242, 192, 92, .55);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(6px);
+            transition: opacity .16s, transform .16s;
+            pointer-events: none;
+        }
+        .zwd_tooltip.zwd_show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .zwd_tooltip .zwd_tag {
+            display: inline-block;
+            margin-bottom: 4px;
+            color: var(--zwd_coral);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .zwd_tooltip h3 { margin: 0 0 4px; font-size: 14px; }
+        .zwd_tooltip p { margin: 0; color: var(--zwd_muted); font-size: 12px; line-height: 1.65; }
+
+        .zwd_infobar {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 18px;
+            margin-top: 22px;
+        }
+        .zwd_detail {
+            padding: 18px 20px;
+            border: 1px solid var(--zwd_line);
+            border-left: 5px solid var(--zwd_coral);
+            background: var(--zwd_card);
+        }
+        .zwd_detail .zwd_detail-tag {
+            display: inline-block;
+            margin-bottom: 6px;
+            color: var(--zwd_coral);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .zwd_detail h3 { margin: 0 0 4px; font-size: 17px; }
+        .zwd_detail p { margin: 0; color: var(--zwd_muted); font-size: 13px; }
+
+        .zwd_legend {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+            padding: 18px 20px;
+            border: 1px solid var(--zwd_line);
+            background: var(--zwd_card);
+            font-size: 12px;
+            color: var(--zwd_muted);
+        }
+        .zwd_legend strong { display: block; margin-bottom: 2px; color: var(--zwd_ink); font-size: 12px; letter-spacing: 1px; }
+        .zwd_legend-item { display: flex; align-items: center; gap: 9px; }
+        .zwd_swatch { width: 26px; height: 12px; border-radius: 2px; flex: 0 0 auto; }
+        .zwd_swatch-flow { border: 1px solid var(--zwd_blue); background: linear-gradient(90deg, #fffdf8 45%, var(--zwd_coral) 45%, var(--zwd_coral) 58%, #fffdf8 58%); }
+        .zwd_swatch-node { border: 1px solid var(--zwd_blue); background: var(--zwd_card); }
+        .zwd_swatch-layer { background: rgba(36, 91, 114, .12); }
+
+        .zwd_notes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 26px;
+        }
+        .zwd_note {
+            padding: 18px 20px;
+            border: 1px solid var(--zwd_line);
+            border-top: 3px solid var(--zwd_blue);
+            background: var(--zwd_card);
+        }
+        .zwd_note:nth-child(2) { border-top-color: var(--zwd_coral); }
+        .zwd_note:nth-child(3) { border-top-color: var(--zwd_yellow); }
+        .zwd_note h3 { margin: 0 0 6px; font-size: 15px; }
+        .zwd_note p { margin: 0; color: var(--zwd_muted); font-size: 13px; }
+
+        .zwd_caption {
+            margin: 26px 0 0;
+            padding-top: 16px;
+            border-top: 1px solid var(--zwd_line);
+            color: var(--zwd_muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 760px) {
+            body { padding: 26px 16px 44px; }
+            .zwd_stage { box-shadow: 6px 6px 0 rgba(36, 91, 114, .08); }
+            .zwd_infobar, .zwd_notes { grid-template-columns: 1fr; }
+            .zwd_tooltip { width: 200px; }
+        }
+    </style>
+</head>
+<body>
+<main class="zwd_page">
+    <a class="zwd_home" href="index.html"><i class="iconfont icon-shouye"></i>返回作品集目录</a>
+
+    <header class="zwd_header">
+        <p class="zwd_eyebrow">CANVAS · SYSTEM ARCHITECTURE</p>
+        <h1>电商系统全站架构图</h1>
+        <p>用 Canvas 原生绘图 API 绘制电商系统的六层架构：从用户接入、网关安全，到业务服务、中间件、数据存储与运维支撑，请求自上而下逐层流转。</p>
+        <span class="zwd_name">郑雯迪 · 2026-11-05</span>
+    </header>
+
+    <section aria-label="电商系统全站架构图">
+        <div class="zwd_stage" id="zwd_stage">
+            <canvas id="zwd_canvas" role="img" aria-label="电商系统全站分层架构图：用户接入层、网关与安全层、业务服务层、中间件层、数据存储层、支撑与运维层"></canvas>
+            <div class="zwd_tooltip" id="zwd_tooltip" role="status">
+                <span class="zwd_tag" id="zwd_tip_tag"></span>
+                <h3 id="zwd_tip_name"></h3>
+                <p id="zwd_tip_desc"></p>
+            </div>
+        </div>
+
+        <div class="zwd_infobar">
+            <div class="zwd_detail" aria-live="polite">
+                <span class="zwd_detail-tag" id="zwd_detail_tag">SYSTEM OVERVIEW</span>
+                <h3 id="zwd_detail_name">电商系统全站架构</h3>
+                <p id="zwd_detail_desc">悬停任意模块可查看一句话职责，点击模块后在此固定显示说明。</p>
+            </div>
+            <div class="zwd_legend">
+                <strong>图例 / LEGEND</strong>
+                <div class="zwd_legend-item"><i class="zwd_swatch zwd_swatch-flow"></i>请求流：动点表示调用自上而下传递</div>
+                <div class="zwd_legend-item"><i class="zwd_swatch zwd_swatch-node"></i>功能模块：边框颜色对应所属分层</div>
+                <div class="zwd_legend-item"><i class="zwd_swatch zwd_swatch-layer"></i>分层底色：六层结构自顶向下排列</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="zwd_notes" aria-label="架构设计要点">
+        <article class="zwd_note">
+            <h3>分层解耦</h3>
+            <p>接入、网关、业务、中间件、数据、运维六层职责单一，任一层扩容或替换不影响其它层。</p>
+        </article>
+        <article class="zwd_note">
+            <h3>缓存与异步削峰</h3>
+            <p>Redis 承载商品与库存热点数据，消息队列把下单后的通知、积分、物流等动作异步化。</p>
+        </article>
+        <article class="zwd_note">
+            <h3>高可用保障</h3>
+            <p>网关限流熔断、服务多副本部署，配合监控告警与灰度发布，支撑大促峰值流量。</p>
+        </article>
+    </section>
+
+    <p class="zwd_caption">郑雯迪 · 高级网页设计 · Canvas 电商系统架构图（原生 JavaScript，无第三方库）</p>
+</main>
+
+<script>
+    (function () {
+        "use strict";
+
+        var ZWD_W = 1200;
+        var ZWD_H = 820;
+        var ZWD_X = 176;
+        var ZWD_CONTENT_W = 980;
+        var ZWD_ROW_H = 58;
+        var ZWD_ROW_GAP = 14;
+        var ZWD_LAYER_GAP = 50;
+
+        var zwd_canvas = document.getElementById("zwd_canvas");
+        var zwd_stage = document.getElementById("zwd_stage");
+        var zwd_ctx = zwd_canvas.getContext("2d");
+        var zwd_tooltip = document.getElementById("zwd_tooltip");
+        var zwd_tipTag = document.getElementById("zwd_tip_tag");
+        var zwd_tipName = document.getElementById("zwd_tip_name");
+        var zwd_tipDesc = document.getElementById("zwd_tip_desc");
+        var zwd_detailTag = document.getElementById("zwd_detail_tag");
+        var zwd_detailName = document.getElementById("zwd_detail_name");
+        var zwd_detailDesc = document.getElementById("zwd_detail_desc");
+
+        var zwd_layers = [
+            {
+                name: "用户接入层",
+                en: "ACCESS LAYER",
+                color: "#245b72",
+                rows: [[
+                    { name: "Web 商城", tag: "PC / H5", desc: "面向消费者的商品浏览、购物车、下单与支付入口，静态资源由 CDN 加速。" },
+                    { name: "移动 App", tag: "iOS / Android", desc: "原生客户端，承载消息推送、秒杀活动与订单状态跟踪。" },
+                    { name: "微信小程序", tag: "私域入口", desc: "支持微信登录与微信支付，活动页可快速上线承接社交分享流量。" },
+                    { name: "商家后台", tag: "B 端", desc: "商家维护商品、库存、订单与营销活动，查看经营数据看板。" }
+                ]]
+            },
+            {
+                name: "网关与安全层",
+                en: "GATEWAY LAYER",
+                color: "#d95d46",
+                rows: [[
+                    { name: "CDN 与静态资源", tag: "边缘加速", desc: "静态页面、图片与脚本分发到边缘节点，缩短首屏加载时间。" },
+                    { name: "API 网关", tag: "统一入口", desc: "负责路由转发、协议转换、灰度分流与请求日志采集。" },
+                    { name: "统一鉴权", tag: "JWT / OAuth2", desc: "校验登录态、控制接口权限，并接入风控规则拦截异常请求。" },
+                    { name: "限流与熔断", tag: "稳定性", desc: "按接口维度限流、降级与熔断，防止故障沿调用链扩散。" }
+                ]]
+            },
+            {
+                name: "业务服务层",
+                en: "BUSINESS LAYER",
+                color: "#b98a2e",
+                rows: [
+                    [
+                        { name: "商品服务", tag: "SPU / SKU", desc: "维护商品基础信息、类目属性与上下架状态，提供商品详情聚合接口。" },
+                        { name: "订单服务", tag: "交易核心", desc: "创建订单、状态机流转、超时关单与订单查询，是交易链路的核心。" },
+                        { name: "库存服务", tag: "扣减与回滚", desc: "管理库存数量与预占，支持下单扣减、取消回滚与防超卖校验。" },
+                        { name: "用户服务", tag: "会员体系", desc: "账号登录、收货地址、会员等级与积分体系，为其它服务提供用户上下文。" }
+                    ],
+                    [
+                        { name: "支付服务", tag: "对账", desc: "对接微信、支付宝等渠道，处理支付下单、回调验签与日终对账。" },
+                        { name: "营销服务", tag: "优惠券", desc: "管理优惠券、满减、限时秒杀等营销规则，计算最优优惠组合。" },
+                        { name: "物流服务", tag: "运单", desc: "对接快递公司，生成运单、查询轨迹并把物流状态同步回订单。" },
+                        { name: "搜索服务", tag: "检索", desc: "提供关键词搜索、分类筛选、排序与搜索建议，底层使用搜索引擎。" }
+                    ]
+                ]
+            },
+            {
+                name: "中间件层",
+                en: "MIDDLEWARE LAYER",
+                color: "#2d6a4f",
+                rows: [[
+                    { name: "Redis 缓存", tag: "热点数据", desc: "缓存商品详情、库存与购物车，降低数据库读压力并支撑秒杀。" },
+                    { name: "消息队列", tag: "异步解耦", desc: "承接下单后的通知、积分、物流等异步任务，削峰填谷。" },
+                    { name: "搜索引擎", tag: "全文检索", desc: "为商品搜索提供倒排索引、分词、聚合与高亮能力。" },
+                    { name: "任务调度", tag: "定时任务", desc: "统一管理定时任务、延迟任务与分片执行，如订单超时关单。" }
+                ]]
+            },
+            {
+                name: "数据存储层",
+                en: "DATA LAYER",
+                color: "#5b5470",
+                rows: [[
+                    { name: "MySQL 集群", tag: "主从读写分离", desc: "存储订单、用户等核心业务数据，主库写、从库读并定期备份。" },
+                    { name: "数据仓库", tag: "离线分析", desc: "汇总交易与行为数据，支撑经营报表、用户画像与选品分析。" },
+                    { name: "对象存储", tag: "OSS", desc: "存放商品图片、视频与售后凭证等非结构化文件，按 URL 直链访问。" },
+                    { name: "日志中心", tag: "ELK", desc: "集中采集应用与网关日志，支持检索、告警与问题追踪。" }
+                ]]
+            },
+            {
+                name: "支撑与运维",
+                en: "OPS LAYER",
+                color: "#56636b",
+                rows: [[
+                    { name: "监控告警", tag: "Prometheus", desc: "采集接口耗时、错误率与资源指标，异常时通过短信与群机器人告警。" },
+                    { name: "链路追踪", tag: "Trace", desc: "为一次请求生成 Trace ID，串联各服务调用，快速定位慢调用。" },
+                    { name: "配置中心", tag: "Nacos", desc: "集中管理多环境配置与开关，支持不重启服务动态生效。" },
+                    { name: "发布与灰度", tag: "CI / CD", desc: "流水线构建、镜像发布与灰度放量，出现异常可一键回滚。" }
+                ]]
+            }
+        ];
+
+        var zwd_nodes = [];
+        var zwd_hover = null;
+        var zwd_selected = null;
+        var zwd_mouse = { x: -1, y: -1 };
+        var zwd_dpr = 1;
+
+        function zwd_alpha(zwd_hex, zwd_opacity) {
+            var zwd_num = parseInt(zwd_hex.slice(1), 16);
+            var zwd_r = (zwd_num >> 16) & 255;
+            var zwd_g = (zwd_num >> 8) & 255;
+            var zwd_b = zwd_num & 255;
+            return "rgba(" + zwd_r + "," + zwd_g + "," + zwd_b + "," + zwd_opacity + ")";
+        }
+
+        function zwd_roundRect(zwd_x, zwd_y, zwd_w, zwd_h, zwd_r) {
+            var zwd_radius = Math.min(zwd_r, zwd_w / 2, zwd_h / 2);
+            zwd_ctx.beginPath();
+            zwd_ctx.moveTo(zwd_x + zwd_radius, zwd_y);
+            zwd_ctx.arcTo(zwd_x + zwd_w, zwd_y, zwd_x + zwd_w, zwd_y + zwd_h, zwd_radius);
+            zwd_ctx.arcTo(zwd_x + zwd_w, zwd_y + zwd_h, zwd_x, zwd_y + zwd_h, zwd_radius);
+            zwd_ctx.arcTo(zwd_x, zwd_y + zwd_h, zwd_x, zwd_y, zwd_radius);
+            zwd_ctx.arcTo(zwd_x, zwd_y, zwd_x + zwd_w, zwd_y, zwd_radius);
+            zwd_ctx.closePath();
+        }
+
+        function zwd_layout() {
+            zwd_nodes = [];
+            var zwd_y = 66;
+            zwd_layers.forEach(function (zwd_layer, zwd_li) {
+                var zwd_rows = zwd_layer.rows;
+                var zwd_h = zwd_rows.length * ZWD_ROW_H + (zwd_rows.length - 1) * ZWD_ROW_GAP;
+                zwd_layer.index = zwd_li;
+                zwd_layer.x = ZWD_X;
+                zwd_layer.y = zwd_y;
+                zwd_layer.w = ZWD_CONTENT_W;
+                zwd_layer.h = zwd_h;
+
+                zwd_rows.forEach(function (zwd_row, zwd_ri) {
+                    var zwd_gap = 16;
+                    var zwd_bw = (ZWD_CONTENT_W - zwd_gap * (zwd_row.length - 1)) / zwd_row.length;
+                    zwd_row.forEach(function (zwd_item, zwd_ci) {
+                        zwd_nodes.push({
+                            layer: zwd_layer,
+                            name: zwd_item.name,
+                            tag: zwd_item.tag,
+                            desc: zwd_item.desc,
+                            x: ZWD_X + zwd_ci * (zwd_bw + zwd_gap),
+                            y: zwd_y + zwd_ri * (ZWD_ROW_H + ZWD_ROW_GAP),
+                            w: zwd_bw,
+                            h: ZWD_ROW_H
+                        });
+                    });
+                });
+
+                zwd_y += zwd_h + ZWD_LAYER_GAP;
+            });
+        }
+
+        function zwd_prepareCanvas() {
+            zwd_dpr = Math.min(window.devicePixelRatio || 1, 2);
+            zwd_canvas.width = Math.round(ZWD_W * zwd_dpr);
+            zwd_canvas.height = Math.round(ZWD_H * zwd_dpr);
+            zwd_canvas.style.aspectRatio = ZWD_W + " / " + ZWD_H;
+            zwd_ctx.setTransform(zwd_dpr, 0, 0, zwd_dpr, 0, 0);
+        }
+
+        function zwd_drawBackground() {
+            zwd_ctx.fillStyle = "#f5f1e8";
+            zwd_ctx.fillRect(0, 0, ZWD_W, ZWD_H);
+
+            // 点阵底纹
+            zwd_ctx.fillStyle = "rgba(36, 91, 114, 0.075)";
+            var zwd_gx, zwd_gy;
+            for (zwd_gx = 20; zwd_gx < ZWD_W; zwd_gx += 34) {
+                for (zwd_gy = 20; zwd_gy < ZWD_H; zwd_gy += 34) {
+                    zwd_ctx.beginPath();
+                    zwd_ctx.arc(zwd_gx, zwd_gy, 0.9, 0, Math.PI * 2);
+                    zwd_ctx.fill();
+                }
+            }
+        }
+
+        function zwd_drawLayerBands() {
+            zwd_layers.forEach(function (zwd_layer) {
+                zwd_ctx.fillStyle = zwd_alpha(zwd_layer.color, 0.05);
+                zwd_roundRect(zwd_layer.x - 12, zwd_layer.y - 10, zwd_layer.w + 24, zwd_layer.h + 20, 6);
+                zwd_ctx.fill();
+
+                // 左侧分层标签
+                zwd_ctx.fillStyle = "#fffdf8";
+                zwd_ctx.strokeStyle = zwd_layer.color;
+                zwd_ctx.lineWidth = 1.2;
+                zwd_roundRect(40, zwd_layer.y, 116, zwd_layer.h, 4);
+                zwd_ctx.fill();
+                zwd_ctx.stroke();
+
+                zwd_ctx.fillStyle = zwd_layer.color;
+                zwd_ctx.fillRect(40, zwd_layer.y, 5, zwd_layer.h);
+
+                zwd_ctx.textAlign = "center";
+                zwd_ctx.textBaseline = "middle";
+                zwd_ctx.font = "700 14px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+                zwd_ctx.fillText(zwd_layer.name, 98, zwd_layer.y + zwd_layer.h / 2 - 6);
+
+                zwd_ctx.fillStyle = "rgba(101, 114, 125, 0.85)";
+                zwd_ctx.font = "9px 'Consolas', monospace";
+                zwd_ctx.fillText(zwd_layer.en, 98, zwd_layer.y + zwd_layer.h / 2 + 14);
+            });
+        }
+
+        function zwd_drawArrows(zwd_time) {
+            var zwd_positions = [0.2, 0.5, 0.8];
+            var zwd_boundary = 0;
+            for (zwd_boundary = 0; zwd_boundary < zwd_layers.length - 1; zwd_boundary += 1) {
+                var zwd_from = zwd_layers[zwd_boundary];
+                var zwd_to = zwd_layers[zwd_boundary + 1];
+                var zwd_startY = zwd_from.y + zwd_from.h + 6;
+                var zwd_endY = zwd_to.y - 10;
+
+                zwd_positions.forEach(function (zwd_ratio, zwd_ai) {
+                    var zwd_x = ZWD_X + ZWD_CONTENT_W * zwd_ratio;
+
+                    zwd_ctx.strokeStyle = "rgba(36, 91, 114, 0.30)";
+                    zwd_ctx.lineWidth = 1.3;
+                    zwd_ctx.beginPath();
+                    zwd_ctx.moveTo(zwd_x, zwd_startY);
+                    zwd_ctx.lineTo(zwd_x, zwd_endY - 4);
+                    zwd_ctx.stroke();
+
+                    zwd_ctx.fillStyle = "rgba(36, 91, 114, 0.45)";
+                    zwd_ctx.beginPath();
+                    zwd_ctx.moveTo(zwd_x - 4.5, zwd_endY - 8);
+                    zwd_ctx.lineTo(zwd_x + 4.5, zwd_endY - 8);
+                    zwd_ctx.lineTo(zwd_x, zwd_endY);
+                    zwd_ctx.closePath();
+                    zwd_ctx.fill();
+
+                    // 流动数据点
+                    var zwd_span = zwd_endY - 8 - zwd_startY;
+                    var zwd_t = (zwd_time * 0.55 + zwd_ai * 0.33 + zwd_boundary * 0.21) % 1;
+                    var zwd_alphaValue = Math.min(zwd_t * 4.5, (1 - zwd_t) * 4.5, 1) * 0.9;
+                    zwd_ctx.fillStyle = "rgba(217, 93, 70, " + zwd_alphaValue + ")";
+                    zwd_ctx.beginPath();
+                    zwd_ctx.arc(zwd_x, zwd_startY + zwd_span * zwd_t, 2.6, 0, Math.PI * 2);
+                    zwd_ctx.fill();
+                });
+            }
+        }
+
+        function zwd_drawNodes() {
+            zwd_nodes.forEach(function (zwd_node) {
+                var zwd_isHover = zwd_hover === zwd_node;
+                var zwd_isSelected = zwd_selected === zwd_node;
+
+                if (zwd_isHover || zwd_isSelected) {
+                    zwd_ctx.fillStyle = zwd_alpha(zwd_node.layer.color, zwd_isSelected ? 0.16 : 0.10);
+                } else {
+                    zwd_ctx.fillStyle = "#fffdf8";
+                }
+                zwd_roundRect(zwd_node.x, zwd_node.y, zwd_node.w, zwd_node.h, 7);
+                zwd_ctx.fill();
+
+                zwd_ctx.strokeStyle = zwd_node.layer.color;
+                zwd_ctx.lineWidth = zwd_isHover || zwd_isSelected ? 2.4 : 1.3;
+                zwd_roundRect(zwd_node.x, zwd_node.y, zwd_node.w, zwd_node.h, 7);
+                zwd_ctx.stroke();
+
+                if (zwd_isSelected) {
+                    zwd_ctx.strokeStyle = "rgba(217, 93, 70, 0.55)";
+                    zwd_ctx.lineWidth = 1;
+                    zwd_roundRect(zwd_node.x + 3, zwd_node.y + 3, zwd_node.w - 6, zwd_node.h - 6, 5);
+                    zwd_ctx.stroke();
+                }
+
+                zwd_ctx.textAlign = "center";
+                zwd_ctx.textBaseline = "middle";
+                zwd_ctx.fillStyle = "#17212b";
+                zwd_ctx.font = "700 15px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+                zwd_ctx.fillText(zwd_node.name, zwd_node.x + zwd_node.w / 2, zwd_node.y + zwd_node.h / 2 - 7);
+
+                zwd_ctx.fillStyle = "rgba(101, 114, 125, 0.9)";
+                zwd_ctx.font = "10px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+                zwd_ctx.fillText(zwd_node.tag, zwd_node.x + zwd_node.w / 2, zwd_node.y + zwd_node.h / 2 + 12);
+            });
+        }
+
+        function zwd_drawFooter() {
+            zwd_ctx.textAlign = "center";
+            zwd_ctx.textBaseline = "middle";
+            zwd_ctx.fillStyle = "rgba(101, 114, 125, 0.85)";
+            zwd_ctx.font = "12px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+            zwd_ctx.fillText(
+                "六层架构 · 用户请求自上而下流转：接入 → 网关 → 业务 → 中间件 → 数据 → 运维支撑",
+                ZWD_W / 2, 782
+            );
+        }
+
+        function zwd_render(zwd_now) {
+            var zwd_time = zwd_now / 1000;
+            zwd_ctx.clearRect(0, 0, ZWD_W, ZWD_H);
+            zwd_drawBackground();
+            zwd_drawLayerBands();
+            zwd_drawArrows(zwd_time);
+            zwd_drawNodes();
+            zwd_drawFooter();
+            requestAnimationFrame(zwd_render);
+        }
+
+        function zwd_hitTest(zwd_x, zwd_y) {
+            for (var zwd_i = zwd_nodes.length - 1; zwd_i >= 0; zwd_i -= 1) {
+                var zwd_node = zwd_nodes[zwd_i];
+                if (zwd_x >= zwd_node.x && zwd_x <= zwd_node.x + zwd_node.w &&
+                    zwd_y >= zwd_node.y && zwd_y <= zwd_node.y + zwd_node.h) {
+                    return zwd_node;
+                }
+            }
+            return null;
+        }
+
+        function zwd_showTooltip(zwd_node, zwd_clientX, zwd_clientY) {
+            zwd_tipTag.textContent = zwd_node.layer.name + " / " + zwd_node.tag;
+            zwd_tipName.textContent = zwd_node.name;
+            zwd_tipDesc.textContent = zwd_node.desc;
+            zwd_tooltip.classList.add("zwd_show");
+
+            var zwd_stageRect = zwd_stage.getBoundingClientRect();
+            var zwd_canvasRect = zwd_canvas.getBoundingClientRect();
+            var zwd_left = zwd_clientX - zwd_stageRect.left + 18;
+            var zwd_top = zwd_clientY - zwd_stageRect.top + 18;
+            var zwd_maxLeft = zwd_canvasRect.width - zwd_tooltip.offsetWidth - 12;
+            var zwd_maxTop = zwd_canvasRect.height - zwd_tooltip.offsetHeight - 12;
+
+            if (zwd_left > zwd_maxLeft) {
+                zwd_left = zwd_clientX - zwd_stageRect.left - zwd_tooltip.offsetWidth - 18;
+            }
+            if (zwd_top > zwd_maxTop) {
+                zwd_top = zwd_clientY - zwd_stageRect.top - zwd_tooltip.offsetHeight - 18;
+            }
+            if (zwd_left < 8) { zwd_left = 8; }
+            if (zwd_top < 8) { zwd_top = 8; }
+
+            zwd_tooltip.style.left = zwd_left + "px";
+            zwd_tooltip.style.top = zwd_top + "px";
+        }
+
+        function zwd_logicalPos(zwd_event) {
+            var zwd_rect = zwd_canvas.getBoundingClientRect();
+            return {
+                x: (zwd_event.clientX - zwd_rect.left) * ZWD_W / zwd_rect.width,
+                y: (zwd_event.clientY - zwd_rect.top) * ZWD_H / zwd_rect.height
+            };
+        }
+
+        zwd_canvas.addEventListener("pointermove", function (zwd_event) {
+            var zwd_pos = zwd_logicalPos(zwd_event);
+            zwd_mouse.x = zwd_pos.x;
+            zwd_mouse.y = zwd_pos.y;
+
+            var zwd_node = zwd_hitTest(zwd_pos.x, zwd_pos.y);
+            zwd_hover = zwd_node;
+            zwd_canvas.style.cursor = zwd_node ? "pointer" : "default";
+
+            if (zwd_node) {
+                zwd_showTooltip(zwd_node, zwd_event.clientX, zwd_event.clientY);
+            } else {
+                zwd_tooltip.classList.remove("zwd_show");
+            }
+        });
+
+        zwd_canvas.addEventListener("pointerleave", function () {
+            zwd_hover = null;
+            zwd_tooltip.classList.remove("zwd_show");
+            zwd_canvas.style.cursor = "default";
+        });
+
+        zwd_canvas.addEventListener("click", function (zwd_event) {
+            var zwd_pos = zwd_logicalPos(zwd_event);
+            var zwd_node = zwd_hitTest(zwd_pos.x, zwd_pos.y);
+            if (!zwd_node) {
+                return;
+            }
+            zwd_selected = zwd_node;
+            zwd_detailTag.textContent = zwd_node.layer.name + " / " + zwd_node.tag;
+            zwd_detailName.textContent = zwd_node.name;
+            zwd_detailDesc.textContent = zwd_node.desc;
+        });
+
+        window.addEventListener("resize", function () {
+            zwd_prepareCanvas();
+        });
+
+        zwd_layout();
+        zwd_prepareCanvas();
+        requestAnimationFrame(zwd_render);
+    })();
+</script>
+</body>
+</html>

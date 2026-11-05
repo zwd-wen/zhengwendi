@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-05
+    功能名称：Canvas 粒子文字动画，通过像素采样把「郑雯迪」三个字拆解成粒子并实时聚合
+    -->
+    <title>18-1 Canvas 粒子文字动画 · 郑雯迪</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        :root {
+            --zwd_ink: #17212b;
+            --zwd_muted: #65727d;
+            --zwd_paper: #f5f1e8;
+            --zwd_card: #fffdf8;
+            --zwd_line: #dcd5c8;
+            --zwd_coral: #d95d46;
+            --zwd_blue: #245b72;
+            --zwd_yellow: #f2c05c;
+            --zwd_night: #101a24;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 36px 20px 56px;
+            background: var(--zwd_paper);
+            color: var(--zwd_ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+        .zwd_page { max-width: 1080px; margin: 0 auto; }
+
+        .zwd_home {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--zwd_blue);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .zwd_home:hover { text-decoration: underline; }
+        .zwd_home .iconfont { font-size: 15px; }
+
+        .zwd_header { margin: 22px 0 26px; }
+        .zwd_eyebrow {
+            margin: 0 0 8px;
+            color: var(--zwd_coral);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+        .zwd_header h1 {
+            margin: 0 0 10px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(28px, 4vw, 44px);
+            line-height: 1.2;
+        }
+        .zwd_header p {
+            margin: 0;
+            max-width: 720px;
+            color: var(--zwd_muted);
+            font-size: 15px;
+        }
+        .zwd_header .zwd_name {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 4px 14px;
+            background: var(--zwd_blue);
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .zwd_stage {
+            position: relative;
+            height: clamp(320px, 52vw, 520px);
+            overflow: hidden;
+            border: 1px solid #203141;
+            border-radius: 4px;
+            background: var(--zwd_night);
+            box-shadow: 10px 10px 0 rgba(36, 91, 114, .10);
+        }
+        #zwd_canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+
+        .zwd_hud {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 8px 13px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(8, 15, 22, .55);
+            color: #93a8b8;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            letter-spacing: .5px;
+            pointer-events: none;
+        }
+        .zwd_hud strong { color: var(--zwd_yellow); font-weight: 600; }
+        .zwd_hud span { display: inline-flex; align-items: center; gap: 5px; }
+        .zwd_dot-live {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #7bd88f;
+            box-shadow: 0 0 8px rgba(123, 216, 143, .8);
+            animation: zwd_pulse 1.8s ease-in-out infinite;
+        }
+        @keyframes zwd_pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .35; }
+        }
+        .zwd_hint {
+            position: absolute;
+            right: 16px;
+            bottom: 12px;
+            color: #7b90a1;
+            font-size: 11px;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+
+        .zwd_toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .zwd_btn {
+            padding: 9px 20px;
+            border: 1px solid var(--zwd_coral);
+            background: var(--zwd_coral);
+            color: #fff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background .2s, color .2s, transform .15s;
+        }
+        .zwd_btn:hover { background: #c44a35; border-color: #c44a35; }
+        .zwd_btn:active { transform: translateY(1px); }
+        .zwd_btn.zwd_ghost {
+            background: transparent;
+            border-color: var(--zwd_blue);
+            color: var(--zwd_blue);
+        }
+        .zwd_btn.zwd_ghost:hover { background: var(--zwd_blue); color: #fff; }
+        .zwd_btn.zwd_on {
+            background: var(--zwd_blue);
+            border-color: var(--zwd_blue);
+            color: #fff;
+        }
+        .zwd_counter {
+            margin-left: auto;
+            color: var(--zwd_muted);
+            font-size: 12px;
+        }
+
+        .zwd_notes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 30px;
+        }
+        .zwd_note {
+            padding: 18px 20px;
+            border: 1px solid var(--zwd_line);
+            border-top: 3px solid var(--zwd_blue);
+            background: var(--zwd_card);
+        }
+        .zwd_note:nth-child(2) { border-top-color: var(--zwd_coral); }
+        .zwd_note:nth-child(3) { border-top-color: var(--zwd_yellow); }
+        .zwd_note h3 {
+            margin: 0 0 6px;
+            font-size: 15px;
+        }
+        .zwd_note p {
+            margin: 0;
+            color: var(--zwd_muted);
+            font-size: 13px;
+        }
+        .zwd_note .zwd_step {
+            display: inline-block;
+            margin-bottom: 8px;
+            color: var(--zwd_coral);
+            font-family: Georgia, serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .zwd_caption {
+            margin: 26px 0 0;
+            padding-top: 16px;
+            border-top: 1px solid var(--zwd_line);
+            color: var(--zwd_muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 760px) {
+            body { padding: 26px 16px 44px; }
+            .zwd_stage { height: clamp(300px, 72vw, 420px); box-shadow: 6px 6px 0 rgba(36, 91, 114, .10); }
+            .zwd_notes { grid-template-columns: 1fr; }
+            .zwd_counter { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+<main class="zwd_page">
+    <a class="zwd_home" href="index.html"><i class="iconfont icon-shouye"></i>返回作品集目录</a>
+
+    <header class="zwd_header">
+        <p class="zwd_eyebrow">CANVAS · PARTICLE TEXT</p>
+        <h1>Canvas 粒子文字动画</h1>
+        <p>先在离屏画布上写一段文字，再把它的像素拆成数千个粒子；粒子受弹簧力牵引聚合成文字，同时会被鼠标推开。</p>
+        <span class="zwd_name">郑雯迪 · 2026-11-05</span>
+    </header>
+
+    <section aria-label="Canvas 粒子文字动画演示">
+        <div class="zwd_stage" id="zwd_stage">
+            <canvas id="zwd_canvas" role="img" aria-label="由数千个粒子聚合而成的文字：郑雯迪"></canvas>
+            <div class="zwd_hud">
+                <span><i class="zwd_dot-live"></i><strong id="zwd_stat_state">聚合中</strong></span>
+                <span>粒子 <strong id="zwd_stat_count">0</strong></span>
+                <span>FPS <strong id="zwd_stat_fps">--</strong></span>
+            </div>
+            <span class="zwd_hint">移动鼠标推开粒子 · 点击画布炸开重聚</span>
+        </div>
+
+        <div class="zwd_toolbar">
+            <button type="button" class="zwd_btn" id="zwd_btn_regroup">重新聚合</button>
+            <button type="button" class="zwd_btn zwd_ghost" id="zwd_btn_burst">炸开一次</button>
+            <button type="button" class="zwd_btn zwd_ghost zwd_on" id="zwd_btn_float">自动漂浮：开</button>
+            <span class="zwd_counter">字符「郑雯迪」由四周向中心汇聚，稳定后进入轻微漂浮状态</span>
+        </div>
+    </section>
+
+    <section class="zwd_notes" aria-label="实现原理">
+        <article class="zwd_note">
+            <span class="zwd_step">STEP 01</span>
+            <h3>离屏取样</h3>
+            <p>用离屏 canvas 绘制「郑雯迪」，再用 getImageData 逐像素读取 alpha 通道，把不透明的像素点记录为粒子的目标坐标。</p>
+        </article>
+        <article class="zwd_note">
+            <span class="zwd_step">STEP 02</span>
+            <h3>弹簧运动</h3>
+            <p>每个粒子按目标坐标计算加速度，叠加阻尼后逐帧更新位置，形成先快后慢的聚合与轻微回弹。</p>
+        </article>
+        <article class="zwd_note">
+            <span class="zwd_step">STEP 03</span>
+            <h3>交互与拖尾</h3>
+            <p>鼠标靠近时施加排斥力形成空洞；每帧用半透明底色覆盖旧画面，留下柔和的运动拖尾。</p>
+        </article>
+    </section>
+
+    <p class="zwd_caption">郑雯迪 · 高级网页设计 · Canvas 粒子文字动画（原生 JavaScript，无第三方库）</p>
+</main>
+
+<script>
+    (function () {
+        "use strict";
+
+        var zwd_canvas = document.getElementById("zwd_canvas");
+        var zwd_stage = document.getElementById("zwd_stage");
+        var zwd_ctx = zwd_canvas.getContext("2d");
+        var zwd_statCount = document.getElementById("zwd_stat_count");
+        var zwd_statFps = document.getElementById("zwd_stat_fps");
+        var zwd_statState = document.getElementById("zwd_stat_state");
+        var zwd_btnRegroup = document.getElementById("zwd_btn_regroup");
+        var zwd_btnBurst = document.getElementById("zwd_btn_burst");
+        var zwd_btnFloat = document.getElementById("zwd_btn_float");
+
+        var zwd_colors = ["#f7e2b8", "#f2c05c", "#e8a24a", "#d95d46", "#c94f3a"];
+        var zwd_particles = [];
+        var zwd_w = 0;
+        var zwd_h = 0;
+        var zwd_mouse = { x: -9999, y: -9999, on: false };
+        var zwd_autoFloat = true;
+        var zwd_startTime = 0;
+        var zwd_frames = 0;
+        var zwd_fpsClock = 0;
+        var zwd_resizeTimer = 0;
+        var zwd_lastState = "";
+
+        function zwd_fit() {
+            var zwd_rect = zwd_canvas.getBoundingClientRect();
+            var zwd_dpr = Math.min(window.devicePixelRatio || 1, 2);
+            zwd_w = Math.max(1, zwd_rect.width);
+            zwd_h = Math.max(1, zwd_rect.height);
+            zwd_canvas.width = Math.round(zwd_w * zwd_dpr);
+            zwd_canvas.height = Math.round(zwd_h * zwd_dpr);
+            zwd_ctx.setTransform(zwd_dpr, 0, 0, zwd_dpr, 0, 0);
+            zwd_ctx.fillStyle = "#101a24";
+            zwd_ctx.fillRect(0, 0, zwd_w, zwd_h);
+        }
+
+        // 离屏画布采样：把文字的不透明像素转成粒子目标点
+        function zwd_sample(step) {
+            var zwd_off = document.createElement("canvas");
+            zwd_off.width = Math.round(zwd_w);
+            zwd_off.height = Math.round(zwd_h);
+            var zwd_octx = zwd_off.getContext("2d");
+            var zwd_text = "郑雯迪";
+            var zwd_size = Math.min(zwd_h * 0.55, 300);
+            zwd_octx.fillStyle = "#ffffff";
+            zwd_octx.textAlign = "center";
+            zwd_octx.textBaseline = "middle";
+            zwd_octx.font = "900 " + zwd_size + "px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+            // 三个字较宽，按画布宽度自动缩小字号
+            var zwd_textWidth = zwd_octx.measureText(zwd_text).width;
+            var zwd_maxWidth = zwd_w * 0.8;
+            if (zwd_textWidth > zwd_maxWidth) {
+                zwd_size = zwd_size * zwd_maxWidth / zwd_textWidth;
+                zwd_octx.font = "900 " + zwd_size + "px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+            }
+            zwd_octx.fillText(zwd_text, zwd_w / 2, zwd_h * 0.5);
+
+            var zwd_img = zwd_octx.getImageData(0, 0, zwd_off.width, zwd_off.height).data;
+            var zwd_points = [];
+            var zwd_x, zwd_y;
+            for (zwd_y = 0; zwd_y < zwd_off.height; zwd_y += step) {
+                for (zwd_x = 0; zwd_x < zwd_off.width; zwd_x += step) {
+                    if (zwd_img[(zwd_y * zwd_off.width + zwd_x) * 4 + 3] > 128) {
+                        zwd_points.push({ x: zwd_x, y: zwd_y });
+                    }
+                }
+            }
+            return zwd_points;
+        }
+
+        function zwd_build(scatter) {
+            var zwd_step = 4;
+            var zwd_points = zwd_sample(zwd_step);
+            // 控制粒子总量，避免低性能设备掉帧
+            while (zwd_points.length > 4200 && zwd_step < 12) {
+                zwd_step += 1;
+                zwd_points = zwd_sample(zwd_step);
+            }
+
+            zwd_particles = zwd_points.map(function (zwd_point, zwd_i) {
+                var zwd_angle = Math.random() * Math.PI * 2;
+                var zwd_radius = Math.max(zwd_w, zwd_h) * (0.55 + Math.random() * 0.85);
+                var zwd_sx = zwd_w / 2 + Math.cos(zwd_angle) * zwd_radius;
+                var zwd_sy = zwd_h / 2 + Math.sin(zwd_angle) * zwd_radius * 0.72;
+                var zwd_ratio = zwd_point.x / zwd_w;
+                var zwd_colorIndex = Math.min(zwd_colors.length - 1, Math.floor(zwd_ratio * zwd_colors.length * 1.15));
+
+                return {
+                    x: zwd_sx,
+                    y: zwd_sy,
+                    tx: zwd_point.x,
+                    ty: zwd_point.y,
+                    vx: 0,
+                    vy: 0,
+                    r: 0.9 + Math.random() * 1.3,
+                    color: zwd_colors[zwd_colorIndex],
+                    seed: Math.random() * Math.PI * 2,
+                    speed: 0.35 + Math.random() * 0.9
+                };
+            });
+
+            zwd_statCount.textContent = zwd_particles.length.toLocaleString("en-US");
+            zwd_lastState = "";
+            if (scatter) {
+                zwd_statState.textContent = "聚合中";
+            }
+
+            // 重新随机化起点，制造从边缘飞入的效果
+            if (scatter) {
+                zwd_particles.forEach(function (zwd_p) {
+                    zwd_p.x = Math.random() * zwd_w;
+                    zwd_p.y = Math.random() * zwd_h;
+                    zwd_p.vx = (Math.random() - 0.5) * 2;
+                    zwd_p.vy = (Math.random() - 0.5) * 2;
+                });
+            }
+        }
+
+        function zwd_frame(zwd_now) {
+            if (!zwd_startTime) {
+                zwd_startTime = zwd_now;
+                zwd_fpsClock = zwd_now;
+            }
+            var zwd_time = (zwd_now - zwd_startTime) / 1000;
+
+            // 半透明覆盖形成拖尾
+            zwd_ctx.fillStyle = "rgba(16, 26, 36, 0.20)";
+            zwd_ctx.fillRect(0, 0, zwd_w, zwd_h);
+
+            var zwd_settled = 0;
+            var zwd_i, zwd_p, zwd_dx, zwd_dy, zwd_mdx, zwd_mdy, zwd_mdist, zwd_force;
+
+            for (zwd_i = 0; zwd_i < zwd_particles.length; zwd_i += 1) {
+                zwd_p = zwd_particles[zwd_i];
+                zwd_dx = zwd_p.tx - zwd_p.x;
+                zwd_dy = zwd_p.ty - zwd_p.y;
+
+                // 弹簧加速度
+                zwd_p.vx += zwd_dx * 0.016;
+                zwd_p.vy += zwd_dy * 0.016;
+
+                // 鼠标排斥
+                if (zwd_mouse.on) {
+                    zwd_mdx = zwd_p.x - zwd_mouse.x;
+                    zwd_mdy = zwd_p.y - zwd_mouse.y;
+                    zwd_mdist = Math.sqrt(zwd_mdx * zwd_mdx + zwd_mdy * zwd_mdy);
+                    if (zwd_mdist < 72 && zwd_mdist > 0.01) {
+                        zwd_force = (72 - zwd_mdist) / 72 * 5.2;
+                        zwd_p.vx += (zwd_mdx / zwd_mdist) * zwd_force;
+                        zwd_p.vy += (zwd_mdy / zwd_mdist) * zwd_force;
+                    }
+                }
+
+                // 阻尼与位置更新
+                zwd_p.vx *= 0.9;
+                zwd_p.vy *= 0.9;
+                zwd_p.x += zwd_p.vx;
+                zwd_p.y += zwd_p.vy;
+
+                if (Math.abs(zwd_dx) < 2 && Math.abs(zwd_dy) < 2) {
+                    zwd_settled += 1;
+                }
+
+                var zwd_wobble = zwd_autoFloat ? Math.sin(zwd_time * zwd_p.speed + zwd_p.seed) * 0.8 : 0;
+                zwd_ctx.beginPath();
+                zwd_ctx.globalAlpha = 0.55 + Math.random() * 0.35;
+                zwd_ctx.fillStyle = zwd_p.color;
+                zwd_ctx.arc(zwd_p.x + zwd_wobble, zwd_p.y + zwd_wobble * 0.6, zwd_p.r, 0, Math.PI * 2);
+                zwd_ctx.fill();
+            }
+            zwd_ctx.globalAlpha = 1;
+
+            // 边缘暗角
+            var zwd_vignette = zwd_ctx.createRadialGradient(
+                zwd_w / 2, zwd_h / 2, Math.min(zwd_w, zwd_h) * 0.3,
+                zwd_w / 2, zwd_h / 2, Math.max(zwd_w, zwd_h) * 0.75
+            );
+            zwd_vignette.addColorStop(0, "rgba(5, 10, 16, 0)");
+            zwd_vignette.addColorStop(1, "rgba(5, 10, 16, 0.55)");
+            zwd_ctx.fillStyle = zwd_vignette;
+            zwd_ctx.fillRect(0, 0, zwd_w, zwd_h);
+
+            var zwd_state = zwd_settled > zwd_particles.length * 0.92 ? "聚合完成" : "聚合中";
+            if (zwd_state !== zwd_lastState) {
+                zwd_statState.textContent = zwd_state;
+                zwd_lastState = zwd_state;
+            }
+
+            zwd_frames += 1;
+            if (zwd_now - zwd_fpsClock >= 1000) {
+                zwd_statFps.textContent = Math.round(zwd_frames * 1000 / (zwd_now - zwd_fpsClock));
+                zwd_frames = 0;
+                zwd_fpsClock = zwd_now;
+            }
+
+            requestAnimationFrame(zwd_frame);
+        }
+
+        function zwd_pointerPos(zwd_event) {
+            var zwd_rect = zwd_canvas.getBoundingClientRect();
+            return {
+                x: zwd_event.clientX - zwd_rect.left,
+                y: zwd_event.clientY - zwd_rect.top
+            };
+        }
+
+        // 以某个坐标为中心向外炸开
+        function zwd_burst(zwd_cx, zwd_cy, zwd_power) {
+            zwd_particles.forEach(function (zwd_p) {
+                var zwd_bdx = zwd_p.x - zwd_cx;
+                var zwd_bdy = zwd_p.y - zwd_cy;
+                var zwd_bdist = Math.sqrt(zwd_bdx * zwd_bdx + zwd_bdy * zwd_bdy) || 1;
+                var zwd_factor = Math.min(1, 300 / zwd_bdist) * zwd_power;
+                zwd_p.vx += (zwd_bdx / zwd_bdist) * zwd_factor;
+                zwd_p.vy += (zwd_bdy / zwd_bdist) * zwd_factor;
+            });
+            zwd_statState.textContent = "扩散中";
+            zwd_lastState = "扩散中";
+        }
+
+        zwd_canvas.addEventListener("pointermove", function (zwd_event) {
+            var zwd_pos = zwd_pointerPos(zwd_event);
+            zwd_mouse.x = zwd_pos.x;
+            zwd_mouse.y = zwd_pos.y;
+            zwd_mouse.on = true;
+        });
+
+        zwd_canvas.addEventListener("pointerleave", function () {
+            zwd_mouse.on = false;
+        });
+
+        zwd_canvas.addEventListener("pointerdown", function (zwd_event) {
+            var zwd_pos = zwd_pointerPos(zwd_event);
+            zwd_burst(zwd_pos.x, zwd_pos.y, 24);
+        });
+
+        zwd_btnRegroup.addEventListener("click", function () {
+            zwd_build(true);
+            zwd_statState.textContent = "聚合中";
+            zwd_lastState = "聚合中";
+        });
+
+        zwd_btnBurst.addEventListener("click", function () {
+            zwd_burst(zwd_w / 2, zwd_h / 2, 30);
+        });
+
+        zwd_btnFloat.addEventListener("click", function () {
+            zwd_autoFloat = !zwd_autoFloat;
+            zwd_btnFloat.textContent = "自动漂浮：" + (zwd_autoFloat ? "开" : "关");
+            zwd_btnFloat.classList.toggle("zwd_on", zwd_autoFloat);
+        });
+
+        var zwd_resizeObserver = new ResizeObserver(function () {
+            clearTimeout(zwd_resizeTimer);
+            zwd_resizeTimer = setTimeout(function () {
+                zwd_fit();
+                zwd_build(true);
+            }, 180);
+        });
+        zwd_resizeObserver.observe(zwd_stage);
+
+        zwd_fit();
+        zwd_build(true);
+        requestAnimationFrame(zwd_frame);
+    })();
+</script>
+</body>
+</html>

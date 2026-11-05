@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+    姓名：郑雯迪
+    日期：2026-11-05
+    功能名称：使用本地 ECharts 实现两个图表：Les Misérables 环形关系图与三城空气质量平行坐标图
+    -->
+    <title>18-4 ECharts 关系图与平行坐标图</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        :root {
+            --zwd_ink: #17212b;
+            --zwd_muted: #65727d;
+            --zwd_paper: #f5f1e8;
+            --zwd_card: #fffdf8;
+            --zwd_line: #dcd5c8;
+            --zwd_coral: #d95d46;
+            --zwd_blue: #245b72;
+            --zwd_yellow: #f2c05c;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 36px 20px 56px;
+            background: var(--zwd_paper);
+            color: var(--zwd_ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+        .zwd_page { max-width: 1180px; margin: 0 auto; }
+
+        .zwd_home {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--zwd_blue);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .zwd_home:hover { text-decoration: underline; }
+        .zwd_home .iconfont { font-size: 15px; }
+
+        .zwd_header { margin: 22px 0 26px; }
+        .zwd_eyebrow {
+            margin: 0 0 8px;
+            color: var(--zwd_coral);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+        .zwd_header h1 {
+            margin: 0 0 10px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(28px, 4vw, 44px);
+            line-height: 1.2;
+        }
+        .zwd_header p {
+            margin: 0;
+            max-width: 800px;
+            color: var(--zwd_muted);
+            font-size: 15px;
+        }
+        .zwd_header .zwd_name {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 4px 14px;
+            background: var(--zwd_blue);
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .zwd_card {
+            margin-bottom: 28px;
+            padding: 22px 24px 16px;
+            border: 1px solid var(--zwd_line);
+            background: var(--zwd_card);
+            box-shadow: 10px 10px 0 rgba(36, 91, 114, .06);
+        }
+        .zwd_card-dark {
+            border-color: #3d3d3d;
+            background: #2b2b2b;
+            box-shadow: 10px 10px 0 rgba(23, 33, 43, .18);
+        }
+        .zwd_card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 12px;
+        }
+        .zwd_card-head h2 {
+            margin: 0 0 4px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 22px;
+            line-height: 1.3;
+        }
+        .zwd_card-head p { margin: 0; color: var(--zwd_muted); font-size: 13px; }
+        .zwd_card-dark .zwd_card-head h2 { color: #fff; }
+        .zwd_card-dark .zwd_card-head p { color: #b8b8b8; }
+        .zwd_source {
+            flex: 0 0 auto;
+            padding-top: 4px;
+            color: var(--zwd_blue);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .zwd_card-dark .zwd_source { color: #9fc7d6; }
+
+        .zwd_chart {
+            width: 100%;
+            height: 660px;
+            border: 1px solid #ece4d7;
+            background: #fffdf8;
+        }
+        .zwd_chart-parallel {
+            height: 560px;
+            border-color: #444;
+            background: #333;
+        }
+
+        .zwd_footnote {
+            margin: 8px 0 0;
+            padding-top: 14px;
+            border-top: 1px solid var(--zwd_line);
+            color: var(--zwd_muted);
+            font-size: 12px;
+        }
+        .zwd_caption {
+            margin: 30px 0 0;
+            padding-top: 16px;
+            border-top: 1px solid var(--zwd_line);
+            color: var(--zwd_muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 760px) {
+            body { padding: 26px 16px 44px; }
+            .zwd_card { padding: 16px 14px 10px; box-shadow: 6px 6px 0 rgba(36, 91, 114, .06); }
+            .zwd_card-head { flex-direction: column; gap: 4px; }
+            .zwd_chart { height: 520px; }
+            .zwd_chart-parallel { height: 480px; }
+        }
+    </style>
+</head>
+<body>
+<main class="zwd_page">
+    <a class="zwd_home" href="index.html"><i class="iconfont icon-shouye"></i>返回作品集目录</a>
+
+    <header class="zwd_header">
+        <p class="zwd_eyebrow">ECHARTS · DATA VISUALIZATION</p>
+        <h1>ECharts 关系图与平行坐标图</h1>
+        <p>第一个图表把《悲惨世界》的人物关系按环形布局展开，支持拖拽与缩放；第二个图表用平行坐标对比北京、上海、广州一个月的空气质量指标。</p>
+        <span class="zwd_name">郑雯迪 · 2026-11-05</span>
+    </header>
+
+    <section class="zwd_card" aria-labelledby="zwd_graph-title">
+        <div class="zwd_card-head">
+            <div>
+                <h2 id="zwd_graph-title">Les Misérables 人物关系图</h2>
+                <p>graph 系列 · circular 布局 · 节点标签随扇区旋转 · 支持 roam 缩放平移</p>
+            </div>
+            <span class="zwd_source" id="zwd_graph_source">正在加载关系数据…</span>
+        </div>
+        <div class="zwd_chart" id="zwd_chart_graph" role="img" aria-label="Les Miserables 人物关系环形布局图"></div>
+    </section>
+
+    <section class="zwd_card zwd_card-dark" aria-labelledby="zwd_parallel-title">
+        <div class="zwd_card-head">
+            <div>
+                <h2 id="zwd_parallel-title">三城空气质量 · 平行坐标图</h2>
+                <p>parallel 系列 · 8 个维度（日期 / AQI / PM2.5 / PM10 / CO / NO2 / SO2 / 等级）</p>
+            </div>
+            <span class="zwd_source">数据量：31 天 × 3 城市</span>
+        </div>
+        <div class="zwd_chart zwd_chart-parallel" id="zwd_chart_parallel" role="img" aria-label="北京、上海、广州空气质量平行坐标图"></div>
+        <p class="zwd_footnote" style="border-top-color:#444;color:#b8b8b8;">提示：鼠标悬停折线可查看具体数值；颜色由 visualMap 按 PM2.5 维度映射。横轴从左到右依次为日期、AQI、PM2.5、PM10、CO、NO2、SO2 与污染等级。</p>
+    </section>
+
+    <p class="zwd_caption">郑雯迪 · 高级网页设计 · ECharts 双图演示（依赖文件存放于 cdn 目录，页面不引用远程 CDN）</p>
+</main>
+
+<script src="cdn/jquery.min.js"></script>
+<script src="cdn/echarts.min.js"></script>
+<script src="cdn/les-miserables.js"></script>
+<script>
+    (function () {
+        "use strict";
+
+        var ROOT_PATH = "cdn";
+        var zwd_graphChart = echarts.init(document.getElementById("zwd_chart_graph"));
+        var zwd_parallelChart = echarts.init(document.getElementById("zwd_chart_parallel"));
+        var zwd_graphSource = document.getElementById("zwd_graph_source");
+
+        function zwd_renderGraph(zwd_graph, zwd_sourceText) {
+            zwd_graphChart.hideLoading();
+            zwd_graph.nodes.forEach(function (zwd_node) {
+                zwd_node.label = {
+                    show: zwd_node.symbolSize > 30
+                };
+            });
+
+            var zwdGraphOption = {
+                title: {
+                    text: "Les Miserables",
+                    subtext: "Circular layout",
+                    top: "bottom",
+                    left: "right"
+                },
+                tooltip: {},
+                legend: [
+                    {
+                        data: zwd_graph.categories.map(function (zwd_category) {
+                            return zwd_category.name;
+                        })
+                    }
+                ],
+                animationDurationUpdate: 1500,
+                animationEasingUpdate: "quinticInOut",
+                series: [
+                    {
+                        name: "Les Miserables",
+                        type: "graph",
+                        layout: "circular",
+                        circular: {
+                            rotateLabel: true
+                        },
+                        data: zwd_graph.nodes,
+                        links: zwd_graph.links,
+                        categories: zwd_graph.categories,
+                        roam: true,
+                        label: {
+                            position: "right",
+                            formatter: "{b}"
+                        },
+                        lineStyle: {
+                            color: "source",
+                            curveness: 0.3
+                        }
+                    }
+                ]
+            };
+
+            zwd_graphChart.setOption(zwdGraphOption);
+            zwd_graphSource.textContent = zwd_sourceText;
+        }
+
+        // 优先请求 cdn 目录下的 JSON；直接双击打开页面时受 file:// 限制，自动改用本地数据脚本
+        zwd_graphChart.showLoading();
+        $.getJSON(ROOT_PATH + "/les-miserables.json", function (zwd_graph) {
+            zwd_renderGraph(zwd_graph, "数据来源：cdn/les-miserables.json");
+        }).fail(function () {
+            zwd_graphChart.hideLoading();
+            if (window.zwd_lesMiserables) {
+                zwd_renderGraph(window.zwd_lesMiserables, "数据来源：本地数据（file:// 下自动切换）");
+            } else {
+                zwd_graphSource.textContent = "关系数据加载失败";
+            }
+        });
+
+        var zwd_dataBJ = [
+            [1, 55, 9, 56, 0.46, 18, 6, '良'],
+            [2, 25, 11, 21, 0.65, 34, 9, '优'],
+            [3, 56, 7, 63, 0.3, 14, 5, '良'],
+            [4, 33, 7, 29, 0.33, 16, 6, '优'],
+            [5, 42, 24, 44, 0.76, 40, 16, '优'],
+            [6, 82, 58, 90, 1.77, 68, 33, '良'],
+            [7, 74, 49, 77, 1.46, 48, 27, '良'],
+            [8, 78, 55, 80, 1.29, 59, 29, '良'],
+            [9, 267, 216, 280, 4.8, 108, 64, '重度污染'],
+            [10, 185, 127, 216, 2.52, 61, 27, '中度污染'],
+            [11, 39, 19, 38, 0.57, 31, 15, '优'],
+            [12, 41, 11, 40, 0.43, 21, 7, '优'],
+            [13, 64, 38, 74, 1.04, 46, 22, '良'],
+            [14, 108, 79, 120, 1.7, 75, 41, '轻度污染'],
+            [15, 108, 63, 116, 1.48, 44, 26, '轻度污染'],
+            [16, 33, 6, 29, 0.34, 13, 5, '优'],
+            [17, 94, 66, 110, 1.54, 62, 31, '良'],
+            [18, 186, 142, 192, 3.88, 93, 79, '中度污染'],
+            [19, 57, 31, 54, 0.96, 32, 14, '良'],
+            [20, 22, 8, 17, 0.48, 23, 10, '优'],
+            [21, 39, 15, 36, 0.61, 29, 13, '优'],
+            [22, 94, 69, 114, 2.08, 73, 39, '良'],
+            [23, 99, 73, 110, 2.43, 76, 48, '良'],
+            [24, 31, 12, 30, 0.5, 32, 16, '优'],
+            [25, 42, 27, 43, 1, 53, 22, '优'],
+            [26, 154, 117, 157, 3.05, 92, 58, '中度污染'],
+            [27, 234, 185, 230, 4.09, 123, 69, '重度污染'],
+            [28, 160, 120, 186, 2.77, 91, 50, '中度污染'],
+            [29, 134, 96, 165, 2.76, 83, 41, '轻度污染'],
+            [30, 52, 24, 60, 1.03, 50, 21, '良'],
+            [31, 46, 5, 49, 0.28, 10, 6, '优']
+        ];
+
+        var zwd_dataGZ = [
+            [1, 26, 37, 27, 1.163, 27, 13, '优'],
+            [2, 85, 62, 71, 1.195, 60, 8, '良'],
+            [3, 78, 38, 74, 1.363, 37, 7, '良'],
+            [4, 21, 21, 36, 0.634, 40, 9, '优'],
+            [5, 41, 42, 46, 0.915, 81, 13, '优'],
+            [6, 56, 52, 69, 1.067, 92, 16, '良'],
+            [7, 64, 30, 28, 0.924, 51, 2, '良'],
+            [8, 55, 48, 74, 1.236, 75, 26, '良'],
+            [9, 76, 85, 113, 1.237, 114, 27, '良'],
+            [10, 91, 81, 104, 1.041, 56, 40, '良'],
+            [11, 84, 39, 60, 0.964, 25, 11, '良'],
+            [12, 64, 51, 101, 0.862, 58, 23, '良'],
+            [13, 70, 69, 120, 1.198, 65, 36, '良'],
+            [14, 77, 105, 178, 2.549, 64, 16, '良'],
+            [15, 109, 68, 87, 0.996, 74, 29, '轻度污染'],
+            [16, 73, 68, 97, 0.905, 51, 34, '良'],
+            [17, 54, 27, 47, 0.592, 53, 12, '良'],
+            [18, 51, 61, 97, 0.811, 65, 19, '良'],
+            [19, 91, 71, 121, 1.374, 43, 18, '良'],
+            [20, 73, 102, 182, 2.787, 44, 19, '良'],
+            [21, 73, 50, 76, 0.717, 31, 20, '良'],
+            [22, 84, 94, 140, 2.238, 68, 18, '良'],
+            [23, 93, 77, 104, 1.165, 53, 7, '良'],
+            [24, 99, 130, 227, 3.97, 55, 15, '良'],
+            [25, 146, 84, 139, 1.094, 40, 17, '轻度污染'],
+            [26, 113, 108, 137, 1.481, 48, 15, '轻度污染'],
+            [27, 81, 48, 62, 1.619, 26, 3, '良'],
+            [28, 56, 48, 68, 1.336, 37, 9, '良'],
+            [29, 82, 92, 174, 3.29, 0, 13, '良'],
+            [30, 106, 116, 188, 3.628, 101, 16, '轻度污染'],
+            [31, 118, 50, 0, 1.383, 76, 11, '轻度污染']
+        ];
+
+        var zwd_dataSH = [
+            [1, 91, 45, 125, 0.82, 34, 23, '良'],
+            [2, 65, 27, 78, 0.86, 45, 29, '良'],
+            [3, 83, 60, 84, 1.09, 73, 27, '良'],
+            [4, 109, 81, 121, 1.28, 68, 51, '轻度污染'],
+            [5, 106, 77, 114, 1.07, 55, 51, '轻度污染'],
+            [6, 109, 81, 121, 1.28, 68, 51, '轻度污染'],
+            [7, 106, 77, 114, 1.07, 55, 51, '轻度污染'],
+            [8, 89, 65, 78, 0.86, 51, 26, '良'],
+            [9, 53, 33, 47, 0.64, 50, 17, '良'],
+            [10, 80, 55, 80, 1.01, 75, 24, '良'],
+            [11, 117, 81, 124, 1.03, 45, 24, '轻度污染'],
+            [12, 99, 71, 142, 1.1, 62, 42, '良'],
+            [13, 95, 69, 130, 1.28, 74, 50, '良'],
+            [14, 116, 87, 131, 1.47, 84, 40, '轻度污染'],
+            [15, 108, 80, 121, 1.3, 85, 37, '轻度污染'],
+            [16, 134, 83, 167, 1.16, 57, 43, '轻度污染'],
+            [17, 79, 43, 107, 1.05, 59, 37, '良'],
+            [18, 71, 46, 89, 0.86, 64, 25, '良'],
+            [19, 97, 71, 113, 1.17, 88, 31, '良'],
+            [20, 84, 57, 91, 0.85, 55, 31, '良'],
+            [21, 87, 63, 101, 0.9, 56, 41, '良'],
+            [22, 104, 77, 119, 1.09, 73, 48, '轻度污染'],
+            [23, 87, 62, 100, 1, 72, 28, '良'],
+            [24, 168, 128, 172, 1.49, 97, 56, '中度污染'],
+            [25, 65, 45, 51, 0.74, 39, 17, '良'],
+            [26, 39, 24, 38, 0.61, 47, 17, '优'],
+            [27, 39, 24, 39, 0.59, 50, 19, '优'],
+            [28, 93, 68, 96, 1.05, 79, 29, '良'],
+            [29, 188, 143, 197, 1.66, 99, 51, '中度污染'],
+            [30, 174, 131, 174, 1.55, 108, 50, '中度污染'],
+            [31, 187, 143, 201, 1.39, 89, 53, '中度污染']
+        ];
+
+        var zwd_schema = [
+            { name: 'date', index: 0, text: '日期' },
+            { name: 'AQIindex', index: 1, text: 'AQI' },
+            { name: 'PM25', index: 2, text: 'PM2.5' },
+            { name: 'PM10', index: 3, text: 'PM10' },
+            { name: 'CO', index: 4, text: ' CO' },
+            { name: 'NO2', index: 5, text: 'NO2' },
+            { name: 'SO2', index: 6, text: 'SO2' },
+            { name: '等级', index: 7, text: '等级' }
+        ];
+
+        var zwd_lineStyle = {
+            width: 1,
+            opacity: 0.5
+        };
+
+        var zwdParallelOption = {
+            backgroundColor: '#333',
+            legend: {
+                bottom: 30,
+                data: ['Beijing', 'Shanghai', 'Guangzhou'],
+                itemGap: 20,
+                textStyle: {
+                    color: '#fff',
+                    fontSize: 14
+                }
+            },
+            tooltip: {
+                padding: 10,
+                backgroundColor: '#222',
+                borderColor: '#777',
+                borderWidth: 1
+            },
+            parallelAxis: [
+                {
+                    dim: 0,
+                    name: zwd_schema[0].text,
+                    inverse: true,
+                    max: 31,
+                    nameLocation: 'start'
+                },
+                { dim: 1, name: zwd_schema[1].text },
+                { dim: 2, name: zwd_schema[2].text },
+                { dim: 3, name: zwd_schema[3].text },
+                { dim: 4, name: zwd_schema[4].text },
+                { dim: 5, name: zwd_schema[5].text },
+                { dim: 6, name: zwd_schema[6].text },
+                {
+                    dim: 7,
+                    name: zwd_schema[7].text,
+                    type: 'category',
+                    data: ['优', '良', '轻度污染', '中度污染', '重度污染', '严重污染']
+                }
+            ],
+            visualMap: {
+                show: true,
+                min: 0,
+                max: 150,
+                dimension: 2,
+                inRange: {
+                    color: ['#d94e5d', '#eac736', '#50a3ba'].reverse()
+                }
+            },
+            parallel: {
+                left: '5%',
+                right: '18%',
+                bottom: 100,
+                parallelAxisDefault: {
+                    type: 'value',
+                    name: 'AQI指数',
+                    nameLocation: 'end',
+                    nameGap: 20,
+                    nameTextStyle: {
+                        color: '#fff',
+                        fontSize: 12
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#aaa'
+                        }
+                    },
+                    axisTick: {
+                        lineStyle: {
+                            color: '#777'
+                        }
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    axisLabel: {
+                        color: '#fff'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Beijing',
+                    type: 'parallel',
+                    lineStyle: zwd_lineStyle,
+                    data: zwd_dataBJ
+                },
+                {
+                    name: 'Shanghai',
+                    type: 'parallel',
+                    lineStyle: zwd_lineStyle,
+                    data: zwd_dataSH
+                },
+                {
+                    name: 'Guangzhou',
+                    type: 'parallel',
+                    lineStyle: zwd_lineStyle,
+                    data: zwd_dataGZ
+                }
+            ]
+        };
+
+        zwd_parallelChart.setOption(zwdParallelOption);
+
+        window.addEventListener("resize", function () {
+            zwd_graphChart.resize();
+            zwd_parallelChart.resize();
+        });
+    })();
+</script>
+</body>
+</html>
